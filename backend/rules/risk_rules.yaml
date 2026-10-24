@@ -1,0 +1,32 @@
+# Synthetic Risk Rules for Entra NHI & OAuth Auditor
+rules:
+  - id: "RULE-001"
+    name: "Excessive Application Permissions"
+    severity: "CRITICAL"
+    description: "Application has broad tenant-wide permissions without user interaction (e.g. Directory.ReadWrite.All)."
+    remediation: "Scope down application permissions to least-privilege or delegated permissions where possible."
+
+  - id: "RULE-002"
+    name: "Expiring or Stale Client Secrets"
+    severity: "HIGH"
+    description: "Client secrets valid for more than 180 days or approaching expiration within 14 days."
+    remediation: "Rotate credentials immediately and configure automated key vault secret rotation."
+
+  - id: "RULE-003"
+    name: "Unused / Inactive Service Principal"
+    severity: "MEDIUM"
+    description: "No sign-in activity detected in the past 90 days while possessing active OAuth credentials."
+    remediation: "Disable or de-provision the service principal if it is no longer required."
+
+  - id: "RULE-004"
+    name: "High Privilege Mail Scope"
+    severity: "CRITICAL"
+    description: "Identity possesses Mail.ReadWrite or Mail.Send application permission enabling broad mailbox compromise."
+    remediation: "Restrict access using Application Access Policies in Exchange Online."
+
+  - id: "RULE-005"
+    name: "Missing Owner Assignment"
+    severity: "LOW"
+    description: "App registration does not have an assigned technical or business owner."
+    remediation: "Assign at least two active owners to ensure proper governance and periodic access reviews."
+
