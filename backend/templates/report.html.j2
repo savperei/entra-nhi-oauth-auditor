@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NHI OAuth Auditor — Risk Report</title>
+  <style>
+    /* Reset & Base Typography */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      line-height: 1.5;
+      padding: 2.5rem 1.5rem;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    /* 1. HEADER SECTION */
+    .report-header {
+      padding: 2rem 2.5rem;
+      border-bottom: 1px solid #E2E8F0;
+      background: linear-gradient(to right, #FFFFFF, #F8FAFC);
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-title-group h1 {
+      font-size: 1.625rem;
+      font-weight: 700;
+      color: #0F172A;
+      letter-spacing: -0.025em;
+    }
+    .header-meta {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #64748B;
+    }
+    .header-meta span.separator {
+      margin: 0 0.5rem;
+      color: #CBD5E1;
+    }
+    .badge-amber {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.875rem;
+      background-color: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #FCD34D;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-amber::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #D97706;
+    }
+
+    /* SECTION LAYOUT */
+    .section {
+      padding: 2rem 2.5rem;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .section:last-of-type {
+      border-bottom: none;
+    }
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1E293B;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* 2. EXECUTIVE SUMMARY */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+    .metric-box {
+      border-radius: 8px;
+      padding: 1.25rem;
+      border-width: 1px;
+      border-style: solid;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .metric-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .metric-count {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .metric-desc {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .metric-critical {
+      background-color: #FEF2F2;
+      border-color: #FECACA;
+      color: #991B1B;
+    }
+    .metric-critical .metric-count { color: #DC2626; }
+    .metric-critical .metric-desc { color: #B91C1C; }
+
+    .metric-high {
+      background-color: #FFFBEB;
+      border-color: #FDE68A;
+      color: #92400E;
+    }
+    .metric-high .metric-count { color: #D97706; }
+    .metric-high .metric-desc { color: #B45309; }
+
+    .metric-medium {
+      background-color: #FEFCE8;
+      border-color: #FEF08A;
+      color: #854D0E;
+    }
+    .metric-medium .metric-count { color: #CA8A04; }
+    .metric-medium .metric-desc { color: #A16207; }
+
+    .metric-low {
+      background-color: #F0FDF4;
+      border-color: #BBF7D0;
+      color: #166534;
+    }
+    .metric-low .metric-count { color: #16A34A; }
+    .metric-low .metric-desc { color: #15803D; }
+
+    /* 3. RISK FINDINGS TABLE */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+    th {
+      background-color: #F8FAFC;
+      color: #475569;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #E2E8F0;
+      white-space: nowrap;
+    }
+    td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid #F1F5F9;
+      color: #1E293B;
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background-color: #FAFAFA;
+    }
+    .identity-name {
+      font-weight: 600;
+      color: #0F172A;
+    }
+    .identity-type-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: #475569;
+      background: #F1F5F9;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    /* Risk Level Cell Styling */
+    .cell-critical {
+      background-color: #FEE2E2 !important;
+      color: #991B1B;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .cell-high {
+      background-color: #FEF3C7 !important;
+      color: #92400E;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .cell-medium {
+      background-color: #FEF9C3 !important;
+      color: #854D0E;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .cell-low {
+      background-color: #F0FDF4 !important;
+      color: #166534;
+      font-weight: 600;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .cell-none {
+      background-color: #F8FAFC !important;
+      color: #64748B;
+      font-weight: 500;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .score-badge {
+      font-family: ui-monospace, monospace;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: #0F172A;
+    }
+    .top-finding-text {
+      color: #475569;
+      max-width: 380px;
+      line-height: 1.4;
+    }
+
+    /* 4. PER-IDENTITY DETAIL (Collapsible details/summary) */
+    .identity-accordion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    details.identity-card {
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      background: #FFFFFF;
+      transition: all 0.2s ease;
+      overflow: hidden;
+    }
+    details.identity-card[open] {
+      border-color: #CBD5E1;
+      box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    }
+    summary.identity-summary {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      user-select: none;
+      background: #FFFFFF;
+      transition: background-color 0.15s ease;
+      list-style: none;
+    }
+    summary.identity-summary::-webkit-details-marker {
+      display: none;
+    }
+    summary.identity-summary:hover {
+      background: #F8FAFC;
+    }
+    .summary-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .chevron-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: #64748B;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    details[open] .chevron-icon {
+      transform: rotate(90deg);
+    }
+    .summary-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .pill-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+    .pill-critical { background: #FEE2E2; color: #991B1B; }
+    .pill-high { background: #FEF3C7; color: #92400E; }
+    .pill-medium { background: #FEF9C3; color: #854D0E; }
+    .pill-low { background: #F0FDF4; color: #166534; }
+    .pill-none { background: #F1F5F9; color: #64748B; }
+
+    /* Expanded Content */
+    .identity-expanded-content {
+      padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+      border-top: 1px solid #E2E8F0;
+      background-color: #FAFAFA;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .sub-section-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #475569;
+      margin-bottom: 0.625rem;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .nested-table {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+    }
+    .nested-table th {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      background: #F1F5F9;
+    }
+    .nested-table td {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+    }
+    .badge-high-risk {
+      background-color: #FEE2E2;
+      color: #DC2626;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid #FCA5A5;
+      text-transform: uppercase;
+      margin-left: 0.375rem;
+    }
+
+    /* Findings List */
+    .findings-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .finding-card-item {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-left: 4px solid #DC2626;
+      border-radius: 6px;
+      padding: 0.875rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+    .finding-card-item.sev-HIGH {
+      border-left-color: #D97706;
+    }
+    .finding-card-item.sev-MEDIUM {
+      border-left-color: #CA8A04;
+    }
+    .finding-card-item.sev-LOW {
+      border-left-color: #16A34A;
+    }
+    .finding-header-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .finding-rule-id {
+      font-family: ui-monospace, monospace;
+      font-weight: 700;
+      font-size: 0.75rem;
+      background: #F1F5F9;
+      color: #334155;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+    .finding-rule-name {
+      font-weight: 600;
+      color: #1E293B;
+      font-size: 0.875rem;
+    }
+    .finding-evidence {
+      font-size: 0.8125rem;
+      color: #475569;
+      background: #F8FAFC;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      border: 1px dashed #CBD5E1;
+      font-family: ui-monospace, monospace;
+    }
+    .finding-remediation {
+      font-size: 0.8125rem;
+      color: #0F766E;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.375rem;
+      margin-top: 0.25rem;
+    }
+    .empty-state {
+      color: #94A3B8;
+      font-size: 0.8125rem;
+      font-style: italic;
+      padding: 0.5rem 0;
+    }
+
+    /* 5. FOOTER SECTION */
+    .report-footer {
+      padding: 1.5rem 2.5rem;
+      background: #F8FAFC;
+      border-top: 1px solid #E2E8F0;
+      text-align: center;
+      font-size: 0.8125rem;
+      color: #64748B;
+      line-height: 1.6;
+    }
+    .report-footer strong {
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- 1. HEADER -->
+    <header class="report-header">
+      <div class="header-top">
+        <div class="header-title-group">
+          <h1>NHI OAuth Auditor — Risk Report</h1>
+          <div class="header-meta">
+            <span>Generated: <strong>{{ timestamp }}</strong></span>
+            <span class="separator">|</span>
+            <span>Run ID: <strong>{{ run_id }}</strong></span>
+          </div>
+        </div>
+        <div class="badge-amber">SYNTHETIC DATA</div>
+      </div>
+    </header>
+
+    <!-- 2. EXECUTIVE SUMMARY -->
+    <section class="section">
+      <h2 class="section-title">Executive Summary</h2>
+      <div class="summary-grid">
+        <div class="metric-box metric-critical">
+          <span class="metric-label">Critical</span>
+          <span class="metric-count">{{ summary.critical or 0 }}</span>
+          <span class="metric-desc">Immediate action required</span>
+        </div>
+        <div class="metric-box metric-high">
+          <span class="metric-label">High</span>
+          <span class="metric-count">{{ summary.high or 0 }}</span>
+          <span class="metric-desc">Urgent review needed</span>
+        </div>
+        <div class="metric-box metric-medium">
+          <span class="metric-label">Medium</span>
+          <span class="metric-count">{{ summary.medium or 0 }}</span>
+          <span class="metric-desc">Scheduled mitigation</span>
+        </div>
+        <div class="metric-box metric-low">
+          <span class="metric-label">Low</span>
+          <span class="metric-count">{{ summary.low or 0 }}</span>
+          <span class="metric-desc">Informational / low risk</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. RISK FINDINGS TABLE -->
+    <section class="section">
+      <h2 class="section-title">Risk Findings by Identity</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Identity</th>
+              <th>Type</th>
+              <th style="text-align: center;">Risk Level</th>
+              <th style="text-align: center;">Score</th>
+              <th>Top Finding</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in identities %}
+            {% set lvl = (item.risk_level or "None") | lower %}
+            <tr>
+              <td>
+                <div class="identity-name">{{ item.display_name }}</div>
+              </td>
+              <td>
+                <span class="identity-type-badge">{{ item.identity_type }}</span>
+              </td>
+              <td class="{% if lvl == 'critical' %}cell-critical{% elif lvl == 'high' %}cell-high{% elif lvl == 'medium' %}cell-medium{% elif lvl == 'low' %}cell-low{% else %}cell-none{% endif %}">
+                {{ item.risk_level }}
+              </td>
+              <td style="text-align: center;">
+                <span class="score-badge">{{ item.risk_score }}</span>
+              </td>
+              <td>
+                <div class="top-finding-text">{{ item.top_finding or "No active risk findings" }}</div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. PER-IDENTITY DETAIL (Collapsible) -->
+    <section class="section">
+      <h2 class="section-title">Per-Identity Detail &amp; Remediation</h2>
+      <div class="identity-accordion-list">
+        {% for item in identities %}
+        {% set lvl = (item.risk_level or "None") | lower %}
+        <details class="identity-card" {% if lvl == 'critical' %}open{% endif %}>
+          <summary class="identity-summary">
+            <div class="summary-left">
+              <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span class="identity-name">{{ item.display_name }}</span>
+              <span class="identity-type-badge">{{ item.identity_type }}</span>
+            </div>
+            <div class="summary-right">
+              <span class="score-badge">Score: {{ item.risk_score }}</span>
+              <span class="pill-badge {% if lvl == 'critical' %}pill-critical{% elif lvl == 'high' %}pill-high{% elif lvl == 'medium' %}pill-medium{% elif lvl == 'low' %}pill-low{% else %}pill-none{% endif %}">
+                {{ item.risk_level }}
+              </span>
+            </div>
+          </summary>
+
+          <div class="identity-expanded-content">
+            <!-- Credentials Table -->
+            <div>
+              <div class="sub-section-title">Credentials ({{ item.credentials | length }})</div>
+              {% if item.credentials %}
+              <div class="nested-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name / ID</th>
+                      <th>Expires</th>
+                      <th>Days Left</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cred in item.credentials %}
+                    <tr>
+                      <td><strong>{{ cred.name }}</strong></td>
+                      <td>{{ cred.expires }}</td>
+                      <td>{{ cred.days_left }}</td>
+                      <td>{{ cred.status }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="empty-state">No credentials configured for this identity.</div>
+              {% endif %}
+            </div>
+
+            <!-- Permissions Table -->
+            <div>
+              <div class="sub-section-title">Permissions ({{ item.permissions | length }})</div>
+              {% if item.permissions %}
+              <div class="nested-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scope / Role</th>
+                      <th>Type</th>
+                      <th>Risk Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for perm in item.permissions %}
+                    <tr>
+                      <td><code>{{ perm.scope }}</code></td>
+                      <td>{{ perm.type }}</td>
+                      <td>
+                        {% if perm.is_high_risk %}
+                        <span class="badge-high-risk">HIGH RISK</span>
+                        {% else %}
+                        <span style="color: #64748B; font-size: 0.75rem;">Standard</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="empty-state">No permissions assigned.</div>
+              {% endif %}
+            </div>
+
+            <!-- Findings List -->
+            <div>
+              <div class="sub-section-title">Risk Findings ({{ item.findings | length }})</div>
+              {% if item.findings %}
+              <ul class="findings-list">
+                {% for finding in item.findings %}
+                <li class="finding-card-item sev-{{ finding.severity }}">
+                  <div class="finding-header-row">
+                    <span class="finding-rule-id">{{ finding.rule_id }}</span>
+                    <span class="finding-rule-name">{{ finding.rule_name }}</span>
+                  </div>
+                  <div class="finding-evidence">{{ finding.evidence }}</div>
+                  {% if finding.remediation %}
+                  <div class="finding-remediation">
+                    <span><strong>Remediation:</strong> {{ finding.remediation }}</span>
+                  </div>
+                  {% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <div class="empty-state" style="color: #16A34A;">No risk findings identified for this identity.</div>
+              {% endif %}
+            </div>
+          </div>
+        </details>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- 5. FOOTER -->
+    <footer class="report-footer">
+      <p>Generated by entra-nhi-oauth-auditor.</p>
+      <p>Using synthetic data — no real tenant connected.</p>
+    </footer>
+  </div>
+
+</body>
+</html>
