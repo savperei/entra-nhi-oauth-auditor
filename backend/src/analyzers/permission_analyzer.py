@@ -4,47 +4,46 @@ Evaluates permissions against high-risk scopes and detects org-wide consent gran
 
 from typing import Any, Dict, List, Optional, Set
 
+try:
+    from src.inventory.models import NormalisedIdentity, Permission
+except ImportError:
+    class NormalisedIdentity(dict):
+        """Represents a normalised identity supporting both attribute and dict-like access."""
 
-class NormalisedIdentity(dict):
-    """Represents a normalised identity supporting both attribute and dict-like access."""
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if "permissions" not in self and "oauth_permissions" in self:
+                self["permissions"] = self["oauth_permissions"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Ensure common keys exist with sensible defaults if not present
-        if "permissions" not in self and "oauth_permissions" in self:
-            self["permissions"] = self["oauth_permissions"]
+        def __getattr__(self, name: str) -> Any:
+            try:
+                return self[name]
+            except KeyError:
+                raise AttributeError(f"'NormalisedIdentity' object has no attribute '{name}'")
 
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError(f"'NormalisedIdentity' object has no attribute '{name}'")
+        def __setattr__(self, name: str, value: Any) -> None:
+            self[name] = value
 
-    def __setattr__(self, name: str, value: Any) -> None:
-        self[name] = value
+        def to_dict(self) -> Dict[str, Any]:
+            return dict(self)
 
-    def to_dict(self) -> Dict[str, Any]:
-        return dict(self)
+    class Permission(dict):
+        """Represents a single OAuth permission / scope / role."""
 
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+        def __getattr__(self, name: str) -> Any:
+            try:
+                return self[name]
+            except KeyError:
+                raise AttributeError(f"'Permission' object has no attribute '{name}'")
+
+        def __setattr__(self, name: str, value: Any) -> None:
+            self[name] = value
 
 # Alias for alternative spelling
 NormalizedIdentity = NormalisedIdentity
-
-
-class Permission(dict):
-    """Represents a single OAuth permission / scope / role."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError(f"'Permission' object has no attribute '{name}'")
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        self[name] = value
 
 
 HIGH_RISK_PERMISSIONS: Set[str] = {
