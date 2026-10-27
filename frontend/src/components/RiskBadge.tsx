@@ -1,26 +1,40 @@
 import React from 'react';
 import { RiskLevel } from '../types';
 
-interface RiskBadgeProps {
-  level: RiskLevel;
+export interface RiskBadgeProps {
+  level: RiskLevel | string;
+  className?: string;
 }
 
-export const RiskBadge: React.FC<RiskBadgeProps> = ({ level }) => {
-  const badgeClasses: Record<RiskLevel, string> = {
-    CRITICAL: 'bg-red-100 text-red-800 border-red-200',
-    HIGH: 'bg-orange-100 text-orange-800 border-orange-200',
-    MEDIUM: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    LOW: 'bg-green-100 text-green-800 border-green-200',
-  };
+export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, className = '' }) => {
+  const normalized = (level || 'None').toString().trim().toLowerCase();
+
+  let colorClasses = 'bg-[#F1F5F9] text-[#64748B]'; // None / default
+  let displayLabel = 'None';
+
+  if (normalized === 'critical') {
+    colorClasses = 'bg-[#FEE2E2] text-[#DC2626]';
+    displayLabel = 'Critical';
+  } else if (normalized === 'high') {
+    colorClasses = 'bg-[#FEF3C7] text-[#D97706]';
+    displayLabel = 'High';
+  } else if (normalized === 'medium') {
+    colorClasses = 'bg-[#FEF9C3] text-[#CA8A04]';
+    displayLabel = 'Medium';
+  } else if (normalized === 'low') {
+    colorClasses = 'bg-[#DCFCE7] text-[#16A34A]';
+    displayLabel = 'Low';
+  } else {
+    displayLabel = level ? level.toString() : 'None';
+  }
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-        badgeClasses[level] || 'bg-slate-100 text-slate-800 border-slate-200'
-      }`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold transition-colors duration-150 ${colorClasses} ${className}`}
     >
-      {level}
+      {displayLabel}
     </span>
   );
 };
 
+export default RiskBadge;

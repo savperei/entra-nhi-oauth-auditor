@@ -1,0 +1,49 @@
+rules:
+  - id: CRED_001
+    name: "Long-lived secret (no expiry)"
+    severity: HIGH
+    score: 30
+    remediation: "Set an expiry date of 90 days or less"
+
+  - id: CRED_002
+    name: "Credential expiring within 14 days"
+    severity: CRITICAL
+    score: 45
+    remediation: "Renew this credential immediately"
+
+  - id: CRED_003
+    name: "Credential expired"
+    severity: CRITICAL
+    score: 50
+    remediation: "Remove or renew this expired credential"
+
+  - id: PERM_001
+    name: "High-risk application permission"
+    severity: CRITICAL
+    score: 50
+    remediation: "Remove unnecessary high-risk permissions"
+
+  - id: PERM_002
+    name: "Org-wide OAuth grant (AllPrincipals)"
+    severity: HIGH
+    score: 35
+    remediation: "Restrict grant to specific users or remove"
+
+  - id: PUB_001
+    name: "Unverified publisher with permissions"
+    severity: MEDIUM
+    score: 20
+    remediation: "Verify publisher or remove integration"
+
+  - id: ID_001
+    name: "Disabled identity with active OAuth grants"
+    severity: HIGH
+    score: 30
+    remediation: "Revoke OAuth grants from disabled identity"
+
+  - id: CRED_004
+    name: "Credential expiring within 30 days"
+    severity: MEDIUM
+    score: 15
+    remediation: "Plan credential rotation within 2 weeks"
+
