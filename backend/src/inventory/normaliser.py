@@ -228,10 +228,10 @@ def normalise_all(raw: dict) -> List[NormalisedIdentity]:
             )
             credentials = [_map_credential(c) for c in raw_creds]
 
-            # Map permissions
+            # Map permissions (prefer richer oauth_permissions if available)
             raw_perms = (
-                rec.get("permissions")
-                or rec.get("oauth_permissions")
+                rec.get("oauth_permissions")
+                or rec.get("permissions")
                 or []
             )
             permissions = [_map_permission(p) for p in raw_perms]

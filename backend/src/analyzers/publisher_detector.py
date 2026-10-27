@@ -12,7 +12,7 @@ class PublisherDetector:
     def _is_verified(self, identity: Any) -> bool:
         """Determines if the identity has a verified publisher."""
         # 1. Direct boolean flags
-        for attr in ("is_verified", "is_verified_publisher", "verified"):
+        for attr in ("is_publisher_verified", "is_verified_publisher", "is_verified", "verified"):
             val = getattr(identity, attr, None)
             if val is None and isinstance(identity, dict):
                 val = identity.get(attr)
