@@ -21,9 +21,12 @@ def run_all_analyzers(identities: list) -> List[NormalisedIdentity]:
     enriched_identities: List[NormalisedIdentity] = []
 
     for item in identities:
-        norm_identity = (
-            item if isinstance(item, NormalisedIdentity) else NormalisedIdentity(item)
-        )
+        if isinstance(item, NormalisedIdentity):
+            norm_identity = item
+        elif isinstance(item, dict):
+            norm_identity = NormalisedIdentity(**item)
+        else:
+            norm_identity = NormalisedIdentity(item)
         # 1. Permission analysis
         enriched = perm_analyzer.analyse(norm_identity)
 
