@@ -58,11 +58,24 @@ export interface Permission {
   is_high_risk: boolean;
 }
 
-export interface OAuthGrant {
-  grant_id: string;
-  consent_type: string; // 'AllPrincipals' | 'Principal'
-  scope: string;
-  resource_id: string;
+export interface NonHumanIdentity {
+  id: string;
+  app_id: string;
+  name: string;
+  identity_type: 'ServicePrincipal' | 'ManagedIdentity' | 'AppRegistration';
+  owner: string;
+  created_date: string;
+  last_sign_in: string;
+  is_active: boolean;
+  risk_level: RiskLevel;
+  credentials: CredentialInfo[];
+  oauth_permissions: OAuthPermission[];
+  findings_count: number;
+  risk_score?: number;
+  score?: number;
+  publisher?: string | { name: string; is_verified?: boolean; verified?: boolean };
+  publisher_verified?: boolean;
+  is_publisher_verified?: boolean;
 }
 
 export interface Finding {

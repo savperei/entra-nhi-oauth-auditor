@@ -41,48 +41,15 @@ export const getAuditStatus = async (): Promise<AuditStatusResponse> => {
   return response.data;
 };
 
-/**
- * Lists non-human identities with optional filters (type, risk_level, search).
- * Calls GET /identities
- */
-export const getIdentities = async (
-  filters?: IdentityFilters
-): Promise<IdentitySummary[]> => {
-  const response = await apiClient.get<IdentitySummary[]>('/identities', {
-    params: filters,
-  });
-  return response.data.map((item: IdentitySummary) => ({
-    ...item,
-    name: item.display_name || item.name || '',
-    app_id: item.id || item.app_id || '',
-    owner:
-      item.publisher_name ||
-      (item.is_publisher_verified ? 'Verified Publisher' : 'Unverified Publisher'),
-  }));
-};
+export interface GetIdentitiesParams {
+  type?: string;
+  risk_level?: string;
+  search?: string;
+}
 
-/**
- * Retrieves comprehensive details for a specific identity by ID, App ID, or tag.
- * Calls GET /identities/{id}
- */
-export const getIdentity = async (id: string): Promise<IdentityDetail> => {
-  const response = await apiClient.get<IdentityDetail>(`/identities/${id}`);
-  const data = response.data;
-  return {
-    ...data,
-    name: data.display_name || data.name || '',
-    app_id: data.id || data.app_id || '',
-    owner:
-      data.publisher_name ||
-      (data.is_publisher_verified ? 'Verified Publisher' : 'Unverified Publisher'),
-    oauth_permissions: (data.permissions || []).map((p: Permission) => ({
-      resource: p.resource_display_name || 'Microsoft Graph',
-      permission: p.scope_or_role,
-      type: (p.permission_type as 'Application' | 'Delegated') || 'Delegated',
-      admin_consent: true,
-      is_high_privilege: p.is_high_risk,
-    })),
-  };
+export const getIdentities = async (params?: GetIdentitiesParams) => {
+  const response = await apiClient.get('/identities', { params });
+  return response.data;
 };
 
 /**
@@ -126,6 +93,11 @@ export const getHealth = async () => {
  */
 export const getDashboardStats = async (): Promise<DashboardStatsResponse> => {
   const response = await apiClient.get<DashboardStatsResponse>('/dashboard/stats');
+  return response.data;
+};
+
+export const runAudit = async () => {
+  const response = await apiClient.post('/audit/run');
   return response.data;
 };
 
