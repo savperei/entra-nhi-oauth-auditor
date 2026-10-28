@@ -7,9 +7,11 @@ import {
   FindingFilters,
   IdentityDetail,
   IdentityFilters,
-  IdentitySummary,
+  NonHumanIdentity,
   Permission,
 } from '../types';
+
+export type GetIdentitiesParams = IdentityFilters;
 
 const BASE_URL =
   ((import.meta as unknown as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL) ||
@@ -41,15 +43,57 @@ export const getAuditStatus = async (): Promise<AuditStatusResponse> => {
   return response.data;
 };
 
-export interface GetIdentitiesParams {
-  type?: string;
-  risk_level?: string;
-  search?: string;
-}
+/**
+ * Lists non-human identities with optional filters (type, risk_level, search).
+ * Calls GET /identities
+ */
+export const getIdentities = async (
+  filters?: IdentityFilters
+): Promise<NonHumanIdentity[]> => {
+  const response = await apiClient.get<any[]>('/identities', {
+    params: filters,
+  });
+  return (response.data || []).map((item: any) => ({
+    ...item,
+    name: item.display_name || item.name || '',
+    app_id: item.id || item.app_id || '',
+    owner:
+      item.owner ||
+      item.publisher_name ||
+      (item.is_publisher_verified ? 'Verified Publisher' : 'Unverified Publisher'),
+    credentials: item.credentials || [],
+    oauth_permissions: item.oauth_permissions || [],
+  }));
+};
 
-export const getIdentities = async (params?: GetIdentitiesParams) => {
-  const response = await apiClient.get('/identities', { params });
-  return response.data;
+/**
+ * Retrieves comprehensive details for a specific identity by ID, App ID, or tag.
+ * Calls GET /identities/{id}
+ */
+export const getIdentity = async (id: string): Promise<NonHumanIdentity & IdentityDetail> => {
+  const response = await apiClient.get<any>(`/identities/${id}`);
+  const data = response.data;
+  return {
+    ...data,
+    name: data.display_name || data.name || '',
+    app_id: data.id || data.app_id || '',
+    owner:
+      data.owner ||
+      data.publisher_name ||
+      (data.is_publisher_verified ? 'Verified Publisher' : 'Unverified Publisher'),
+    credentials: data.credentials || [],
+    oauth_permissions: data.oauth_permissions || (data.permissions || []).map((p: Permission) => ({
+      resource: p.resource_display_name || 'Microsoft Graph',
+      permission: p.scope_or_role,
+      type: (p.permission_type as 'Application' | 'Delegated') || 'Delegated',
+      admin_consent: true,
+      is_high_privilege: p.is_high_risk,
+    })),
+    oauth_grants: data.oauth_grants || [],
+    permissions: data.permissions || [],
+    findings: data.findings || [],
+    remediation: data.remediation || [],
+  };
 };
 
 /**
@@ -93,11 +137,6 @@ export const getHealth = async () => {
  */
 export const getDashboardStats = async (): Promise<DashboardStatsResponse> => {
   const response = await apiClient.get<DashboardStatsResponse>('/dashboard/stats');
-  return response.data;
-};
-
-export const runAudit = async () => {
-  const response = await apiClient.post('/audit/run');
   return response.data;
 };
 

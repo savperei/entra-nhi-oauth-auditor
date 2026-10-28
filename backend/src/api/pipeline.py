@@ -85,6 +85,11 @@ def run_pipeline(force: bool = False) -> Dict[str, Any]:
             ]
 
         # Accumulate findings
+        id_type = (
+            getattr(identity, "identity_type", None)
+            or (identity.get("identity_type") if isinstance(identity, dict) else None)
+            or "ServicePrincipal"
+        )
         for f in findings:
             if isinstance(f, dict):
                 f_item = {
@@ -96,6 +101,7 @@ def run_pipeline(force: bool = False) -> Dict[str, Any]:
                         or getattr(identity, "name", None)
                         or identity.get("name")
                     ),
+                    "identity_type": id_type,
                 }
             else:
                 f_item = f
@@ -107,6 +113,7 @@ def run_pipeline(force: bool = False) -> Dict[str, Any]:
                         or getattr(identity, "name", None)
                         or identity.get("name")
                     )
+                    f.identity_type = id_type
             all_findings.append(f_item)
 
         # Accumulate severity summary counts
@@ -130,4 +137,3 @@ def run_pipeline(force: bool = False) -> Dict[str, Any]:
 
     _PIPELINE_CACHE = result
     return result
-

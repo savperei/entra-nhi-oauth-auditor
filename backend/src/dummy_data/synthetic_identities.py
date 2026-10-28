@@ -14,10 +14,13 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
         "created_date": "2023-01-15T08:30:00Z",
         "last_sign_in": "2024-03-20T14:15:00Z",
         "is_active": True,
+        "is_enabled": True,
         "risk_level": "CRITICAL",
         "risk_score": 95,
         "publisher": "Internal Automation",
+        "publisher_name": "Internal Automation",
         "publisher_verified": False,
+        "is_publisher_verified": False,
         "credentials": [
             {
                 "type": "ClientSecret",
@@ -44,6 +47,14 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
                 "is_high_privilege": True,
             }
         ],
+        "oauth_grants": [
+            {
+                "grant_id": "grant-001",
+                "consent_type": "AllPrincipals",
+                "scope": "Directory.ReadWrite.All RoleManagement.ReadWrite.Directory",
+                "resource_id": "00000003-0000-0000-c000-000000000000",
+            }
+        ],
         "findings_count": 2,
     },
     {
@@ -55,10 +66,13 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
         "created_date": "2023-05-10T10:00:00Z",
         "last_sign_in": "2024-03-21T06:00:00Z",
         "is_active": True,
+        "is_enabled": True,
         "risk_level": "HIGH",
         "risk_score": 82,
         "publisher": "Corporate Analytics",
+        "publisher_name": "Corporate Analytics",
         "publisher_verified": False,
+        "is_publisher_verified": False,
         "credentials": [
             {
                 "type": "ClientSecret",
@@ -85,6 +99,14 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
                 "is_high_privilege": True,
             }
         ],
+        "oauth_grants": [
+            {
+                "grant_id": "grant-002",
+                "consent_type": "AllPrincipals",
+                "scope": "Mail.ReadWrite Mail.Send",
+                "resource_id": "00000003-0000-0000-c000-000000000000",
+            }
+        ],
         "findings_count": 2,
     },
     {
@@ -96,10 +118,13 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
         "created_date": "2023-09-01T12:00:00Z",
         "last_sign_in": "2024-03-22T09:45:00Z",
         "is_active": True,
+        "is_enabled": True,
         "risk_level": "LOW",
         "risk_score": 20,
         "publisher": "Microsoft",
+        "publisher_name": "Microsoft Corporation",
         "publisher_verified": True,
+        "is_publisher_verified": True,
         "credentials": [
             {
                 "type": "ManagedServiceIdentityToken",
@@ -119,6 +144,14 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
                 "is_high_privilege": False,
             }
         ],
+        "oauth_grants": [
+            {
+                "grant_id": "grant-003",
+                "consent_type": "AllPrincipals",
+                "scope": "Storage.Blob.DataContributor",
+                "resource_id": "e406a681-f3d4-42a8-90b6-c2625d4bd1da",
+            }
+        ],
         "findings_count": 0,
     },
     {
@@ -130,10 +163,13 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
         "created_date": "2021-04-18T11:20:00Z",
         "last_sign_in": "2023-08-10T16:00:00Z",
         "is_active": False,
+        "is_enabled": False,
         "risk_level": "HIGH",
         "risk_score": 88,
         "publisher": "Legacy CRM Vendor",
+        "publisher_name": "Legacy CRM Vendor",
         "publisher_verified": False,
+        "is_publisher_verified": False,
         "credentials": [
             {
                 "type": "Certificate",
@@ -160,6 +196,20 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
                 "is_high_privilege": False,
             }
         ],
+        "oauth_grants": [
+            {
+                "grant_id": "grant-004",
+                "consent_type": "AllPrincipals",
+                "scope": "User.ReadWrite.All",
+                "resource_id": "00000003-0000-0000-c000-000000000000",
+            },
+            {
+                "grant_id": "grant-005",
+                "consent_type": "Principal",
+                "scope": "Contacts.ReadWrite",
+                "resource_id": "00000003-0000-0000-c000-000000000000",
+            }
+        ],
         "findings_count": 3,
     },
     {
@@ -171,10 +221,13 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
         "created_date": "2022-11-05T14:10:00Z",
         "last_sign_in": "2024-03-22T08:00:00Z",
         "is_active": True,
+        "is_enabled": True,
         "risk_level": "MEDIUM",
         "risk_score": 55,
         "publisher": "Developer Experience",
+        "publisher_name": "Developer Experience",
         "publisher_verified": True,
+        "is_publisher_verified": True,
         "credentials": [
             {
                 "type": "ClientSecret",
@@ -199,6 +252,20 @@ SYNTHETIC_IDENTITIES: List[Dict[str, Any]] = [
                 "type": "Delegated",
                 "admin_consent": True,
                 "is_high_privilege": False,
+            }
+        ],
+        "oauth_grants": [
+            {
+                "grant_id": "grant-006",
+                "consent_type": "Principal",
+                "scope": "User.Read",
+                "resource_id": "00000003-0000-0000-c000-000000000000",
+            },
+            {
+                "grant_id": "grant-007",
+                "consent_type": "AllPrincipals",
+                "scope": "GroupMember.Read.All",
+                "resource_id": "00000003-0000-0000-c000-000000000000",
             }
         ],
         "findings_count": 1,
