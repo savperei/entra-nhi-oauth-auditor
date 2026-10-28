@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../services/api';
 import { RiskBadge } from '../components/RiskBadge';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { PermissionTable } from '../components/PermissionTable';
 import { CredentialHealth } from '../components/CredentialHealth';
 import { EvidencePanel } from '../components/EvidencePanel';
@@ -139,7 +141,6 @@ export const IdentityDetail: React.FC = () => {
     if (identity.oauth_grants && identity.oauth_grants.length > 0) {
       return identity.oauth_grants;
     }
-    // Synthesize grants from permissions if backend hasn't populated grants
     const perms = identity.oauth_permissions || [];
     if (perms.length === 0) return [];
     return perms.map((p, idx) => ({
@@ -168,7 +169,7 @@ export const IdentityDetail: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[420px] h-96">
         <div className="w-10 h-10 border-4 border-[#3B82F6] border-t-transparent rounded-full animate-spin"></div>
-        <span className="mt-4 text-sm font-medium text-[#94A3B8]">
+        <span className="mt-4 text-xs sm:text-sm font-medium text-[#94A3B8]">
           Loading identity details...
         </span>
       </div>
@@ -177,48 +178,23 @@ export const IdentityDetail: React.FC = () => {
 
   if (is404 || !identity) {
     return (
-      <div className="max-w-md mx-auto my-16 bg-[#1E293B] border border-[#334155] rounded-2xl p-8 text-center shadow-lg">
-        <div className="w-14 h-14 rounded-2xl bg-[#334155] text-[#94A3B8] flex items-center justify-center mx-auto mb-4">
-          <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-bold text-[#F1F5F9] mb-2">Identity not found.</h2>
-        <p className="text-xs text-[#94A3B8] mb-6">
-          No non-human identity matching the ID &ldquo;<span className="font-mono text-[#E2E8F0]">{id}</span>&rdquo; could be found in directory inventory.
-        </p>
-        <Link
-          to="/identities"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#3B82F6] hover:bg-blue-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
-        >
-          &larr; All Identities
-        </Link>
+      <div className="my-16">
+        <EmptyState
+          title="Identity not found"
+          message={`No non-human identity matching the ID "${id}" was found in directory inventory.`}
+          action={{
+            label: "Back to Identities",
+            onClick: () => window.location.assign('/identities'),
+          }}
+        />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto my-12 p-5 bg-[#EF4444]/15 border border-[#EF4444]/40 rounded-xl text-[#F87171] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <svg className="w-6 h-6 text-[#EF4444] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <div>
-            <div className="text-sm font-bold text-white">Error loading identity</div>
-            <div className="text-xs text-[#FCA5A5] mt-0.5">{error}</div>
-          </div>
-        </div>
-        <button
-          onClick={fetchIdentity}
-          className="px-4 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition-colors shrink-0"
-        >
-          Retry
-        </button>
+      <div className="max-w-2xl mx-auto my-12">
+        <ErrorMessage message={error} onRetry={fetchIdentity} />
       </div>
     );
   }
@@ -230,12 +206,12 @@ export const IdentityDetail: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* SECTION 1 — Identity Header card */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 shadow-sm">
+      <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-4 sm:p-6 shadow-sm">
         {/* Back link */}
         <div className="mb-4">
           <Link
             to="/identities"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#38BDF8] transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#38BDF8] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
           >
             &larr; All Identities
           </Link>
@@ -244,7 +220,7 @@ export const IdentityDetail: React.FC = () => {
         {/* Display name (large, bold) */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F1F5F9] tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#F1F5F9] tracking-tight">
               {identity.display_name || identity.name}
             </h1>
             {identity.app_id && (
@@ -269,7 +245,7 @@ export const IdentityDetail: React.FC = () => {
               <span className="text-xs uppercase tracking-wider text-[#64748B] font-semibold">
                 Score
               </span>
-              <span className={`text-2xl sm:text-3xl font-black ${scoreColorClass}`}>
+              <span className={`text-2xl sm:text-3xl font-black font-mono ${scoreColorClass}`}>
                 {score}
               </span>
               <span className="text-xs text-[#64748B] font-medium">/100</span>
@@ -278,8 +254,8 @@ export const IdentityDetail: React.FC = () => {
         </div>
 
         {/* Meta row (muted, small): Publisher | Created date | Enabled/Disabled status chip */}
-        <div className="mt-5 pt-4 border-t border-[#334155]/60 flex flex-wrap items-center gap-4 text-xs text-[#94A3B8]">
-          {/* Publisher (verified tick or unverified warning) */}
+        <div className="mt-5 pt-4 border-t border-[#334155]/60 flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-[#94A3B8]">
+          {/* Publisher */}
           <div className="flex items-center gap-1.5">
             {isPublisherVerified ? (
               <span className="inline-flex items-center gap-1.5 text-[#22C55E] font-medium" title="Verified Publisher">
@@ -340,17 +316,17 @@ export const IdentityDetail: React.FC = () => {
       {/* SECTION 2 — Three tabs */}
       <div className="space-y-4">
         {/* Tab Headers */}
-        <div className="flex border-b border-[#334155] gap-2">
+        <div className="flex border-b border-[#334155] gap-1 sm:gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('permissions')}
-            className={`pb-3 px-4 text-xs font-semibold transition-colors duration-150 relative ${
+            className={`pb-3 px-3 sm:px-4 text-xs font-semibold transition-colors duration-150 relative shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${
               activeTab === 'permissions'
                 ? 'text-[#38BDF8]'
                 : 'text-[#94A3B8] hover:text-[#E2E8F0]'
             }`}
           >
             <span>Permissions</span>
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] bg-[#334155] text-[#CBD5E1]">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-[#334155] text-[#CBD5E1]">
               {permissionsList.length}
             </span>
             {activeTab === 'permissions' && (
@@ -360,14 +336,14 @@ export const IdentityDetail: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('credentials')}
-            className={`pb-3 px-4 text-xs font-semibold transition-colors duration-150 relative ${
+            className={`pb-3 px-3 sm:px-4 text-xs font-semibold transition-colors duration-150 relative shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${
               activeTab === 'credentials'
                 ? 'text-[#38BDF8]'
                 : 'text-[#94A3B8] hover:text-[#E2E8F0]'
             }`}
           >
             <span>Credentials</span>
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] bg-[#334155] text-[#CBD5E1]">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-[#334155] text-[#CBD5E1]">
               {credentialsList.length}
             </span>
             {activeTab === 'credentials' && (
@@ -377,14 +353,14 @@ export const IdentityDetail: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('grants')}
-            className={`pb-3 px-4 text-xs font-semibold transition-colors duration-150 relative ${
+            className={`pb-3 px-3 sm:px-4 text-xs font-semibold transition-colors duration-150 relative shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${
               activeTab === 'grants'
                 ? 'text-[#38BDF8]'
                 : 'text-[#94A3B8] hover:text-[#E2E8F0]'
             }`}
           >
             <span>OAuth Grants</span>
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] bg-[#334155] text-[#CBD5E1]">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-[#334155] text-[#CBD5E1]">
               {oauthGrants.length}
             </span>
             {activeTab === 'grants' && (
@@ -412,16 +388,16 @@ export const IdentityDetail: React.FC = () => {
           <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden shadow-sm">
             {oauthGrants.length === 0 ? (
               <div className="p-8 text-center text-[#94A3B8]">
-                <p className="text-sm font-medium">No OAuth grants recorded.</p>
+                <p className="text-xs sm:text-sm font-medium">No OAuth grants recorded.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-[#0F172A]/70 text-[#94A3B8] text-xs uppercase tracking-wider border-b border-[#334155]">
                     <tr>
-                      <th className="px-5 py-3.5 font-semibold">Consent Type</th>
-                      <th className="px-5 py-3.5 font-semibold">Scope</th>
-                      <th className="px-5 py-3.5 font-semibold">Resource ID</th>
+                      <th className="px-4 sm:px-5 py-3.5 font-semibold">Consent Type</th>
+                      <th className="px-4 sm:px-5 py-3.5 font-semibold">Scope</th>
+                      <th className="px-4 sm:px-5 py-3.5 font-semibold">Resource ID</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#334155]/60 text-[#E2E8F0]">
@@ -438,27 +414,27 @@ export const IdentityDetail: React.FC = () => {
                           }`}
                         >
                           {/* Consent Type */}
-                          <td className="px-5 py-3.5 whitespace-nowrap">
+                          <td className="px-4 sm:px-5 py-3.5 whitespace-nowrap">
                             {isAllPrincipals ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/30">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
-                                AllPrincipals (Tenant-wide)
+                                AllPrincipals
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#3B82F6]/15 text-[#38BDF8] border border-[#3B82F6]/30">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
-                                Principal (User-delegated)
+                                Principal
                               </span>
                             )}
                           </td>
 
                           {/* Scope */}
-                          <td className="px-5 py-3.5 font-mono text-xs text-[#38BDF8]">
+                          <td className="px-4 sm:px-5 py-3.5 font-mono text-xs text-[#38BDF8] break-all">
                             {grant.scope}
                           </td>
 
                           {/* Resource ID */}
-                          <td className="px-5 py-3.5 font-mono text-xs text-[#94A3B8]">
+                          <td className="px-4 sm:px-5 py-3.5 font-mono text-xs text-[#94A3B8]">
                             {grant.resource_id}
                           </td>
                         </tr>
@@ -472,7 +448,7 @@ export const IdentityDetail: React.FC = () => {
         )}
       </div>
 
-      {/* SECTION 3 — Risk Findings: Use EvidencePanel component (Full width below the tabs) */}
+      {/* SECTION 3 — Risk Findings: Full width below the tabs */}
       <div>
         <EvidencePanel
           findings={identity.findings || []}
@@ -484,4 +460,3 @@ export const IdentityDetail: React.FC = () => {
 };
 
 export default IdentityDetail;
-
