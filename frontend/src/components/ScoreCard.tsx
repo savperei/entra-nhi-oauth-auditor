@@ -34,13 +34,13 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({
 
   return (
     <div
-      className={`bg-[#1E293B] border border-[#334155] rounded-xl p-5 shadow-sm transition-all duration-200 hover:border-[#475569] flex flex-col justify-between ${className}`}
+      className={`bg-[#1E293B] border border-[#334155] rounded-xl p-3.5 sm:p-5 shadow-sm transition-all duration-200 hover:border-[#475569] flex flex-col justify-between ${className}`}
     >
       <div>
         <span className="block text-xs font-semibold text-[#64748B] uppercase tracking-wider">
           {label}
         </span>
-        <div className={`text-3xl font-extrabold mt-2 tracking-tight ${getAccentClass(accent)}`}>
+        <div className={`text-2xl sm:text-3xl font-extrabold mt-2 tracking-tight ${getAccentClass(accent)}`}>
           {value}
         </div>
       </div>
@@ -54,4 +54,3 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({
 };
 
 export default ScoreCard;
-

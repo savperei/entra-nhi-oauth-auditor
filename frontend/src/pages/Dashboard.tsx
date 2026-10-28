@@ -94,9 +94,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
   // --------------------------------------------------------------------------
   if (loading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Header Skeleton */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#334155]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#334155] gap-3">
           <div className="space-y-2">
             <Skeleton width="180px" height="2rem" />
             <Skeleton width="240px" height="1rem" />
@@ -104,19 +104,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
           <Skeleton width="220px" height="2.25rem" rounded="lg" />
         </div>
 
-        {/* 4 Skeleton ScoreCards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* 4 Skeleton ScoreCards: 2-column mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 space-y-3">
+            <div key={i} className="bg-[#1E293B] border border-[#334155] rounded-xl p-3.5 sm:p-5 space-y-3">
               <Skeleton width="60%" height="0.75rem" />
-              <Skeleton width="40%" height="2rem" />
+              <Skeleton width="40%" height="1.75rem" />
               <Skeleton width="80%" height="0.75rem" />
             </div>
           ))}
         </div>
 
         {/* Chart Skeleton */}
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 space-y-4">
+        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 space-y-4">
           <Skeleton width="160px" height="1.25rem" />
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -126,7 +126,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
         </div>
 
         {/* Table Skeleton */}
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 space-y-4">
+        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 space-y-4">
           <Skeleton width="200px" height="1.25rem" />
           <div className="space-y-2.5">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -226,11 +226,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
     .slice(0, 5);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* 1. PAGE HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#334155]">
         <div>
-          <h1 className="text-2xl font-bold text-[#F1F5F9] tracking-tight">Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#F1F5F9] tracking-tight">Dashboard</h1>
           <p className="text-xs text-[#64748B] mt-1 font-mono">
             Last audit: {formatTimestamp(auditStatus?.timestamp)}
           </p>
@@ -238,13 +238,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
         {exportControls ?? <ExportControls disabled={isNoAudit} />}
       </div>
 
-      {/* 2. FOUR SCORE CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* 2. FOUR SCORE CARDS: 2-column mobile */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         <ScoreCard
           label="Total Identities"
           value={totalIdentities}
           accent="blue"
-          sublabel="Service Principals & Managed Identities"
+          sublabel="Service Principals & Managed IDs"
         />
         <ScoreCard
           label="Critical Risks"
@@ -262,7 +262,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
           label="Unverified Publishers"
           value={unverifiedPublishersCount}
           accent="high"
-          sublabel="Apps with unverified identity publishers"
+          sublabel="Apps with unverified publishers"
         />
       </div>
 
@@ -270,10 +270,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
       <RiskBreakdownChart summary={summaryCounts} total={totalIdentities} />
 
       {/* 4. TOP 5 RISKIEST IDENTITIES (Table) */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 shadow-sm">
+      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-semibold text-[#F1F5F9]">
+            <h2 className="text-sm sm:text-base font-semibold text-[#F1F5F9]">
               Top 5 Riskiest Identities
             </h2>
             <p className="text-xs text-[#64748B] mt-0.5">
@@ -282,7 +282,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
           </div>
           <Link
             to="/identities"
-            className="text-xs font-semibold text-[#3B82F6] hover:text-blue-400 transition-colors"
+            className="text-xs font-semibold text-[#3B82F6] hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
           >
             View all identities &rarr;
           </Link>
@@ -292,11 +292,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
           <table className="w-full text-left text-sm">
             <thead className="bg-[#0F172A] text-[#64748B] text-xs uppercase tracking-wider font-semibold border-b border-[#334155]">
               <tr>
-                <th className="py-3 px-4 w-16">Rank</th>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Type</th>
-                <th className="py-3 px-4 text-center">Risk Level</th>
-                <th className="py-3 px-4 text-right">Score</th>
+                <th className="py-3 px-3 sm:px-4 w-12 sm:w-16">Rank</th>
+                <th className="py-3 px-3 sm:px-4">Name</th>
+                <th className="py-3 px-3 sm:px-4">Type</th>
+                <th className="py-3 px-3 sm:px-4 text-center">Risk Level</th>
+                <th className="py-3 px-3 sm:px-4 text-right">Score</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#334155] text-[#F1F5F9]">
@@ -310,38 +310,38 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
                 topRiskiest.map((item, idx) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-[#0F172A]/40 transition-colors duration-100"
+                    className="cursor-pointer hover:bg-[#0F172A]/70 transition-colors duration-100"
                   >
                     {/* Rank */}
-                    <td className="py-3 px-4 font-mono text-xs text-[#64748B]">
+                    <td className="py-3 px-3 sm:px-4 font-mono text-xs text-[#64748B]">
                       #{idx + 1}
                     </td>
 
                     {/* Name (links to /identities/:id) */}
-                    <td className="py-3 px-4 font-medium">
+                    <td className="py-3 px-3 sm:px-4 font-medium">
                       <Link
                         to={`/identities/${item.id}`}
-                        className="text-[#3B82F6] hover:underline"
+                        className="text-[#38BDF8] hover:underline text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                       >
                         {item.display_name || item.name}
                       </Link>
                     </td>
 
                     {/* Type */}
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
                       <span className="text-xs text-[#94A3B8] bg-[#0F172A] px-2 py-0.5 rounded border border-[#334155]">
                         {item.identity_type}
                       </span>
                     </td>
 
                     {/* Risk Level Badge */}
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
                       <RiskBadge level={item.risk_level} />
                     </td>
 
                     {/* Score (bold, colored by level) */}
-                    <td className="py-3 px-4 text-right font-mono font-bold">
-                      <span className={getScoreColorClass(item.risk_level)}>
+                    <td className="py-3 px-3 sm:px-4 text-right font-mono font-bold whitespace-nowrap">
+                      <span className={`text-xs sm:text-sm ${getScoreColorClass(item.risk_level)}`}>
                         {item.risk_score}
                       </span>
                     </td>
@@ -357,4 +357,3 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
 };
 
 export default Dashboard;
-

@@ -42,7 +42,7 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
   if (isEmpty) {
     return (
       <div
-        className={`bg-[#1E293B] border border-[#334155] rounded-xl p-6 shadow-sm ${className}`}
+        className={`bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 shadow-sm ${className}`}
       >
         <div className="mb-4">
           <h2 className="text-base font-semibold text-[#F1F5F9]">
@@ -50,7 +50,7 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
           </h2>
           <p className="text-xs text-[#64748B] mt-0.5">0 identities audited</p>
         </div>
-        <div className="py-10 text-center text-sm text-[#64748B]">
+        <div className="py-10 text-center text-xs sm:text-sm text-[#64748B]">
           Run an audit to see risk distribution.
         </div>
       </div>
@@ -87,10 +87,10 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
 
   return (
     <div
-      className={`bg-[#1E293B] border border-[#334155] rounded-xl p-6 shadow-sm ${className}`}
+      className={`bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 shadow-sm ${className}`}
     >
       {/* Header & Subtitle */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
         <div>
           <h2 className="text-base font-semibold text-[#F1F5F9]">
             Risk Distribution
@@ -102,22 +102,22 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
       </div>
 
       {/* 5 Rows */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {rows.map((row) => {
           const pct = total > 0 ? Math.round((row.count / total) * 100) : 0;
 
           return (
             <div
               key={row.level}
-              className="flex items-center gap-3 sm:gap-4 text-xs"
+              className="flex items-center gap-2 sm:gap-4 text-xs"
             >
-              {/* [RiskBadge] */}
-              <div className="w-24 shrink-0">
+              {/* [RiskBadge] - reduced width on mobile */}
+              <div className="w-18 sm:w-24 shrink-0">
                 <RiskBadge level={row.level} />
               </div>
 
               {/* [Bar track] light grey bg (#334155), full width */}
-              <div className="flex-1 h-3 bg-[#334155] rounded-full overflow-hidden relative">
+              <div className="flex-1 h-3 bg-[#334155] rounded-full overflow-hidden relative min-w-[60px]">
                 {/* [Bar fill] coloured by level, width 0 -> final over 600ms ease-out */}
                 <div
                   className="h-full rounded-full"
@@ -132,7 +132,7 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
 
               {/* [N] Count: right-aligned, bold if > 0 */}
               <div
-                className={`w-12 text-right font-mono text-sm ${
+                className={`w-8 sm:w-12 text-right font-mono text-xs sm:text-sm shrink-0 ${
                   row.count > 0 ? 'font-bold text-[#F1F5F9]' : 'text-[#64748B]'
                 }`}
               >
@@ -140,7 +140,7 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
               </div>
 
               {/* [%] Percentage: muted, e.g. "42%" */}
-              <div className="w-12 text-right font-mono text-xs text-[#64748B]">
+              <div className="w-8 sm:w-12 text-right font-mono text-xs text-[#64748B] shrink-0">
                 {pct}%
               </div>
             </div>
@@ -152,4 +152,3 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
 };
 
 export default RiskBreakdownChart;
-

@@ -79,7 +79,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       return (
         <>
           <svg
-            className={`w-3.5 h-3.5 animate-spin ${
+            className={`w-3.5 h-3.5 animate-spin shrink-0 ${
               format === 'html' ? 'text-[#22C55E]' : 'text-[#3B82F6]'
             }`}
             viewBox="0 0 24 24"
@@ -99,7 +99,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
               d="M4 12a8 8 0 018-8v8H4z"
             />
           </svg>
-          <span>Downloading...</span>
+          <span className="whitespace-nowrap">Downloading...</span>
         </>
       );
     }
@@ -108,7 +108,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       return (
         <>
           <svg
-            className="w-3.5 h-3.5 text-[#22C55E]"
+            className="w-3.5 h-3.5 text-[#22C55E] shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -118,7 +118,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
           >
             <polyline points="20 6 9 17 4 12" />
           </svg>
-          <span className="text-[#22C55E]">Downloaded!</span>
+          <span className="text-[#22C55E] whitespace-nowrap">Downloaded!</span>
         </>
       );
     }
@@ -127,7 +127,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       return (
         <>
           <svg
-            className="w-3.5 h-3.5 text-[#EF4444]"
+            className="w-3.5 h-3.5 text-[#EF4444] shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -139,7 +139,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
             <line x1="15" y1="9" x2="9" y2="15" />
             <line x1="9" y1="9" x2="15" y2="15" />
           </svg>
-          <span className="text-[#EF4444]">Failed</span>
+          <span className="text-[#EF4444] whitespace-nowrap">Failed</span>
         </>
       );
     }
@@ -149,7 +149,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       return (
         <>
           <svg
-            className="w-3.5 h-3.5 text-[#22C55E]"
+            className="w-3.5 h-3.5 text-[#22C55E] shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -161,7 +161,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
             <polyline points="14 2 14 8 20 8" />
             <circle cx="12" cy="14" r="3" />
           </svg>
-          <span>Download HTML</span>
+          <span className="whitespace-nowrap">Download HTML</span>
         </>
       );
     }
@@ -169,7 +169,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
     return (
       <>
         <svg
-          className="w-3.5 h-3.5 text-[#3B82F6]"
+          className="w-3.5 h-3.5 text-[#3B82F6] shrink-0"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -183,7 +183,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
           <line x1="16" y1="17" x2="8" y2="17" />
           <polyline points="10 9 9 9 8 9" />
         </svg>
-        <span>Download JSON</span>
+        <span className="whitespace-nowrap">Download JSON</span>
       </>
     );
   };
@@ -207,39 +207,42 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
   const tooltipText = isDisabled ? 'Run an audit first' : undefined;
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-2 ${className}`}>
       {/* "Export:" Label */}
-      <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider select-none">
+      <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider select-none shrink-0 self-start sm:self-center">
         Export:
       </span>
 
-      {/* [Download HTML] Button */}
-      <span title={tooltipText} className={isDisabled ? 'cursor-not-allowed' : undefined}>
-        <button
-          onClick={() => handleDownload('html')}
-          disabled={isDisabled || htmlStatus === 'loading'}
-          title={tooltipText || 'Download HTML report'}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition-all duration-150 ${getButtonClasses(
-            htmlStatus
-          )}`}
-        >
-          {getButtonContent(htmlStatus, 'html')}
-        </button>
-      </span>
+      {/* Button group - stacked on mobile, inline on sm+ */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        {/* [Download HTML] Button */}
+        <span title={tooltipText} className={`w-full sm:w-auto ${isDisabled ? 'cursor-not-allowed' : ''}`}>
+          <button
+            onClick={() => handleDownload('html')}
+            disabled={isDisabled || htmlStatus === 'loading'}
+            title={tooltipText || 'Download HTML report'}
+            className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getButtonClasses(
+              htmlStatus
+            )}`}
+          >
+            {getButtonContent(htmlStatus, 'html')}
+          </button>
+        </span>
 
-      {/* [Download JSON] Button */}
-      <span title={tooltipText} className={isDisabled ? 'cursor-not-allowed' : undefined}>
-        <button
-          onClick={() => handleDownload('json')}
-          disabled={isDisabled || jsonStatus === 'loading'}
-          title={tooltipText || 'Download JSON report'}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition-all duration-150 ${getButtonClasses(
-            jsonStatus
-          )}`}
-        >
-          {getButtonContent(jsonStatus, 'json')}
-        </button>
-      </span>
+        {/* [Download JSON] Button */}
+        <span title={tooltipText} className={`w-full sm:w-auto ${isDisabled ? 'cursor-not-allowed' : ''}`}>
+          <button
+            onClick={() => handleDownload('json')}
+            disabled={isDisabled || jsonStatus === 'loading'}
+            title={tooltipText || 'Download JSON report'}
+            className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getButtonClasses(
+              jsonStatus
+            )}`}
+          >
+            {getButtonContent(jsonStatus, 'json')}
+          </button>
+        </span>
+      </div>
     </div>
   );
 };

@@ -16,30 +16,30 @@ const SEVERITY_COLORS: Record<SeverityType, { border: string; chevron: string; c
   Critical: {
     border: '#DC2626',
     chevron: 'text-[#DC2626]',
-    chipBg: 'bg-red-50',
-    chipText: 'text-red-700',
-    chipBorder: 'border-red-200',
+    chipBg: 'bg-[#DC2626]',
+    chipText: 'text-white',
+    chipBorder: 'border-[#DC2626]',
   },
   High: {
     border: '#D97706',
     chevron: 'text-[#D97706]',
-    chipBg: 'bg-amber-50',
-    chipText: 'text-amber-700',
-    chipBorder: 'border-amber-200',
+    chipBg: 'bg-[#D97706]',
+    chipText: 'text-white',
+    chipBorder: 'border-[#D97706]',
   },
   Medium: {
     border: '#CA8A04',
     chevron: 'text-[#CA8A04]',
-    chipBg: 'bg-yellow-50',
-    chipText: 'text-yellow-700',
-    chipBorder: 'border-yellow-200',
+    chipBg: 'bg-[#CA8A04]',
+    chipText: 'text-white',
+    chipBorder: 'border-[#CA8A04]',
   },
   Low: {
     border: '#16A34A',
     chevron: 'text-[#16A34A]',
-    chipBg: 'bg-green-50',
-    chipText: 'text-green-700',
-    chipBorder: 'border-green-200',
+    chipBg: 'bg-[#16A34A]',
+    chipText: 'text-white',
+    chipBorder: 'border-[#16A34A]',
   },
 };
 
@@ -163,12 +163,11 @@ export const Findings: React.FC = () => {
     findings.forEach((f) => {
       if (f.rule_id) set.add(f.rule_id);
     });
-    // Add standard known rules if not present for completeness
     ['RULE-001', 'RULE-002', 'RULE-003', 'CRED_001', 'PERM_001'].forEach((r) => set.add(r));
     return Array.from(set).sort();
   }, [findings]);
 
-  // Summary counts per severity (calculated from unfiltered findings list)
+  // Summary counts per severity
   const summaryCounts = useMemo(() => {
     const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 };
     findings.forEach((f) => {
@@ -181,22 +180,19 @@ export const Findings: React.FC = () => {
     return counts;
   }, [findings]);
 
-  // Filter findings client-side (applies identity search and guarantees strict dropdown match)
+  // Filter findings client-side
   const filteredFindings = useMemo(() => {
     return findings
       .map(normalizeFinding)
       .filter((item) => {
-        // Severity filter
         if (selectedSeverity !== 'ALL') {
           if (item.severity.toLowerCase() !== selectedSeverity.toLowerCase()) return false;
         }
 
-        // Rule ID filter
         if (selectedRule !== 'ALL') {
           if (item.rule_id.toUpperCase() !== selectedRule.toUpperCase()) return false;
         }
 
-        // Search by identity name
         if (debouncedSearch.trim()) {
           const q = debouncedSearch.toLowerCase().trim();
           const matchesName = item.identity_name.toLowerCase().includes(q);
@@ -208,7 +204,6 @@ export const Findings: React.FC = () => {
       });
   }, [findings, selectedSeverity, selectedRule, debouncedSearch]);
 
-  // Check if any filter is active
   const isFilterActive =
     selectedSeverity !== 'ALL' ||
     selectedRule !== 'ALL' ||
@@ -220,7 +215,6 @@ export const Findings: React.FC = () => {
     setSearchIdentity('');
   };
 
-  // Summary chip click handler (toggles severity filter)
   const handleChipClick = (sev: SeverityType) => {
     if (selectedSeverity.toLowerCase() === sev.toLowerCase()) {
       setSelectedSeverity('ALL');
@@ -229,7 +223,6 @@ export const Findings: React.FC = () => {
     }
   };
 
-  // Toggle group expansion
   const toggleGroup = (sev: SeverityType) => {
     setExpandedGroups((prev) => ({
       ...prev,
@@ -254,7 +247,6 @@ export const Findings: React.FC = () => {
       }
     });
 
-    // Sort items within each group if requested
     SEVERITIES.forEach((sev) => {
       if (sortBy === 'identity_name') {
         groups[sev].sort((a, b) => a.identity_name.localeCompare(b.identity_name));
@@ -271,34 +263,34 @@ export const Findings: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* HEADER: Page title "Risk Findings" + total count badge + ExportControls */}
+      {/* HEADER: Page title + total count badge + ExportControls */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Risk Findings</h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#F1F5F9] tracking-tight">Risk Findings</h1>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#3B82F6]/20 text-[#38BDF8] border border-[#3B82F6]/30">
             {totalFilteredCount}
           </span>
         </div>
 
-        {/* ExportControls component (top right) */}
+        {/* ExportControls component */}
         <div>
           <ExportControls />
         </div>
       </div>
 
       {/* FILTER BAR & SUMMARY CHIPS CARD */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-4">
+      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 shadow-sm space-y-4">
         {/* Horizontal Filter Bar */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Severity dropdown: All | Critical | High | Medium | Low */}
+          {/* Severity dropdown */}
           <div className="min-w-[140px]">
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1">
               Severity
             </label>
             <select
               value={selectedSeverity}
               onChange={(e) => setSelectedSeverity(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-1.5 text-xs sm:text-sm border border-[#334155] rounded-lg text-[#F1F5F9] bg-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="ALL">All Severities</option>
               <option value="Critical">Critical</option>
@@ -310,13 +302,13 @@ export const Findings: React.FC = () => {
 
           {/* Rule ID dropdown */}
           <div className="min-w-[150px]">
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1">
               Rule ID
             </label>
             <select
               value={selectedRule}
               onChange={(e) => setSelectedRule(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs"
+              className="w-full px-3 py-1.5 text-xs sm:text-sm border border-[#334155] rounded-lg text-[#F1F5F9] bg-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
             >
               <option value="ALL">All Rules</option>
               {uniqueRuleIds.map((rId) => (
@@ -328,8 +320,8 @@ export const Findings: React.FC = () => {
           </div>
 
           {/* Search: filter by identity name */}
-          <div className="flex-1 min-w-[220px]">
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1">
               Identity Name
             </label>
             <input
@@ -337,20 +329,19 @@ export const Findings: React.FC = () => {
               placeholder="Filter by identity name..."
               value={searchIdentity}
               onChange={(e) => setSearchIdentity(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-            </input>
+              className="w-full px-3 py-1.5 text-xs sm:text-sm border border-[#334155] rounded-lg placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#0F172A] text-[#F1F5F9]"
+            />
           </div>
 
           {/* Sort Option */}
           <div className="min-w-[160px]">
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1">
               Sort By
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'severity' | 'identity_name')}
-              className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+              className="w-full px-3 py-1.5 text-xs sm:text-sm border border-[#334155] rounded-lg text-[#F1F5F9] bg-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="severity">Severity (High &rarr; Low)</option>
               <option value="identity_name">Identity Name (A &rarr; Z)</option>
@@ -363,7 +354,7 @@ export const Findings: React.FC = () => {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                className="text-xs font-semibold text-[#3B82F6] hover:text-blue-400 hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
               >
                 Clear filters
               </button>
@@ -371,9 +362,9 @@ export const Findings: React.FC = () => {
           )}
         </div>
 
-        {/* SUMMARY CHIPS (same as EvidencePanel): Critical: N | High: N | Medium: N | Low: N */}
-        <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-slate-500 font-medium mr-1">Filter by Severity:</span>
+        {/* SUMMARY CHIPS */}
+        <div className="pt-3 border-t border-[#334155] flex flex-wrap items-center gap-2">
+          <span className="text-xs text-[#64748B] font-medium mr-1">Filter by Severity:</span>
 
           {SEVERITIES.map((sev) => {
             const count = summaryCounts[sev];
@@ -385,10 +376,10 @@ export const Findings: React.FC = () => {
                 key={sev}
                 type="button"
                 onClick={() => handleChipClick(sev)}
-                className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isSelected
-                    ? `${colors.chipBg} ${colors.chipText} ${colors.chipBorder} ring-2 ring-blue-500/30 shadow-sm`
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    ? `${colors.chipBg} ${colors.chipText} ${colors.chipBorder} shadow-sm`
+                    : 'bg-[#0F172A] text-[#94A3B8] border-[#334155] hover:bg-[#334155]/40'
                 }`}
               >
                 <span>{sev}:</span>
@@ -401,20 +392,7 @@ export const Findings: React.FC = () => {
 
       {/* ERROR STATE */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <svg className="w-5 h-5 text-red-600 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-medium">{error}</span>
-          </div>
-          <button
-            onClick={() => fetchFindings()}
-            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold transition-colors"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorMessage message={error} onRetry={fetchFindings} />
       )}
 
       {/* LOADING STATE: 3 skeleton cards */}
@@ -423,9 +401,9 @@ export const Findings: React.FC = () => {
           {[1, 2, 3].map((n) => (
             <div
               key={`skeleton-${n}`}
-              className="bg-white border border-slate-200 border-l-[3px] border-l-slate-300 rounded-xl p-5 shadow-sm space-y-3"
+              className="bg-[#1E293B] border border-[#334155] border-l-[3px] border-l-[#475569] rounded-xl p-3.5 sm:p-5 shadow-sm space-y-3"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-3 border-b border-[#334155]">
                 <div className="flex items-center gap-2">
                   <Skeleton width="80px" height="1.25rem" rounded="full" />
                   <Skeleton width="120px" height="1rem" />
@@ -434,7 +412,7 @@ export const Findings: React.FC = () => {
               </div>
               <Skeleton width="45%" height="1.25rem" />
               <Skeleton width="90%" height="1rem" />
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+              <div className="p-3 bg-[#0F172A] border border-[#334155] rounded-lg">
                 <Skeleton width="100%" height="2rem" />
               </div>
             </div>
@@ -442,63 +420,30 @@ export const Findings: React.FC = () => {
         </div>
       )}
 
-      {/* EMPTY STATE: NO AUDIT (shield icon) */}
+      {/* EMPTY STATE: NO AUDIT */}
       {!loading && !error && isOverallEmpty && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center max-w-md mx-auto shadow-sm">
-          <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto text-blue-600 mb-4 shadow-sm">
-            <svg
-              className="w-8 h-8"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <h2 className="text-lg font-bold text-slate-900 mb-1">
-            No findings yet. Run an audit first.
-          </h2>
-          <p className="text-xs text-slate-500 mb-6 max-w-xs mx-auto">
-            Scan your non-human identities to identify excessive permissions, expired credentials, and OAuth risks.
-          </p>
-          <button
-            type="button"
-            onClick={handleRunAudit}
-            disabled={isAuditing}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-semibold transition-all shadow-sm"
-          >
-            {isAuditing ? (
-              <>
-                <svg className="w-3.5 h-3.5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                </svg>
-                <span>Running Audit Scan...</span>
-              </>
-            ) : (
-              <span>Run Audit Scan</span>
-            )}
-          </button>
-        </div>
+        <EmptyState
+          title="No findings yet"
+          message="Run an audit first to scan non-human identities for excessive permissions, expired credentials, and OAuth risks."
+          action={{
+            label: isAuditing ? 'Running Audit Scan...' : 'Run Audit Scan',
+            onClick: handleRunAudit,
+            disabled: isAuditing,
+            loading: isAuditing,
+          }}
+        />
       )}
 
       {/* EMPTY STATE: FILTERED NO RESULTS */}
       {!loading && !error && !isOverallEmpty && totalFilteredCount === 0 && (
-        <div className="bg-white border border-slate-200 rounded-xl p-10 text-center shadow-sm">
-          <p className="text-sm font-medium text-slate-700 mb-2">
-            No findings match filters.
-          </p>
-          <button
-            type="button"
-            onClick={handleClearFilters}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline"
-          >
-            Clear Filters
-          </button>
-        </div>
+        <EmptyState
+          title="No findings match filters"
+          message="Try selecting different severity or rule filters, or clearing your search term."
+          action={{
+            label: 'Clear Filters',
+            onClick: handleClearFilters,
+          }}
+        />
       )}
 
       {/* FINDINGS LIST (grouped by severity with collapsible section header) */}
@@ -513,18 +458,18 @@ export const Findings: React.FC = () => {
 
             return (
               <div key={sev} className="space-y-3">
-                {/* Collapsible Section Header: "Critical (N)" with red chevron */}
+                {/* Collapsible Section Header */}
                 <button
                   type="button"
                   onClick={() => toggleGroup(sev)}
-                  className="w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 transition-colors text-left"
+                  className="w-full flex items-center justify-between p-3.5 bg-[#1E293B] border border-[#334155] rounded-xl shadow-sm hover:bg-[#334155]/40 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <div className="flex items-center gap-2.5">
                     <span
                       style={{ backgroundColor: colors.border }}
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                     />
-                    <span className="font-bold text-sm text-slate-900">
+                    <span className="font-bold text-xs sm:text-sm text-[#F1F5F9]">
                       {sev} ({groupItems.length})
                     </span>
                   </div>
@@ -548,22 +493,22 @@ export const Findings: React.FC = () => {
 
                 {/* Collapsible finding cards */}
                 {isExpanded && (
-                  <div className="space-y-4 pl-1">
+                  <div className="space-y-4 pl-0 sm:pl-1">
                     {groupItems.map((finding, idx) => (
                       <div
                         key={`${finding.rule_id}-${finding.identity_id}-${idx}`}
                         style={{ borderLeftColor: colors.border, borderLeftWidth: '3px' }}
-                        className="bg-white border border-slate-200 border-l-[3px] rounded-xl p-5 shadow-sm space-y-3.5 hover:shadow-md transition-shadow"
+                        className="bg-[#1E293B] border border-[#334155] border-l-[3px] rounded-xl p-3.5 sm:p-5 shadow-sm space-y-3.5 hover:border-[#475569] transition-all w-full"
                       >
                         {/* TOP OF CARD: Identity name (bold, clickable -> /identities/:id) + identity_type chip */}
-                        <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100 flex-wrap">
+                        <div className="flex items-center gap-2 pb-2.5 border-b border-[#334155] flex-wrap">
                           <Link
                             to={`/identities/${finding.identity_id}`}
-                            className="font-bold text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                            className="font-bold text-xs sm:text-sm text-[#38BDF8] hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                           >
                             {finding.identity_name}
                           </Link>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#0F172A] text-[#CBD5E1] border border-[#334155]">
                             {formatIdentityType(finding.identity_type)}
                           </span>
                         </div>
@@ -572,31 +517,31 @@ export const Findings: React.FC = () => {
                         <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                           <div className="flex items-center gap-2.5 min-w-0">
                             <RiskBadge level={finding.severity as RiskLevel} />
-                            <span className="font-bold text-slate-900 text-sm truncate">
+                            <span className="font-bold text-[#F1F5F9] text-xs sm:text-sm truncate">
                               {finding.rule_name}
                             </span>
                           </div>
-                          <span className="font-mono text-xs text-slate-400 shrink-0">
+                          <span className="font-mono text-xs text-[#64748B] shrink-0">
                             {finding.rule_id}
                           </span>
                         </div>
 
                         {/* MIDDLE: "Evidence" label (tiny caps, muted) + evidence_text in dark code-style box */}
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                          <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-1">
                             Evidence
                           </span>
-                          <div className="bg-[#1E293B] text-[#E2E8F0] font-mono text-xs p-3.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed border border-slate-800 shadow-inner">
+                          <div className="bg-[#0F172A] text-[#E2E8F0] font-mono text-xs p-3.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed border border-[#334155] shadow-inner">
                             {finding.evidence_text || 'No detailed evidence recorded.'}
                           </div>
                         </div>
 
                         {/* BOTTOM: "Remediation" label (tiny caps, muted) + remediation text in green-tinted box */}
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                          <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-1">
                             Remediation
                           </span>
-                          <div className="bg-[#F0FDF4] text-[#166534] text-xs font-medium p-3.5 rounded-lg border border-green-200 leading-relaxed">
+                          <div className="bg-[#22C55E]/10 text-[#4ADE80] text-xs font-medium p-3.5 rounded-lg border border-[#22C55E]/30 leading-relaxed">
                             {finding.remediation || 'No remediation action defined.'}
                           </div>
                         </div>
@@ -614,4 +559,3 @@ export const Findings: React.FC = () => {
 };
 
 export default Findings;
-

@@ -89,15 +89,15 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
       case 'low':
         return '#16A34A';
       default:
-        return '#94A3B8';
+        return '#475569';
     }
   };
 
   // EMPTY STATE: when no findings overall
   if (normalizedFindings.length === 0) {
     return (
-      <div className="bg-[#F0FDF4] border border-green-200 rounded-xl p-6 flex items-center gap-4 text-[#166534] shadow-sm">
-        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-[#16A34A]">
+      <div className="bg-[#1E293B] border border-[#22C55E]/40 rounded-xl p-4 sm:p-6 flex items-center gap-4 text-[#F1F5F9] shadow-sm">
+        <div className="w-10 h-10 rounded-full bg-[#22C55E]/15 flex items-center justify-center shrink-0 text-[#22C55E] border border-[#22C55E]/30">
           <svg className="w-6 h-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path
               fillRule="evenodd"
@@ -107,10 +107,10 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
           </svg>
         </div>
         <div>
-          <h4 className="text-sm font-bold text-green-900">
+          <h4 className="text-xs sm:text-sm font-bold text-[#F1F5F9]">
             No risk findings detected. This identity looks clean.
           </h4>
-          <p className="text-xs text-green-700 mt-0.5">
+          <p className="text-xs text-[#94A3B8] mt-0.5">
             All automated permissions, credentials, and tenant scope audits completed with zero flagged issues.
           </p>
         </div>
@@ -126,7 +126,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
           <button
             type="button"
             onClick={() => setSelectedSeverity(null)}
-            className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors"
+            className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#334155] text-[#CBD5E1] hover:bg-[#475569] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Clear Filter (Show All {normalizedFindings.length})
           </button>
@@ -138,10 +138,10 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
           onClick={() =>
             setSelectedSeverity((prev) => (prev === 'Critical' ? null : 'Critical'))
           }
-          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
             selectedSeverity === 'Critical'
-              ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-sm ring-2 ring-[#DC2626]/20'
-              : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+              ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-sm'
+              : 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/30 hover:bg-[#EF4444]/25'
           }`}
         >
           <span>Critical:</span>
@@ -154,10 +154,10 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
           onClick={() =>
             setSelectedSeverity((prev) => (prev === 'High' ? null : 'High'))
           }
-          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
             selectedSeverity === 'High'
-              ? 'bg-[#D97706] text-white border-[#D97706] shadow-sm ring-2 ring-[#D97706]/20'
-              : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+              ? 'bg-[#D97706] text-white border-[#D97706] shadow-sm'
+              : 'bg-[#F59E0B]/15 text-[#F59E0B] border-[#F59E0B]/30 hover:bg-[#F59E0B]/25'
           }`}
         >
           <span>High:</span>
@@ -170,10 +170,10 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
           onClick={() =>
             setSelectedSeverity((prev) => (prev === 'Medium' ? null : 'Medium'))
           }
-          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
             selectedSeverity === 'Medium'
-              ? 'bg-[#CA8A04] text-white border-[#CA8A04] shadow-sm ring-2 ring-[#CA8A04]/20'
-              : 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+              ? 'bg-[#CA8A04] text-white border-[#CA8A04] shadow-sm'
+              : 'bg-[#EAB308]/15 text-[#EAB308] border-[#EAB308]/30 hover:bg-[#EAB308]/25'
           }`}
         >
           <span>Medium:</span>
@@ -184,10 +184,10 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
         <button
           type="button"
           onClick={() => setSelectedSeverity((prev) => (prev === 'Low' ? null : 'Low'))}
-          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
             selectedSeverity === 'Low'
-              ? 'bg-[#16A34A] text-white border-[#16A34A] shadow-sm ring-2 ring-[#16A34A]/20'
-              : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+              ? 'bg-[#16A34A] text-white border-[#16A34A] shadow-sm'
+              : 'bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/30 hover:bg-[#22C55E]/25'
           }`}
         >
           <span>Low:</span>
@@ -197,15 +197,15 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
 
       {/* FILTER ZERO RESULTS STATE */}
       {displayedFindings.length === 0 && selectedSeverity && (
-        <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-500">
-          <p className="text-sm">
-            No <span className="font-semibold text-slate-800">{selectedSeverity}</span> risk
+        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 sm:p-8 text-center text-[#64748B]">
+          <p className="text-xs sm:text-sm">
+            No <span className="font-semibold text-[#F1F5F9]">{selectedSeverity}</span> risk
             findings detected.
           </p>
           <button
             type="button"
             onClick={() => setSelectedSeverity(null)}
-            className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
+            className="mt-2 text-xs font-semibold text-[#3B82F6] hover:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Show all findings
           </button>
@@ -221,37 +221,37 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
             <div
               key={`${finding.rule_id}-${idx}`}
               style={{ borderLeftColor: borderColor, borderLeftWidth: '3px' }}
-              className="bg-white border border-slate-200 border-l-[3px] rounded-xl p-5 shadow-sm space-y-3.5 hover:shadow-md transition-shadow"
+              className="bg-[#1E293B] border border-[#334155] border-l-[3px] rounded-xl p-3.5 sm:p-5 shadow-sm space-y-3.5 hover:border-[#475569] transition-all w-full"
             >
               {/* TOP ROW: RiskBadge + rule_name (bold) + rule_id (muted monospace, right-aligned) */}
               <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <RiskBadge level={finding.severity} />
-                  <span className="font-bold text-slate-900 text-sm truncate">
+                  <span className="font-bold text-[#F1F5F9] text-xs sm:text-sm truncate">
                     {finding.rule_name}
                   </span>
                 </div>
-                <span className="font-mono text-xs text-slate-400 shrink-0">
+                <span className="font-mono text-xs text-[#64748B] shrink-0">
                   {finding.rule_id}
                 </span>
               </div>
 
               {/* MIDDLE: "Evidence" label (tiny caps, muted) + evidence_text in dark code-style box */}
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-1">
                   Evidence
                 </span>
-                <div className="bg-[#1E293B] text-[#E2E8F0] font-mono text-xs p-3.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed border border-slate-800 shadow-inner">
+                <div className="bg-[#0F172A] text-[#E2E8F0] font-mono text-xs p-3.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed border border-[#334155] shadow-inner">
                   {finding.evidence_text || 'No evidence details recorded.'}
                 </div>
               </div>
 
               {/* BOTTOM: "Remediation" label (tiny caps, muted) + remediation text in green-tinted box */}
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-1">
                   Remediation
                 </span>
-                <div className="bg-[#F0FDF4] text-[#166534] text-xs font-medium p-3.5 rounded-lg border border-green-200 leading-relaxed">
+                <div className="bg-[#22C55E]/10 text-[#4ADE80] text-xs font-medium p-3.5 rounded-lg border border-[#22C55E]/30 leading-relaxed">
                   {finding.remediation || 'No remediation action recommended.'}
                 </div>
               </div>

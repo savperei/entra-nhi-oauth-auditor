@@ -30,7 +30,7 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, className = '' }) =
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold transition-colors duration-150 ${colorClasses} ${className}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-colors duration-150 ${colorClasses} ${className}`}
     >
       {displayLabel}
     </span>

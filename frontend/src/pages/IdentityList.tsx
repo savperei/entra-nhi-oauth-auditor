@@ -118,15 +118,15 @@ export const IdentityList: React.FC = () => {
   const getScoreColorClass = (level?: string): string => {
     switch (level?.toUpperCase()) {
       case 'CRITICAL':
-        return 'text-red-600';
+        return 'text-[#EF4444]';
       case 'HIGH':
-        return 'text-orange-600';
+        return 'text-[#F59E0B]';
       case 'MEDIUM':
-        return 'text-yellow-600';
+        return 'text-[#EAB308]';
       case 'LOW':
-        return 'text-green-600';
+        return 'text-[#22C55E]';
       default:
-        return 'text-slate-700';
+        return 'text-[#94A3B8]';
     }
   };
 
@@ -184,7 +184,7 @@ export const IdentityList: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // Fallback client-side filter in case backend is offline or returned all items
+  // Fallback client-side filter
   const filteredIdentities = useMemo(() => {
     return identities.filter((item) => {
       if (debouncedSearch.trim()) {
@@ -266,13 +266,13 @@ export const IdentityList: React.FC = () => {
   const renderSortArrow = (field: SortField) => {
     if (sortField !== field) {
       return (
-        <span className="text-slate-300 ml-1 text-xs select-none" aria-hidden="true">
+        <span className="text-[#64748B] ml-1 text-xs select-none" aria-hidden="true">
           ↕
         </span>
       );
     }
     return (
-      <span className="text-blue-600 ml-1 font-bold text-xs select-none" aria-hidden="true">
+      <span className="text-[#3B82F6] ml-1 font-bold text-xs select-none" aria-hidden="true">
         {sortOrder === 'asc' ? '▲' : '▼'}
       </span>
     );
@@ -282,34 +282,34 @@ export const IdentityList: React.FC = () => {
     <div className="space-y-6">
       {/* PAGE TITLE + TOTAL COUNT BADGE */}
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Identities</h1>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#F1F5F9] tracking-tight">Identities</h1>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#3B82F6]/20 text-[#38BDF8] border border-[#3B82F6]/30">
           {totalCount}
         </span>
       </div>
 
       {/* FILTER BAR (horizontal, below title) */}
-      <div className="bg-white p-4 border border-slate-200 rounded-xl shadow-sm">
+      <div className="bg-[#1E293B] p-4 border border-[#334155] rounded-xl shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
           {/* Search input */}
-          <div className="relative flex-1 min-w-[220px] max-w-sm">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
             <input
               type="text"
               placeholder="Search by name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 text-xs sm:text-sm border border-[#334155] rounded-lg placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#0F172A] text-[#F1F5F9]"
             />
           </div>
 
           {/* Type dropdown */}
-          <div className="min-w-[170px]">
+          <div className="min-w-[150px]">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 text-xs sm:text-sm border border-[#334155] rounded-lg text-[#F1F5F9] bg-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">All</option>
+              <option value="">All Types</option>
               <option value="ServicePrincipal">Service Principal</option>
               <option value="AppRegistration">App Registration</option>
               <option value="ManagedIdentity">Managed Identity</option>
@@ -317,13 +317,13 @@ export const IdentityList: React.FC = () => {
           </div>
 
           {/* Risk Level dropdown */}
-          <div className="min-w-[140px]">
+          <div className="min-w-[130px]">
             <select
               value={selectedRisk}
               onChange={(e) => setSelectedRisk(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 text-xs sm:text-sm border border-[#334155] rounded-lg text-[#F1F5F9] bg-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">All</option>
+              <option value="">All Risks</option>
               <option value="CRITICAL">Critical</option>
               <option value="HIGH">High</option>
               <option value="MEDIUM">Medium</option>
@@ -336,7 +336,7 @@ export const IdentityList: React.FC = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors px-1 py-1"
+              className="text-xs sm:text-sm font-medium text-[#3B82F6] hover:text-blue-400 hover:underline transition-colors px-1 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
             >
               Clear filters
             </button>
@@ -351,17 +351,17 @@ export const IdentityList: React.FC = () => {
         </div>
       )}
 
-      {/* TABLE CONTAINER */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+      {/* TABLE CONTAINER: Wrapped in overflow-x: auto */}
+      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50 border-b border-slate-200">
+          <table className="min-w-full divide-y divide-[#334155] text-left text-sm">
+            <thead className="bg-[#0F172A]/70 border-b border-[#334155]">
               <tr>
                 {/* Column: Name */}
                 <th
                   scope="col"
                   onClick={() => handleSort('name')}
-                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Name</span>
@@ -373,7 +373,7 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('identity_type')}
-                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Type</span>
@@ -385,7 +385,7 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('risk_level')}
-                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Risk Level</span>
@@ -397,7 +397,7 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('risk_score')}
-                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Score</span>
@@ -405,11 +405,11 @@ export const IdentityList: React.FC = () => {
                   </div>
                 </th>
 
-                {/* Column: Publisher */}
+                {/* Column: Publisher - HIDDEN BELOW 640px (<640px) */}
                 <th
                   scope="col"
                   onClick={() => handleSort('publisher')}
-                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  className="hidden sm:table-cell px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Publisher</span>
@@ -421,7 +421,7 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('credentials')}
-                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Credentials</span>
@@ -433,44 +433,44 @@ export const IdentityList: React.FC = () => {
 
             {/* TABLE STATES */}
             {loading ? (
-              /* LOADING STATE: 6 skeleton rows with shimmer animation */
-              <tbody className="divide-y divide-slate-100">
+              /* LOADING STATE: 6 skeleton rows */
+              <tbody className="divide-y divide-[#334155]">
                 {[...Array(6)].map((_, idx) => (
                   <tr
                     key={`skeleton-${idx}`}
-                    className={`transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/70'}`}
+                    className="bg-[#1E293B]"
                   >
                     {/* Name skeleton */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-slate-200 rounded animate-pulse w-48 mb-1.5"></div>
-                      <div className="h-3 bg-slate-100 rounded animate-pulse w-28"></div>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <Skeleton width="180px" height="1rem" className="mb-1.5" />
+                      <Skeleton width="100px" height="0.75rem" />
                     </td>
                     {/* Type skeleton */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-5 bg-slate-200 rounded-full animate-pulse w-28"></div>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <Skeleton width="110px" height="1.25rem" rounded="full" />
                     </td>
                     {/* Risk Level skeleton */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-5 bg-slate-200 rounded-full animate-pulse w-20"></div>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <Skeleton width="80px" height="1.25rem" rounded="full" />
                     </td>
                     {/* Score skeleton */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-slate-200 rounded animate-pulse w-8"></div>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <Skeleton width="32px" height="1rem" />
                     </td>
-                    {/* Publisher skeleton */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-slate-200 rounded animate-pulse w-24"></div>
+                    {/* Publisher skeleton - hidden below 640px */}
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                      <Skeleton width="90px" height="1rem" />
                     </td>
                     {/* Credentials skeleton */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-slate-200 rounded animate-pulse w-10"></div>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <Skeleton width="40px" height="1rem" />
                     </td>
                   </tr>
                 ))}
               </tbody>
             ) : paginatedIdentities.length > 0 ? (
-              /* POPULATED TABLE: alternating row bg surface / slightly lighter */
-              <tbody className="divide-y divide-slate-100">
+              /* POPULATED TABLE: interactive rows with cursor-pointer & hover highlight */
+              <tbody className="divide-y divide-[#334155]">
                 {paginatedIdentities.map((item, index) => {
                   const verified = isPublisherVerified(item);
                   const credCount = item.credentials?.length ?? 0;
@@ -481,50 +481,50 @@ export const IdentityList: React.FC = () => {
                   return (
                     <tr
                       key={item.id}
-                      className={`transition-colors hover:bg-blue-50/40 ${
-                        index % 2 === 0 ? 'bg-white' : 'bg-slate-50/70'
+                      className={`cursor-pointer transition-colors duration-150 hover:bg-[#334155]/40 ${
+                        index % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#0F172A]/30'
                       }`}
                     >
                       {/* Name: clickable text -> /identities/:id */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <Link
                           to={`/identities/${item.id}`}
-                          className="font-semibold text-blue-600 hover:text-blue-800 hover:underline block"
+                          className="font-semibold text-[#38BDF8] hover:underline block text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                         >
                           {item.name}
                         </Link>
                         {item.app_id && (
-                          <span className="text-xs text-slate-400 font-mono block mt-0.5">
+                          <span className="text-xs text-[#64748B] font-mono block mt-0.5 max-w-[160px] sm:max-w-none truncate">
                             {item.app_id}
                           </span>
                         )}
                       </td>
 
-                      {/* Type: small chip (grey bg) */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                      {/* Type: small chip */}
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#0F172A] text-[#CBD5E1] border border-[#334155]">
                           {formatIdentityType(item.identity_type)}
                         </span>
                       </td>
 
                       {/* Risk Level: use RiskBadge component */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <RiskBadge level={item.risk_level as RiskLevel} />
                       </td>
 
                       {/* Score: bold number, colour matches risk level */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`text-sm font-bold ${scoreColor}`}>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <span className={`text-xs sm:text-sm font-bold font-mono ${scoreColor}`}>
                           {score}
                         </span>
                       </td>
 
-                      {/* Publisher: green checkmark if verified, red warning icon if not */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      {/* Publisher: green checkmark if verified, red warning icon if not - HIDDEN BELOW 640px */}
+                      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                         {verified ? (
-                          <div className="flex items-center gap-1.5 text-emerald-600" title="Verified Publisher">
+                          <div className="flex items-center gap-1.5 text-[#22C55E]" title="Verified Publisher">
                             <svg
-                              className="w-4 h-4 text-emerald-600 shrink-0"
+                              className="w-4 h-4 text-[#22C55E] shrink-0"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               aria-hidden="true"
@@ -535,14 +535,14 @@ export const IdentityList: React.FC = () => {
                                 clipRule="evenodd"
                               />
                             </svg>
-                            <span className="text-xs font-medium text-slate-700">
+                            <span className="text-xs font-medium text-[#CBD5E1]">
                               {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Verified'}
                             </span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1.5 text-red-600" title="Unverified Publisher">
+                          <div className="flex items-center gap-1.5 text-[#EF4444]" title="Unverified Publisher">
                             <svg
-                              className="w-4 h-4 text-red-500 shrink-0"
+                              className="w-4 h-4 text-[#EF4444] shrink-0"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               aria-hidden="true"
@@ -553,7 +553,7 @@ export const IdentityList: React.FC = () => {
                                 clipRule="evenodd"
                               />
                             </svg>
-                            <span className="text-xs font-medium text-slate-700">
+                            <span className="text-xs font-medium text-[#CBD5E1]">
                               {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Unverified'}
                             </span>
                           </div>
@@ -561,10 +561,10 @@ export const IdentityList: React.FC = () => {
                       </td>
 
                       {/* Credentials: count, red if any expiring within 14 days */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`text-sm ${
-                            credExpiring ? 'font-bold text-red-600' : 'font-medium text-slate-700'
+                          className={`text-xs sm:text-sm ${
+                            credExpiring ? 'font-bold text-[#EF4444]' : 'font-medium text-[#CBD5E1]'
                           }`}
                         >
                           {credCount}
