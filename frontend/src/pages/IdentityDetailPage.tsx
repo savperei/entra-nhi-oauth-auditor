@@ -71,11 +71,11 @@ export const IdentityDetailPage: React.FC = () => {
         <h2 className="text-base font-semibold text-slate-900 mb-4 border-b pb-2">
           OAuth Permissions &amp; Scopes
         </h2>
-        {identity.oauth_permissions.length === 0 ? (
+        {(identity.oauth_permissions || []).length === 0 ? (
           <p className="text-sm text-slate-500">No OAuth permissions granted.</p>
         ) : (
           <div className="divide-y divide-slate-100">
-            {identity.oauth_permissions.map((perm, idx) => (
+            {(identity.oauth_permissions || []).map((perm, idx) => (
               <div key={idx} className="py-3 flex items-center justify-between">
                 <div>
                   <span className="font-semibold text-sm text-slate-900">{perm.permission}</span>
@@ -102,7 +102,7 @@ export const IdentityDetailPage: React.FC = () => {
           Credentials &amp; Secrets Hygiene
         </h2>
         <div className="space-y-3">
-          {identity.credentials.map((cred, idx) => (
+          {(identity.credentials || []).map((cred, idx) => (
             <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg text-sm">
               <div>
                 <span className="font-medium text-slate-800">{cred.type}</span>
@@ -114,7 +114,7 @@ export const IdentityDetailPage: React.FC = () => {
                   <span className="px-2.5 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
                     Expired
                   </span>
-                ) : cred.days_until_expiry < 30 ? (
+                ) : cred.days_until_expiry != null && cred.days_until_expiry < 30 ? (
                   <span className="px-2.5 py-1 text-xs font-semibold rounded bg-amber-100 text-amber-800">
                     Expiring soon ({cred.days_until_expiry} days)
                   </span>
@@ -131,4 +131,3 @@ export const IdentityDetailPage: React.FC = () => {
     </div>
   );
 };
-

@@ -23,10 +23,11 @@ export interface AuditSummaryCounts {
 }
 
 export interface AuditSummary {
-  run_id: string;
-  timestamp: string;
-  total_identities: number;
-  summary: AuditSummaryCounts;
+  run_id?: string;
+  timestamp?: string;
+  total_identities?: number;
+  summary?: AuditSummaryCounts;
+  [key: string]: any;
 }
 
 export interface AuditStatusResponse {
@@ -58,24 +59,19 @@ export interface Permission {
   is_high_risk: boolean;
 }
 
-export interface NonHumanIdentity {
-  id: string;
-  app_id: string;
-  name: string;
-  identity_type: 'ServicePrincipal' | 'ManagedIdentity' | 'AppRegistration';
-  owner: string;
-  created_date: string;
-  last_sign_in: string;
-  is_active: boolean;
-  risk_level: RiskLevel;
-  credentials: CredentialInfo[];
-  oauth_permissions: OAuthPermission[];
-  findings_count: number;
-  risk_score?: number;
-  score?: number;
-  publisher?: string | { name: string; is_verified?: boolean; verified?: boolean };
-  publisher_verified?: boolean;
-  is_publisher_verified?: boolean;
+export interface OAuthGrant {
+  grant_id: string;
+  consent_type: string; // 'AllPrincipals' | 'Principal'
+  scope: string;
+  resource_id: string;
+}
+
+export interface OAuthPermission {
+  resource: string;
+  permission: string;
+  type: 'Application' | 'Delegated';
+  admin_consent: boolean;
+  is_high_privilege: boolean;
 }
 
 export interface Finding {
@@ -94,25 +90,51 @@ export interface Finding {
 
 export interface IdentitySummary {
   id: string;
-  display_name: string;
-  name?: string; // backwards compatibility alias
-  app_id?: string; // backwards compatibility alias
+  display_name?: string;
+  name: string; // backwards compatibility alias
+  app_id: string; // backwards compatibility alias
   identity_type: 'ServicePrincipal' | 'AppRegistration' | 'ManagedIdentity' | string;
   publisher_name?: string | null;
-  is_publisher_verified: boolean;
+  is_publisher_verified?: boolean;
   is_enabled?: boolean;
   risk_level: RiskLevel | string;
-  risk_score: number;
-  credential_count: number;
-  high_risk_permission_count: number;
+  risk_score?: number;
+  score?: number;
+  credential_count?: number;
+  high_risk_permission_count?: number;
   owner?: string; // backwards compatibility alias
+}
+
+export interface NonHumanIdentity {
+  id: string;
+  app_id: string;
+  name: string;
+  identity_type: 'ServicePrincipal' | 'ManagedIdentity' | 'AppRegistration' | string;
+  owner: string;
+  created_date?: string;
+  last_sign_in?: string;
+  is_active?: boolean;
+  risk_level: RiskLevel;
+  credentials: CredentialInfo[];
+  oauth_permissions: OAuthPermission[];
+  findings_count?: number;
+  risk_score?: number;
+  score?: number;
+  publisher?: string | { name: string; is_verified?: boolean; verified?: boolean };
+  publisher_verified?: boolean;
+  is_publisher_verified?: boolean;
+  display_name?: string;
+  publisher_name?: string | null;
+  is_enabled?: boolean;
+  credential_count?: number;
+  high_risk_permission_count?: number;
 }
 
 export interface IdentityDetail extends IdentitySummary {
   created_at?: string | null;
   credentials: CredentialInfo[];
   permissions: Permission[];
-  oauth_permissions?: OAuthPermission[]; // backwards compatibility alias
+  oauth_permissions: OAuthPermission[];
   oauth_grants: OAuthGrant[];
   findings: Finding[];
   remediation: string[];
@@ -129,23 +151,6 @@ export interface FindingFilters {
   severity?: string;
   rule_id?: string;
 }
-
-// Backwards compatibility types for existing pages
-export interface OAuthPermission {
-  resource: string;
-  permission: string;
-  type: 'Application' | 'Delegated';
-  admin_consent: boolean;
-  is_high_privilege: boolean;
-}
-
-export type NonHumanIdentity = IdentitySummary & {
-  credentials?: CredentialInfo[];
-  oauth_permissions?: OAuthPermission[];
-  findings_count?: number;
-  last_sign_in?: string;
-  is_active?: boolean;
-};
 
 export interface DashboardMetrics {
   total_identities: number;
