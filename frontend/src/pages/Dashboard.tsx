@@ -5,6 +5,7 @@ import { IdentitySummary, AuditStatusResponse } from '../types';
 import { ScoreCard } from '../components/ScoreCard';
 import { RiskBadge } from '../components/RiskBadge';
 import { ExportControls } from '../components/ExportControls';
+import { RiskBreakdownChart } from '../components/RiskBreakdownChart';
 
 export interface DashboardProps {
   exportControls?: React.ReactNode;
@@ -16,12 +17,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [actionRunning, setActionRunning] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [animateChart, setAnimateChart] = useState<boolean>(false);
 
   const loadDashboardData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    setAnimateChart(false);
     try {
       const [statusRes, identsRes] = await Promise.all([
         getAuditStatus().catch(() => ({ status: 'no_audit_run' } as AuditStatusResponse)),
@@ -30,11 +29,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
 
       setAuditStatus(statusRes);
       setIdentities(identsRes);
-
-      // Trigger 600ms CSS animation for distribution bars
-      setTimeout(() => {
-        setAnimateChart(true);
-      }, 50);
     } catch (err: any) {
       console.error('Failed to load dashboard data:', err);
       setError(err?.message || 'Failed to load dashboard.');
@@ -249,40 +243,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
     (i) => !i.is_publisher_verified
   ).length;
 
-  // Distribution chart rows
-  const totalForPct = totalIdentities > 0 ? totalIdentities : 1;
-  const distributionData = [
-    {
-      level: 'Critical',
-      count: criticalCount,
-      color: '#EF4444',
-      bgClass: 'bg-[#EF4444]',
-    },
-    {
-      level: 'High',
-      count: highCount,
-      color: '#F59E0B',
-      bgClass: 'bg-[#F59E0B]',
-    },
-    {
-      level: 'Medium',
-      count: mediumCount,
-      color: '#EAB308',
-      bgClass: 'bg-[#EAB308]',
-    },
-    {
-      level: 'Low',
-      count: lowCount,
-      color: '#22C55E',
-      bgClass: 'bg-[#22C55E]',
-    },
-    {
-      level: 'None',
-      count: noneCount,
-      color: '#64748B',
-      bgClass: 'bg-[#64748B]',
-    },
-  ];
+  // Risk summary counts for breakdown chart
+  const summaryCounts = {
+    critical: criticalCount,
+    high: highCount,
+    medium: mediumCount,
+    low: lowCount,
+    none: noneCount,
+  };
 
   // Top 5 riskiest identities sorted descending by score
   const topRiskiest = [...identities]
@@ -330,50 +298,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
         />
       </div>
 
-      {/* 3. RISK DISTRIBUTION (Horizontal Bar Chart, Pure CSS) */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-base font-semibold text-[#F1F5F9]">Risk Distribution</h2>
-          <span className="text-xs text-[#64748B] font-mono">
-            Total Analyzed: {totalIdentities}
-          </span>
-        </div>
-
-        <div className="space-y-4">
-          {distributionData.map((row) => {
-            const pct = Math.round((row.count / totalForPct) * 100);
-            return (
-              <div key={row.level} className="flex items-center gap-4 text-xs">
-                {/* [Badge] */}
-                <div className="w-24 shrink-0">
-                  <RiskBadge level={row.level} />
-                </div>
-
-                {/* [Bar] Animated from 0 to final width in 600ms */}
-                <div className="flex-1 h-3 bg-[#0F172A] rounded-full overflow-hidden relative">
-                  <div
-                    className={`h-full rounded-full ${row.bgClass}`}
-                    style={{
-                      width: animateChart ? `${pct}%` : '0%',
-                      transition: 'width 600ms ease-out',
-                    }}
-                  />
-                </div>
-
-                {/* [Count] */}
-                <div className="w-12 text-right font-mono font-bold text-[#F1F5F9]">
-                  {row.count}
-                </div>
-
-                {/* [%] */}
-                <div className="w-12 text-right font-mono text-[#64748B]">
-                  {pct}%
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* 3. RISK DISTRIBUTION (Horizontal Bar Chart Component) */}
+      <RiskBreakdownChart summary={summaryCounts} total={totalIdentities} />
 
       {/* 4. TOP 5 RISKIEST IDENTITIES (Table) */}
       <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 shadow-sm">
