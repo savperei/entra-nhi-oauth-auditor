@@ -4,7 +4,7 @@ import { Layout } from './components/Layout';
 import { DashboardPage } from './pages/DashboardPage';
 import { IdentityList } from './pages/IdentityList';
 import { IdentityDetail } from './pages/IdentityDetail';
-import { FindingsPage } from './pages/FindingsPage';
+import { Findings } from './pages/Findings';
 
 export const App: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ export const App: React.FC = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/identities" element={<IdentityList />} />
           <Route path="/identities/:id" element={<IdentityDetail />} />
-          <Route path="/findings" element={<FindingsPage />} />
+          <Route path="/findings" element={<Findings />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>
