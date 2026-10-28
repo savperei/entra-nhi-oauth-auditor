@@ -1,12 +1,10 @@
 """FastAPI application entry point for entra-nhi-oauth-auditor backend."""
 
 import os
+from typing import Optional
 from dotenv import load_dotenv
-try:
-    from fastapi import FastAPI, APIRouter
-    from fastapi.middleware.cors import CORSMiddleware
-except ImportError:
-    from src.api.compat import FastAPI, APIRouter, CORSMiddleware
+from fastapi import FastAPI, APIRouter, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables
 load_dotenv()
@@ -77,12 +75,46 @@ def get_dashboard_stats():
         "total_rules_active": 8,
     }
 
+@api_router.get("/identities")
+def list_identities(
+    type: Optional[str] = Query(None, description="Identity type filter"),
+    risk_level: Optional[str] = Query(None, description="Risk level filter"),
+    search: Optional[str] = Query(None, description="Search keyword by name or appId"),
+):
+    """Lists non-human identities with optional filtering."""
+    return inventory_service.list_identities(
+        identity_type=type,
+        risk_level=risk_level,
+        search=search,
+    )
+
+@api_router.get("/identities/{identity_id}")
+def get_identity(identity_id: str):
+    """Fetches details for a specific non-human identity."""
+    identity = inventory_service.get_identity_by_id(identity_id)
+    if not identity:
+        raise HTTPException(status_code=404, detail=f"Identity '{identity_id}' not found.")
+    
+    analysis = oauth_analyzer.inspect_permissions(identity.get("oauth_permissions", []))
+    findings = risk_engine.list_findings(identity_id=identity["id"])
 
 # Register all routers under /api/v1
 api_router.include_router(audit_router)
 api_router.include_router(identities_router)
 api_router.include_router(findings_router)
 api_router.include_router(reports_router)
+
+@api_router.post("/audit/run")
+def trigger_audit():
+    """Executes or triggers a synthetic identity security audit scan."""
+    identities = inventory_service.list_identities()
+    findings = risk_engine.list_findings()
+    return {
+        "status": "success",
+        "message": "Audit completed successfully",
+        "scanned_identities": len(identities),
+        "total_findings": len(findings)
+    }
 
 # Mount API router
 app.include_router(api_router)
