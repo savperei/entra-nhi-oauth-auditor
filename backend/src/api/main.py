@@ -1,8 +1,9 @@
 """FastAPI application entry point for entra-nhi-oauth-auditor backend."""
 
 import os
+from typing import Optional
 from dotenv import load_dotenv
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables
@@ -60,9 +61,17 @@ def get_dashboard_stats():
     }
 
 @api_router.get("/identities")
-def list_identities():
-    """Lists non-human identities."""
-    return inventory_service.list_identities()
+def list_identities(
+    type: Optional[str] = Query(None, description="Identity type filter"),
+    risk_level: Optional[str] = Query(None, description="Risk level filter"),
+    search: Optional[str] = Query(None, description="Search keyword by name or appId"),
+):
+    """Lists non-human identities with optional filtering."""
+    return inventory_service.list_identities(
+        identity_type=type,
+        risk_level=risk_level,
+        search=search,
+    )
 
 @api_router.get("/identities/{identity_id}")
 def get_identity(identity_id: str):
@@ -85,6 +94,18 @@ def list_findings():
     """Lists all synthetic audit risk findings."""
     return risk_engine.list_findings()
 
+@api_router.post("/audit/run")
+def trigger_audit():
+    """Executes or triggers a synthetic identity security audit scan."""
+    identities = inventory_service.list_identities()
+    findings = risk_engine.list_findings()
+    return {
+        "status": "success",
+        "message": "Audit completed successfully",
+        "scanned_identities": len(identities),
+        "total_findings": len(findings)
+    }
+
 # Mount API router
 app.include_router(api_router)
 
@@ -95,4 +116,3 @@ def root():
         "health_check": "/api/v1/health",
         "documentation": "/docs"
     }
-

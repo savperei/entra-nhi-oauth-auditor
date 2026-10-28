@@ -1,0 +1,692 @@
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { RiskBadge } from '../components/RiskBadge';
+import { apiClient } from '../services/api';
+import { NonHumanIdentity, RiskLevel } from '../types';
+
+type SortField = 'name' | 'identity_type' | 'risk_level' | 'risk_score' | 'publisher' | 'credentials';
+type SortOrder = 'asc' | 'desc';
+
+const PAGE_SIZE = 25;
+
+export const IdentityList: React.FC = () => {
+  const [identities, setIdentities] = useState<NonHumanIdentity[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isAuditing, setIsAuditing] = useState<boolean>(false);
+
+  // Filters
+  const [search, setSearch] = useState<string>('');
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+  const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedRisk, setSelectedRisk] = useState<string>('');
+
+  // Sorting - default sort: risk_score descending
+  const [sortField, setSortField] = useState<SortField>('risk_score');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Debounce search input changes
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedType, selectedRisk]);
+
+  // Fetch identities from API: GET /api/v1/identities?type=&risk_level=&search=
+  const fetchIdentities = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params: Record<string, string> = {
+        type: selectedType,
+        risk_level: selectedRisk,
+        search: debouncedSearch.trim(),
+      };
+
+      const response = await apiClient.get<NonHumanIdentity[]>('/identities', { params });
+      setIdentities(response.data || []);
+    } catch (err: any) {
+      console.error('Failed to fetch identities:', err);
+      setError(err?.response?.data?.detail || err?.message || 'Failed to load identities.');
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedSearch, selectedType, selectedRisk]);
+
+  useEffect(() => {
+    fetchIdentities();
+  }, [fetchIdentities]);
+
+  // Trigger audit run for empty state
+  const handleRunAudit = async () => {
+    setIsAuditing(true);
+    try {
+      await apiClient.post('/audit/run');
+    } catch (err) {
+      console.warn('Audit run endpoint error or fallback:', err);
+    } finally {
+      await fetchIdentities();
+      setIsAuditing(false);
+    }
+  };
+
+  // Helper for type chip formatting
+  const formatIdentityType = (type?: string): string => {
+    switch (type) {
+      case 'ServicePrincipal':
+        return 'Service Principal';
+      case 'AppRegistration':
+        return 'App Registration';
+      case 'ManagedIdentity':
+        return 'Managed Identity';
+      default:
+        return type || 'Unknown';
+    }
+  };
+
+  // Helper for calculating/resolving score
+  const getRiskScore = (item: NonHumanIdentity): number => {
+    if (typeof item.risk_score === 'number') return item.risk_score;
+    if (typeof item.score === 'number') return item.score;
+    switch (item.risk_level?.toUpperCase()) {
+      case 'CRITICAL':
+        return 95;
+      case 'HIGH':
+        return 80;
+      case 'MEDIUM':
+        return 50;
+      case 'LOW':
+        return 20;
+      default:
+        return 0;
+    }
+  };
+
+  // Helper for score text color matching risk level
+  const getScoreColorClass = (level?: string): string => {
+    switch (level?.toUpperCase()) {
+      case 'CRITICAL':
+        return 'text-red-600';
+      case 'HIGH':
+        return 'text-orange-600';
+      case 'MEDIUM':
+        return 'text-yellow-600';
+      case 'LOW':
+        return 'text-green-600';
+      default:
+        return 'text-slate-700';
+    }
+  };
+
+  // Helper for publisher verification check
+  const isPublisherVerified = (item: NonHumanIdentity): boolean => {
+    if (typeof item.publisher_verified === 'boolean') return item.publisher_verified;
+    if (typeof item.is_publisher_verified === 'boolean') return item.is_publisher_verified;
+    if (typeof item.publisher === 'boolean') return item.publisher;
+    if (typeof item.publisher === 'object' && item.publisher !== null) {
+      return Boolean(item.publisher.is_verified ?? item.publisher.verified);
+    }
+    if (typeof item.publisher === 'string') {
+      const lower = item.publisher.toLowerCase();
+      return lower.includes('verified') || lower.includes('microsoft');
+    }
+    return false;
+  };
+
+  // Helper for credentials expiring within 14 days
+  const hasExpiringCredentials = (item: NonHumanIdentity): boolean => {
+    if (!item.credentials || item.credentials.length === 0) return false;
+    return item.credentials.some((cred) => {
+      if (cred.is_expired) return true;
+      if (typeof cred.days_until_expiry === 'number') {
+        return cred.days_until_expiry <= 14;
+      }
+      if (cred.expires_date && cred.expires_date !== 'Managed by Azure') {
+        const diffDays = Math.ceil(
+          (new Date(cred.expires_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        );
+        return diffDays <= 14;
+      }
+      return false;
+    });
+  };
+
+  // Filter check flag
+  const isFilterActive = search.trim() !== '' || selectedType !== '' || selectedRisk !== '';
+
+  const handleClearFilters = () => {
+    setSearch('');
+    setSelectedType('');
+    setSelectedRisk('');
+    setCurrentPage(1);
+  };
+
+  // Sort handler
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+    setCurrentPage(1);
+  };
+
+  // Fallback client-side filter in case backend is offline or returned all items
+  const filteredIdentities = useMemo(() => {
+    return identities.filter((item) => {
+      if (debouncedSearch.trim()) {
+        const query = debouncedSearch.toLowerCase().trim();
+        const matchesName = item.name?.toLowerCase().includes(query);
+        const matchesAppId = item.app_id?.toLowerCase().includes(query);
+        if (!matchesName && !matchesAppId) return false;
+      }
+
+      if (selectedType) {
+        const normalizedFilter = selectedType.replace(/\s+/g, '').toLowerCase();
+        const normalizedType = (item.identity_type || '').replace(/\s+/g, '').toLowerCase();
+        if (normalizedType !== normalizedFilter) return false;
+      }
+
+      if (selectedRisk) {
+        if (item.risk_level?.toUpperCase() !== selectedRisk.toUpperCase()) return false;
+      }
+
+      return true;
+    });
+  }, [identities, debouncedSearch, selectedType, selectedRisk]);
+
+  // Risk weighting for sorting
+  const riskWeight: Record<string, number> = {
+    CRITICAL: 4,
+    HIGH: 3,
+    MEDIUM: 2,
+    LOW: 1,
+  };
+
+  // Sorted list
+  const sortedIdentities = useMemo(() => {
+    return [...filteredIdentities].sort((a, b) => {
+      let comparison = 0;
+      switch (sortField) {
+        case 'name':
+          comparison = (a.name || '').localeCompare(b.name || '');
+          break;
+        case 'identity_type':
+          comparison = (a.identity_type || '').localeCompare(b.identity_type || '');
+          break;
+        case 'risk_level': {
+          const rA = riskWeight[a.risk_level?.toUpperCase()] || 0;
+          const rB = riskWeight[b.risk_level?.toUpperCase()] || 0;
+          comparison = rA - rB;
+          break;
+        }
+        case 'risk_score':
+          comparison = getRiskScore(a) - getRiskScore(b);
+          break;
+        case 'publisher': {
+          const pA = isPublisherVerified(a) ? 1 : 0;
+          const pB = isPublisherVerified(b) ? 1 : 0;
+          comparison = pA - pB;
+          break;
+        }
+        case 'credentials': {
+          const cA = a.credentials?.length || 0;
+          const cB = b.credentials?.length || 0;
+          comparison = cA - cB;
+          break;
+        }
+        default:
+          comparison = 0;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [filteredIdentities, sortField, sortOrder]);
+
+  // Pagination calculations
+  const totalCount = filteredIdentities.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const paginatedIdentities = useMemo(() => {
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    return sortedIdentities.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [sortedIdentities, currentPage]);
+
+  const renderSortArrow = (field: SortField) => {
+    if (sortField !== field) {
+      return (
+        <span className="text-slate-300 ml-1 text-xs select-none" aria-hidden="true">
+          ↕
+        </span>
+      );
+    }
+    return (
+      <span className="text-blue-600 ml-1 font-bold text-xs select-none" aria-hidden="true">
+        {sortOrder === 'asc' ? '▲' : '▼'}
+      </span>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* PAGE TITLE + TOTAL COUNT BADGE */}
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Identities</h1>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+          {totalCount}
+        </span>
+      </div>
+
+      {/* FILTER BAR (horizontal, below title) */}
+      <div className="bg-white p-4 border border-slate-200 rounded-xl shadow-sm">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search input */}
+          <div className="relative flex-1 min-w-[220px] max-w-sm">
+            <input
+              type="text"
+              placeholder="Search by name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            />
+          </div>
+
+          {/* Type dropdown */}
+          <div className="min-w-[170px]">
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">All</option>
+              <option value="ServicePrincipal">Service Principal</option>
+              <option value="AppRegistration">App Registration</option>
+              <option value="ManagedIdentity">Managed Identity</option>
+            </select>
+          </div>
+
+          {/* Risk Level dropdown */}
+          <div className="min-w-[140px]">
+            <select
+              value={selectedRisk}
+              onChange={(e) => setSelectedRisk(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">All</option>
+              <option value="CRITICAL">Critical</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+            </select>
+          </div>
+
+          {/* "Clear filters" link (only visible when filter active) */}
+          {isFilterActive && (
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors px-1 py-1"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ERROR NOTICE IF OCCURRED */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 flex items-center justify-between">
+          <p className="text-sm font-medium">{error}</p>
+          <button
+            onClick={() => fetchIdentities()}
+            className="text-xs font-semibold underline text-red-700 hover:text-red-900"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* TABLE CONTAINER */}
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                {/* Column: Name */}
+                <th
+                  scope="col"
+                  onClick={() => handleSort('name')}
+                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                >
+                  <div className="flex items-center">
+                    <span>Name</span>
+                    {renderSortArrow('name')}
+                  </div>
+                </th>
+
+                {/* Column: Type */}
+                <th
+                  scope="col"
+                  onClick={() => handleSort('identity_type')}
+                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                >
+                  <div className="flex items-center">
+                    <span>Type</span>
+                    {renderSortArrow('identity_type')}
+                  </div>
+                </th>
+
+                {/* Column: Risk Level */}
+                <th
+                  scope="col"
+                  onClick={() => handleSort('risk_level')}
+                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                >
+                  <div className="flex items-center">
+                    <span>Risk Level</span>
+                    {renderSortArrow('risk_level')}
+                  </div>
+                </th>
+
+                {/* Column: Score */}
+                <th
+                  scope="col"
+                  onClick={() => handleSort('risk_score')}
+                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                >
+                  <div className="flex items-center">
+                    <span>Score</span>
+                    {renderSortArrow('risk_score')}
+                  </div>
+                </th>
+
+                {/* Column: Publisher */}
+                <th
+                  scope="col"
+                  onClick={() => handleSort('publisher')}
+                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                >
+                  <div className="flex items-center">
+                    <span>Publisher</span>
+                    {renderSortArrow('publisher')}
+                  </div>
+                </th>
+
+                {/* Column: Credentials */}
+                <th
+                  scope="col"
+                  onClick={() => handleSort('credentials')}
+                  className="px-6 py-3.5 text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                >
+                  <div className="flex items-center">
+                    <span>Credentials</span>
+                    {renderSortArrow('credentials')}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+
+            {/* TABLE STATES */}
+            {loading ? (
+              /* LOADING STATE: 6 skeleton rows with shimmer animation */
+              <tbody className="divide-y divide-slate-100">
+                {[...Array(6)].map((_, idx) => (
+                  <tr
+                    key={`skeleton-${idx}`}
+                    className={`transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/70'}`}
+                  >
+                    {/* Name skeleton */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-slate-200 rounded animate-pulse w-48 mb-1.5"></div>
+                      <div className="h-3 bg-slate-100 rounded animate-pulse w-28"></div>
+                    </td>
+                    {/* Type skeleton */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-5 bg-slate-200 rounded-full animate-pulse w-28"></div>
+                    </td>
+                    {/* Risk Level skeleton */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-5 bg-slate-200 rounded-full animate-pulse w-20"></div>
+                    </td>
+                    {/* Score skeleton */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-slate-200 rounded animate-pulse w-8"></div>
+                    </td>
+                    {/* Publisher skeleton */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-slate-200 rounded animate-pulse w-24"></div>
+                    </td>
+                    {/* Credentials skeleton */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-slate-200 rounded animate-pulse w-10"></div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            ) : paginatedIdentities.length > 0 ? (
+              /* POPULATED TABLE: alternating row bg surface / slightly lighter */
+              <tbody className="divide-y divide-slate-100">
+                {paginatedIdentities.map((item, index) => {
+                  const verified = isPublisherVerified(item);
+                  const credCount = item.credentials?.length ?? 0;
+                  const credExpiring = hasExpiringCredentials(item);
+                  const score = getRiskScore(item);
+                  const scoreColor = getScoreColorClass(item.risk_level);
+
+                  return (
+                    <tr
+                      key={item.id}
+                      className={`transition-colors hover:bg-blue-50/40 ${
+                        index % 2 === 0 ? 'bg-white' : 'bg-slate-50/70'
+                      }`}
+                    >
+                      {/* Name: clickable text -> /identities/:id */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Link
+                          to={`/identities/${item.id}`}
+                          className="font-semibold text-blue-600 hover:text-blue-800 hover:underline block"
+                        >
+                          {item.name}
+                        </Link>
+                        {item.app_id && (
+                          <span className="text-xs text-slate-400 font-mono block mt-0.5">
+                            {item.app_id}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Type: small chip (grey bg) */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                          {formatIdentityType(item.identity_type)}
+                        </span>
+                      </td>
+
+                      {/* Risk Level: use RiskBadge component */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <RiskBadge level={item.risk_level as RiskLevel} />
+                      </td>
+
+                      {/* Score: bold number, colour matches risk level */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`text-sm font-bold ${scoreColor}`}>
+                          {score}
+                        </span>
+                      </td>
+
+                      {/* Publisher: green checkmark if verified, red warning icon if not */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {verified ? (
+                          <div className="flex items-center gap-1.5 text-emerald-600" title="Verified Publisher">
+                            <svg
+                              className="w-4 h-4 text-emerald-600 shrink-0"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                              aria-hidden="true"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <span className="text-xs font-medium text-slate-700">
+                              {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Verified'}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-red-600" title="Unverified Publisher">
+                            <svg
+                              className="w-4 h-4 text-red-500 shrink-0"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                              aria-hidden="true"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <span className="text-xs font-medium text-slate-700">
+                              {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Unverified'}
+                            </span>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Credentials: count, red if any expiring within 14 days */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`text-sm ${
+                            credExpiring ? 'font-bold text-red-600' : 'font-medium text-slate-700'
+                          }`}
+                        >
+                          {credCount}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            ) : null}
+          </table>
+
+          {/* EMPTY STATES */}
+          {!loading && filteredIdentities.length === 0 && (
+            <div className="py-16 px-4 text-center">
+              {identities.length === 0 && !isFilterActive ? (
+                /* Empty (no audit) -> "No audit data. Run an audit first." + Run Audit button */
+                <div className="max-w-md mx-auto space-y-4">
+                  <div className="w-12 h-12 mx-auto rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900">
+                      No audit data. Run an audit first.
+                    </h3>
+                    <p className="text-sm text-slate-500 mt-1">
+                      No non-human identities or active service principals have been audited yet.
+                    </p>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleRunAudit}
+                      disabled={isAuditing}
+                      className="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                    >
+                      {isAuditing ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v8H4z"
+                            />
+                          </svg>
+                          Running Audit...
+                        </>
+                      ) : (
+                        'Run Audit'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Empty filtered state */
+                <div className="max-w-md mx-auto space-y-3">
+                  <p className="text-sm font-medium text-slate-700">
+                    No identities match your current search and filter criteria.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleClearFilters}
+                    className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md border border-blue-200 transition-colors"
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* PAGINATION: Show 25 per page, "Previous" / "Next" buttons + "Page N of N" label */}
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-slate-200 bg-white">
+          <button
+            type="button"
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1 || loading}
+            className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Previous
+          </button>
+
+          <span className="text-xs font-medium text-slate-600">
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={currentPage >= totalPages || loading}
+            className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default IdentityList;
+

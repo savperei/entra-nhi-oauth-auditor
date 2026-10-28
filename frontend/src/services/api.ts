@@ -18,8 +18,14 @@ export const getDashboardStats = async () => {
   return response.data;
 };
 
-export const getIdentities = async () => {
-  const response = await apiClient.get('/identities');
+export interface GetIdentitiesParams {
+  type?: string;
+  risk_level?: string;
+  search?: string;
+}
+
+export const getIdentities = async (params?: GetIdentitiesParams) => {
+  const response = await apiClient.get('/identities', { params });
   return response.data;
 };
 
@@ -33,5 +39,9 @@ export const getFindings = async () => {
   return response.data;
 };
 
-export default apiClient;
+export const runAudit = async () => {
+  const response = await apiClient.post('/audit/run');
+  return response.data;
+};
 
+export default apiClient;

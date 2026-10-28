@@ -30,6 +30,11 @@ export interface NonHumanIdentity {
   credentials: CredentialInfo[];
   oauth_permissions: OAuthPermission[];
   findings_count: number;
+  risk_score?: number;
+  score?: number;
+  publisher?: string | { name: string; is_verified?: boolean; verified?: boolean };
+  publisher_verified?: boolean;
+  is_publisher_verified?: boolean;
 }
 
 export interface Finding {
