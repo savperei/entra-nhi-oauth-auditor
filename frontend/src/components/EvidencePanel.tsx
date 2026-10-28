@@ -1,141 +1,266 @@
-import React from 'react';
-import { Finding } from '../types';
+import React, { useMemo, useState } from 'react';
 import { RiskBadge } from './RiskBadge';
 
+export interface FindingItem {
+  rule_id: string;
+  rule_name: string;
+  severity: 'Critical' | 'High' | 'Medium' | 'Low' | string;
+  evidence_text: string;
+  remediation: string;
+}
+
 export interface EvidencePanelProps {
-  findings?: Finding[];
+  findings?: FindingItem[] | any[];
   remediation?: string[];
 }
 
-export const EvidencePanel: React.FC<EvidencePanelProps> = ({
-  findings = [],
-  remediation = [],
-}) => {
-  if (!findings || findings.length === 0) {
+export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) => {
+  const [selectedSeverity, setSelectedSeverity] = useState<string | null>(null);
+
+  // Normalize incoming findings
+  const normalizedFindings = useMemo<FindingItem[]>(() => {
+    return (findings || []).map((f: any) => {
+      const rule_id = f.rule_id || '';
+      const rule_name = f.rule_name || f.title || 'Risk Finding';
+      const rawSev = (f.severity || 'Low').toString().trim();
+      const severity = rawSev.charAt(0).toUpperCase() + rawSev.slice(1).toLowerCase();
+      const evidence_text = f.evidence_text || f.description || '';
+      const remediation = f.remediation || '';
+
+      return {
+        rule_id,
+        rule_name,
+        severity,
+        evidence_text,
+        remediation,
+      };
+    });
+  }, [findings]);
+
+  // Counts per severity
+  const counts = useMemo(() => {
+    const res = {
+      Critical: 0,
+      High: 0,
+      Medium: 0,
+      Low: 0,
+    };
+    normalizedFindings.forEach((f) => {
+      const s = f.severity;
+      if (s === 'Critical') res.Critical++;
+      else if (s === 'High') res.High++;
+      else if (s === 'Medium') res.Medium++;
+      else if (s === 'Low') res.Low++;
+    });
+    return res;
+  }, [normalizedFindings]);
+
+  // Severity weights for sorting desc
+  const severityWeight: Record<string, number> = {
+    Critical: 4,
+    High: 3,
+    Medium: 2,
+    Low: 1,
+  };
+
+  // Filtered & sorted findings
+  const displayedFindings = useMemo(() => {
+    const list = selectedSeverity
+      ? normalizedFindings.filter((f) => f.severity.toLowerCase() === selectedSeverity.toLowerCase())
+      : normalizedFindings;
+
+    return [...list].sort((a, b) => {
+      const wA = severityWeight[a.severity] || 0;
+      const wB = severityWeight[b.severity] || 0;
+      return wB - wA;
+    });
+  }, [normalizedFindings, selectedSeverity]);
+
+  // Border color helper:
+  // Critical #DC2626 | High #D97706 | Medium #CA8A04 | Low #16A34A
+  const getBorderColorStyle = (severity: string): string => {
+    switch (severity.toLowerCase()) {
+      case 'critical':
+        return '#DC2626';
+      case 'high':
+        return '#D97706';
+      case 'medium':
+        return '#CA8A04';
+      case 'low':
+        return '#16A34A';
+      default:
+        return '#94A3B8';
+    }
+  };
+
+  // EMPTY STATE: when no findings overall
+  if (normalizedFindings.length === 0) {
     return (
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center mx-auto text-[#22C55E] mb-3">
-          <svg
-            className="w-6 h-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
+      <div className="bg-[#F0FDF4] border border-green-200 rounded-xl p-6 flex items-center gap-4 text-[#166534] shadow-sm">
+        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-[#16A34A]">
+          <svg className="w-6 h-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+              clipRule="evenodd"
+            />
           </svg>
         </div>
-        <h3 className="text-base font-bold text-[#F1F5F9]">No Risk Findings Detected</h3>
-        <p className="text-xs text-[#94A3B8] mt-1 max-w-md mx-auto">
-          This identity passed all automated posture compliance rules with no excessive grants or hygiene alerts.
-        </p>
+        <div>
+          <h4 className="text-sm font-bold text-green-900">
+            No risk findings detected. This identity looks clean.
+          </h4>
+          <p className="text-xs text-green-700 mt-0.5">
+            All automated permissions, credentials, and tenant scope audits completed with zero flagged issues.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#334155]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#EF4444]/15 border border-[#EF4444]/30 flex items-center justify-center text-[#EF4444]">
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-[#F1F5F9]">Risk Findings &amp; Evidence</h2>
-            <p className="text-xs text-[#64748B]">
-              Detected permission vulnerabilities and hygiene violations
-            </p>
-          </div>
-        </div>
+    <div className="space-y-4">
+      {/* SUMMARY ROW (above cards): Count chips + click to filter */}
+      <div className="flex flex-wrap items-center gap-2 pb-1">
+        {selectedSeverity && (
+          <button
+            type="button"
+            onClick={() => setSelectedSeverity(null)}
+            className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors"
+          >
+            Clear Filter (Show All {normalizedFindings.length})
+          </button>
+        )}
 
-        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/30">
-          {findings.length} Flagged {findings.length === 1 ? 'Issue' : 'Issues'}
-        </span>
+        {/* Critical Chip */}
+        <button
+          type="button"
+          onClick={() =>
+            setSelectedSeverity((prev) => (prev === 'Critical' ? null : 'Critical'))
+          }
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+            selectedSeverity === 'Critical'
+              ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-sm ring-2 ring-[#DC2626]/20'
+              : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+          }`}
+        >
+          <span>Critical:</span>
+          <span className="font-bold">{counts.Critical}</span>
+        </button>
+
+        {/* High Chip */}
+        <button
+          type="button"
+          onClick={() =>
+            setSelectedSeverity((prev) => (prev === 'High' ? null : 'High'))
+          }
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+            selectedSeverity === 'High'
+              ? 'bg-[#D97706] text-white border-[#D97706] shadow-sm ring-2 ring-[#D97706]/20'
+              : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+          }`}
+        >
+          <span>High:</span>
+          <span className="font-bold">{counts.High}</span>
+        </button>
+
+        {/* Medium Chip */}
+        <button
+          type="button"
+          onClick={() =>
+            setSelectedSeverity((prev) => (prev === 'Medium' ? null : 'Medium'))
+          }
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+            selectedSeverity === 'Medium'
+              ? 'bg-[#CA8A04] text-white border-[#CA8A04] shadow-sm ring-2 ring-[#CA8A04]/20'
+              : 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+          }`}
+        >
+          <span>Medium:</span>
+          <span className="font-bold">{counts.Medium}</span>
+        </button>
+
+        {/* Low Chip */}
+        <button
+          type="button"
+          onClick={() => setSelectedSeverity((prev) => (prev === 'Low' ? null : 'Low'))}
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
+            selectedSeverity === 'Low'
+              ? 'bg-[#16A34A] text-white border-[#16A34A] shadow-sm ring-2 ring-[#16A34A]/20'
+              : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+          }`}
+        >
+          <span>Low:</span>
+          <span className="font-bold">{counts.Low}</span>
+        </button>
       </div>
 
-      <div className="space-y-4">
-        {findings.map((finding, idx) => (
-          <div
-            key={finding.id || idx}
-            className="bg-[#0F172A]/70 border border-[#334155] rounded-xl p-5 hover:border-[#475569] transition-all duration-150"
+      {/* FILTER ZERO RESULTS STATE */}
+      {displayedFindings.length === 0 && selectedSeverity && (
+        <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-500">
+          <p className="text-sm">
+            No <span className="font-semibold text-slate-800">{selectedSeverity}</span> risk
+            findings detected.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSelectedSeverity(null)}
+            className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
           >
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
-                <RiskBadge level={finding.severity} />
-                <span className="font-mono text-xs px-2 py-0.5 rounded bg-[#1E293B] text-[#94A3B8] border border-[#334155]">
+            Show all findings
+          </button>
+        </div>
+      )}
+
+      {/* FINDING CARDS (one per finding, sorted severity desc) */}
+      <div className="space-y-4">
+        {displayedFindings.map((finding, idx) => {
+          const borderColor = getBorderColorStyle(finding.severity);
+
+          return (
+            <div
+              key={`${finding.rule_id}-${idx}`}
+              style={{ borderLeftColor: borderColor, borderLeftWidth: '3px' }}
+              className="bg-white border border-slate-200 border-l-[3px] rounded-xl p-5 shadow-sm space-y-3.5 hover:shadow-md transition-shadow"
+            >
+              {/* TOP ROW: RiskBadge + rule_name (bold) + rule_id (muted monospace, right-aligned) */}
+              <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <RiskBadge level={finding.severity} />
+                  <span className="font-bold text-slate-900 text-sm truncate">
+                    {finding.rule_name}
+                  </span>
+                </div>
+                <span className="font-mono text-xs text-slate-400 shrink-0">
                   {finding.rule_id}
                 </span>
-                <h3 className="text-sm font-bold text-[#F1F5F9]">
-                  {finding.title || finding.rule_name || 'Flagged Risk Item'}
-                </h3>
               </div>
 
-              {finding.detected_at && (
-                <span className="text-xs text-[#64748B]">
-                  Detected: {new Date(finding.detected_at).toLocaleDateString()}
+              {/* MIDDLE: "Evidence" label (tiny caps, muted) + evidence_text in dark code-style box */}
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                  Evidence
                 </span>
-              )}
-            </div>
-
-            <p className="text-xs text-[#CBD5E1] mt-2 leading-relaxed">
-              {finding.description || finding.evidence_text || 'No additional evidence recorded.'}
-            </p>
-
-            {finding.remediation && (
-              <div className="mt-3 p-3 bg-[#3B82F6]/10 border border-[#3B82F6]/20 rounded-lg flex items-start gap-2 text-xs text-[#93C5FD]">
-                <svg
-                  className="w-4 h-4 text-[#3B82F6] shrink-0 mt-0.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-                <div>
-                  <span className="font-semibold text-white">Recommended Remediation: </span>
-                  {finding.remediation}
+                <div className="bg-[#1E293B] text-[#E2E8F0] font-mono text-xs p-3.5 rounded-lg whitespace-pre-wrap break-words leading-relaxed border border-slate-800 shadow-inner">
+                  {finding.evidence_text || 'No evidence details recorded.'}
                 </div>
               </div>
-            )}
-          </div>
-        ))}
 
-        {remediation && remediation.length > 0 && (
-          <div className="mt-4 p-4 bg-[#1E293B] border border-[#334155] rounded-xl">
-            <h4 className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-2">
-              Action Plan Guidance
-            </h4>
-            <ul className="list-disc list-inside space-y-1 text-xs text-[#94A3B8]">
-              {remediation.map((step, sIdx) => (
-                <li key={sIdx}>{step}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+              {/* BOTTOM: "Remediation" label (tiny caps, muted) + remediation text in green-tinted box */}
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                  Remediation
+                </span>
+                <div className="bg-[#F0FDF4] text-[#166534] text-xs font-medium p-3.5 rounded-lg border border-green-200 leading-relaxed">
+                  {finding.remediation || 'No remediation action recommended.'}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
 
 export default EvidencePanel;
-
