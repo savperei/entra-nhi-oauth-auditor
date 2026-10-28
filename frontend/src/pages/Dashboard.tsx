@@ -6,7 +6,11 @@ import { ScoreCard } from '../components/ScoreCard';
 import { RiskBadge } from '../components/RiskBadge';
 import { ExportControls } from '../components/ExportControls';
 
-export const Dashboard: React.FC = () => {
+export interface DashboardProps {
+  exportControls?: React.ReactNode;
+}
+
+export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
   const [identities, setIdentities] = useState<IdentitySummary[]>([]);
   const [auditStatus, setAuditStatus] = useState<AuditStatusResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -295,7 +299,7 @@ export const Dashboard: React.FC = () => {
             Last audit: {formatTimestamp(auditStatus?.timestamp)}
           </p>
         </div>
-        <ExportControls />
+        {exportControls ?? <ExportControls disabled={isNoAudit} />}
       </div>
 
       {/* 2. FOUR SCORE CARDS */}
