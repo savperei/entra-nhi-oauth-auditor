@@ -15,7 +15,7 @@ export type GetIdentitiesParams = IdentityFilters;
 
 const BASE_URL =
   ((import.meta as unknown as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL) ||
-  'http://localhost:8000/api/v1';
+  'http://127.0.0.1:8000/api/v1';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,

@@ -11,13 +11,22 @@ from src.inventory import normalise_all
 from src.analyzers import run_all_analyzers
 from src.risk_engine import RuleLoader, RiskScorer, EvidenceBuilder
 
-# In-memory module-level cache
+# In-memory module-level cache initialised as empty dict
 _PIPELINE_CACHE: Dict[str, Any] = {}
 
 
-def get_pipeline_cache() -> Optional[Dict[str, Any]]:
-    """Returns the cached pipeline result if available, otherwise None."""
-    return _PIPELINE_CACHE if _PIPELINE_CACHE else None
+def get_pipeline_cache() -> Dict[str, Any]:
+    """Returns the cached pipeline result dictionary (empty dict if no audit has been run)."""
+    global _PIPELINE_CACHE
+    if _PIPELINE_CACHE is None:
+        _PIPELINE_CACHE = {}
+    return _PIPELINE_CACHE
+
+
+def clear_pipeline_cache() -> None:
+    """Resets the pipeline cache to empty dict."""
+    global _PIPELINE_CACHE
+    _PIPELINE_CACHE = {}
 
 
 def run_pipeline(force: bool = False) -> Dict[str, Any]:
