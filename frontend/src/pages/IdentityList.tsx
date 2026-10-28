@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { RiskBadge } from '../components/RiskBadge';
+import { Skeleton } from '../components/Skeleton';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { apiClient } from '../services/api';
 import { NonHumanIdentity, RiskLevel } from '../types';
 
@@ -343,14 +346,8 @@ export const IdentityList: React.FC = () => {
 
       {/* ERROR NOTICE IF OCCURRED */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 flex items-center justify-between">
-          <p className="text-sm font-medium">{error}</p>
-          <button
-            onClick={() => fetchIdentities()}
-            className="text-xs font-semibold underline text-red-700 hover:text-red-900"
-          >
-            Retry
-          </button>
+        <div className="my-4">
+          <ErrorMessage message={error} onRetry={fetchIdentities} />
         </div>
       )}
 
@@ -582,106 +579,30 @@ export const IdentityList: React.FC = () => {
 
           {/* EMPTY STATES */}
           {!loading && filteredIdentities.length === 0 && (
-            <div className="py-16 px-4 text-center">
+            <div className="py-12 px-4">
               {identities.length === 0 && !isFilterActive ? (
-                /* Empty (no audit) -> "No audit data. Run an audit first." + Run Audit button */
-                <div className="max-w-md mx-auto space-y-4">
-                  <div className="w-12 h-12 mx-auto rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-slate-900">
-                      No audit data. Run an audit first.
-                    </h3>
-                    <p className="text-sm text-slate-500 mt-1">
-                      No non-human identities or active service principals have been audited yet.
-                    </p>
-                  </div>
-                  <div>
-                    <button
-                      type="button"
-                      onClick={handleRunAudit}
-                      disabled={isAuditing}
-                      className="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
-                    >
-                      {isAuditing ? (
-                        <>
-                          <svg
-                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8v8H4z"
-                            />
-                          </svg>
-                          Running Audit...
-                        </>
-                      ) : (
-                        'Run Audit'
-                      )}
-                    </button>
-                  </div>
-                </div>
+                <EmptyState
+                  title="No audit data"
+                  message="Run an audit first to discover and populate your non-human identity inventory."
+                  action={{
+                    label: isAuditing ? 'Running Audit...' : 'Run Audit',
+                    onClick: handleRunAudit,
+                    disabled: isAuditing,
+                    loading: isAuditing,
+                  }}
+                />
               ) : (
-                /* Empty filtered state */
-                <div className="max-w-md mx-auto space-y-3">
-                  <p className="text-sm font-medium text-slate-700">
-                    No identities match your current search and filter criteria.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleClearFilters}
-                    className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md border border-blue-200 transition-colors"
-                  >
-                    Clear filters
-                  </button>
-                </div>
+                <EmptyState
+                  title="No matching identities"
+                  message="No identities found matching the selected filters or search term."
+                  action={{
+                    label: 'Clear Filters',
+                    onClick: handleClearFilters,
+                  }}
+                />
               )}
             </div>
           )}
-        </div>
-
-        {/* PAGINATION: Show 25 per page, "Previous" / "Next" buttons + "Page N of N" label */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-slate-200 bg-white">
-          <button
-            type="button"
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1 || loading}
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            Previous
-          </button>
-
-          <span className="text-xs font-medium text-slate-600">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-            disabled={currentPage >= totalPages || loading}
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            Next
-          </button>
         </div>
       </div>
     </div>
@@ -689,4 +610,3 @@ export const IdentityList: React.FC = () => {
 };
 
 export default IdentityList;
-

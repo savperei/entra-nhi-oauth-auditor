@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../services/api';
 import { RiskBadge } from '../components/RiskBadge';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { PermissionTable } from '../components/PermissionTable';
 import { CredentialHealth } from '../components/CredentialHealth';
 import { EvidencePanel } from '../components/EvidencePanel';
@@ -177,24 +179,15 @@ export const IdentityDetail: React.FC = () => {
 
   if (is404 || !identity) {
     return (
-      <div className="max-w-md mx-auto my-16 bg-[#1E293B] border border-[#334155] rounded-2xl p-8 text-center shadow-lg">
-        <div className="w-14 h-14 rounded-2xl bg-[#334155] text-[#94A3B8] flex items-center justify-center mx-auto mb-4">
-          <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-bold text-[#F1F5F9] mb-2">Identity not found.</h2>
-        <p className="text-xs text-[#94A3B8] mb-6">
-          No non-human identity matching the ID &ldquo;<span className="font-mono text-[#E2E8F0]">{id}</span>&rdquo; could be found in directory inventory.
-        </p>
-        <Link
-          to="/identities"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#3B82F6] hover:bg-blue-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
-        >
-          &larr; All Identities
-        </Link>
+      <div className="my-16">
+        <EmptyState
+          title="Identity not found"
+          message={`No non-human identity matching the ID "${id}" was found in directory inventory.`}
+          action={{
+            label: "Back to Identities",
+            onClick: () => window.location.assign('/identities'),
+          }}
+        />
       </div>
     );
   }

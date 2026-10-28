@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { useFindings } from '../hooks/useApi';
 import { RiskBadge } from '../components/RiskBadge';
 import { ExportControls } from '../components/ExportControls';
+import { Skeleton } from '../components/Skeleton';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { RiskLevel } from '../types';
 
 export interface FindingsPageProps {
@@ -15,17 +18,48 @@ export const FindingsPage: React.FC<FindingsPageProps> = ({ exportControls }) =>
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3B82F6]"></div>
-        <span className="ml-3 text-[#94A3B8] font-medium">Loading audit findings...</span>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between pb-4 border-b border-[#334155]">
+          <div className="space-y-2">
+            <Skeleton width="220px" height="2rem" />
+            <Skeleton width="300px" height="1rem" />
+          </div>
+          <Skeleton width="180px" height="2rem" rounded="lg" />
+        </div>
+
+        {/* 3 Skeleton Cards */}
+        <div className="space-y-4">
+          {[1, 2, 3].map((n) => (
+            <div
+              key={`skeleton-${n}`}
+              className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 shadow-sm space-y-3"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-[#334155]">
+                <div className="flex items-center gap-2">
+                  <Skeleton width="80px" height="1.25rem" rounded="full" />
+                  <Skeleton width="120px" height="1rem" />
+                </div>
+                <Skeleton width="140px" height="1rem" />
+              </div>
+              <Skeleton width="45%" height="1.25rem" />
+              <Skeleton width="90%" height="1rem" />
+              <div className="p-3 bg-[#0F172A] border border-[#334155] rounded-lg">
+                <Skeleton width="100%" height="2rem" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4 bg-[#1E293B] border border-[#EF4444]/40 rounded-xl text-[#EF4444]">
-        <p className="font-medium">{error}</p>
+      <div className="max-w-2xl mx-auto my-8">
+        <ErrorMessage
+          message={`Failed to load findings. ${error}`}
+          onRetry={() => window.location.reload()}
+        />
       </div>
     );
   }
@@ -69,8 +103,26 @@ export const FindingsPage: React.FC<FindingsPageProps> = ({ exportControls }) =>
 
       <div className="space-y-4">
         {filtered.length === 0 ? (
-          <div className="p-8 text-center text-[#64748B] text-sm bg-[#1E293B] border border-[#334155] rounded-xl">
-            No risk findings match the selected criteria.
+          <div className="my-8">
+            <EmptyState
+              title="No findings found"
+              message={
+                findings.length === 0
+                  ? "No findings yet. Run an audit first to scan for security risks."
+                  : "No risk findings match the selected severity filter."
+              }
+              action={
+                findings.length === 0
+                  ? {
+                      label: "Run Audit",
+                      onClick: () => window.location.assign('/dashboard'),
+                    }
+                  : {
+                      label: "Reset Filter",
+                      onClick: () => setSeverityFilter('ALL'),
+                    }
+              }
+            />
           </div>
         ) : (
           filtered.map((item) => (

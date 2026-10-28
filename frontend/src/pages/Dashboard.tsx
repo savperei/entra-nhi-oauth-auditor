@@ -6,6 +6,9 @@ import { ScoreCard } from '../components/ScoreCard';
 import { RiskBadge } from '../components/RiskBadge';
 import { ExportControls } from '../components/ExportControls';
 import { RiskBreakdownChart } from '../components/RiskBreakdownChart';
+import { Skeleton } from '../components/Skeleton';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
 
 export interface DashboardProps {
   exportControls?: React.ReactNode;
@@ -91,43 +94,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
   // --------------------------------------------------------------------------
   if (loading) {
     return (
-      <div className="space-y-8 animate-pulse">
+      <div className="space-y-8">
         {/* Header Skeleton */}
         <div className="flex items-center justify-between pb-4 border-b border-[#334155]">
           <div className="space-y-2">
-            <div className="h-8 w-44 bg-[#1E293B] rounded"></div>
-            <div className="h-4 w-60 bg-[#1E293B] rounded"></div>
+            <Skeleton width="180px" height="2rem" />
+            <Skeleton width="240px" height="1rem" />
           </div>
-          <div className="h-9 w-48 bg-[#1E293B] rounded"></div>
+          <Skeleton width="220px" height="2.25rem" rounded="lg" />
         </div>
 
         {/* 4 Skeleton ScoreCards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 space-y-3">
-              <div className="h-3 w-28 bg-[#334155] rounded"></div>
-              <div className="h-9 w-16 bg-[#334155] rounded"></div>
-              <div className="h-3 w-36 bg-[#334155] rounded"></div>
+              <Skeleton width="60%" height="0.75rem" />
+              <Skeleton width="40%" height="2rem" />
+              <Skeleton width="80%" height="0.75rem" />
             </div>
           ))}
         </div>
 
         {/* Chart Skeleton */}
         <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 space-y-4">
-          <div className="h-5 w-48 bg-[#334155] rounded"></div>
+          <Skeleton width="160px" height="1.25rem" />
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-6 bg-[#0F172A] rounded"></div>
+              <Skeleton key={i} height="1.25rem" rounded="full" />
             ))}
           </div>
         </div>
 
         {/* Table Skeleton */}
         <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6 space-y-4">
-          <div className="h-5 w-56 bg-[#334155] rounded"></div>
-          <div className="space-y-2">
+          <Skeleton width="200px" height="1.25rem" />
+          <div className="space-y-2.5">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-10 bg-[#0F172A] rounded"></div>
+              <Skeleton key={i} height="2.5rem" rounded="md" />
             ))}
           </div>
         </div>
@@ -140,26 +143,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
   // --------------------------------------------------------------------------
   if (error) {
     return (
-      <div className="p-6 bg-[#1E293B] border border-[#EF4444]/40 rounded-xl shadow-lg">
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/30 flex items-center justify-center shrink-0 text-[#EF4444]">
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <h2 className="text-lg font-bold text-[#EF4444]">Failed to load dashboard.</h2>
-            <p className="text-sm text-[#F1F5F9] mt-1">{error}</p>
-            <button
-              onClick={loadDashboardData}
-              className="mt-4 px-4 py-2 bg-[#EF4444] hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
+      <div className="max-w-2xl mx-auto my-8">
+        <ErrorMessage
+          message={`Failed to load dashboard. ${error}`}
+          onRetry={loadDashboardData}
+        />
       </div>
     );
   }
@@ -173,36 +161,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
 
   if (isNoAudit) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 px-4">
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-10 max-w-md w-full text-center shadow-xl">
-          <div className="w-16 h-16 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/30 flex items-center justify-center mx-auto text-[#3B82F6] mb-5">
-            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-[#F1F5F9]">No audit data yet</h2>
-          <p className="text-sm text-[#64748B] mt-2 mb-6">
-            Run your first audit to see results
-          </p>
-          <button
-            onClick={handleRunFirstAudit}
-            disabled={actionRunning}
-            className="w-full py-2.5 px-4 bg-[#3B82F6] hover:bg-blue-600 disabled:opacity-50 text-white font-semibold rounded-lg text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-sm"
-          >
-            {actionRunning ? (
-              <>
-                <svg className="w-4 h-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                </svg>
-                <span>Running First Audit...</span>
-              </>
-            ) : (
-              <span>Run Audit</span>
-            )}
-          </button>
-        </div>
-      </div>
+      <EmptyState
+        title="No audit data yet"
+        message="Run your first audit to see results"
+        action={{
+          label: actionRunning ? 'Running First Audit...' : 'Run Audit',
+          onClick: handleRunFirstAudit,
+          disabled: actionRunning,
+          loading: actionRunning,
+        }}
+      />
     );
   }
 

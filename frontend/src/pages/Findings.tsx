@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ExportControls } from '../components/ExportControls';
 import { RiskBadge } from '../components/RiskBadge';
+import { Skeleton } from '../components/Skeleton';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { apiClient, runAudit } from '../services/api';
 import { Finding, RiskLevel } from '../types';
 
@@ -414,24 +417,26 @@ export const Findings: React.FC = () => {
         </div>
       )}
 
-      {/* LOADING STATE: 4 skeleton cards */}
+      {/* LOADING STATE: 3 skeleton cards */}
       {loading && (
         <div className="space-y-4">
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3].map((n) => (
             <div
               key={`skeleton-${n}`}
-              className="bg-white border border-slate-200 border-l-[3px] border-l-slate-300 rounded-xl p-5 shadow-sm space-y-3 animate-pulse"
+              className="bg-white border border-slate-200 border-l-[3px] border-l-slate-300 rounded-xl p-5 shadow-sm space-y-3"
             >
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <div className="h-4 bg-slate-200 rounded w-44"></div>
-                <div className="h-4 bg-slate-100 rounded w-24"></div>
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Skeleton width="80px" height="1.25rem" rounded="full" />
+                  <Skeleton width="120px" height="1rem" />
+                </div>
+                <Skeleton width="140px" height="1rem" />
               </div>
-              <div className="flex items-center justify-between">
-                <div className="h-5 bg-slate-200 rounded-full w-24"></div>
-                <div className="h-3 bg-slate-200 rounded w-16"></div>
+              <Skeleton width="45%" height="1.25rem" />
+              <Skeleton width="90%" height="1rem" />
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <Skeleton width="100%" height="2rem" />
               </div>
-              <div className="h-16 bg-slate-100 rounded-lg"></div>
-              <div className="h-12 bg-slate-50 rounded-lg"></div>
             </div>
           ))}
         </div>
