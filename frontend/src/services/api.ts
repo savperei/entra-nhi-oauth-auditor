@@ -140,4 +140,35 @@ export const getDashboardStats = async (): Promise<DashboardStatsResponse> => {
   return response.data;
 };
 
+/**
+ * Lists all risk rules loaded from the backend YAML configuration.
+ * Calls GET /rules
+ */
+export const getRules = async (): Promise<{
+  id: string;
+  name: string;
+  severity: string;
+  score: number;
+  remediation: string;
+}[]> => {
+  const response = await apiClient.get('/rules');
+  return response.data;
+};
+
+/**
+ * Returns system configuration: mode, thresholds, high-risk permissions.
+ * Calls GET /config
+ */
+export const getConfig = async (): Promise<{
+  mode: string;
+  version: string;
+  rules_file: string;
+  last_audit_at: string | null;
+  thresholds: { critical: number; high: number; medium: number; low: number; none: number };
+  high_risk_permissions: string[];
+}> => {
+  const response = await apiClient.get('/config');
+  return response.data;
+};
+
 export default apiClient;

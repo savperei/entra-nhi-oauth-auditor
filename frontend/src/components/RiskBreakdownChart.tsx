@@ -29,7 +29,6 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
 }) => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
-  // Trigger CSS transition animation on mount (600ms ease-out)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsMounted(true);
@@ -41,18 +40,8 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
 
   if (isEmpty) {
     return (
-      <div
-        className={`bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 shadow-sm ${className}`}
-      >
-        <div className="mb-4">
-          <h2 className="text-base font-semibold text-[#F1F5F9]">
-            Risk Distribution
-          </h2>
-          <p className="text-xs text-[#64748B] mt-0.5">0 identities audited</p>
-        </div>
-        <div className="py-10 text-center text-xs sm:text-sm text-[#64748B]">
-          Run an audit to see risk distribution.
-        </div>
+      <div className={`py-6 text-center text-xs text-[#71717A] dark:text-[#94A3B8] ${className}`}>
+        Run an audit to view the risk breakdown.
       </div>
     );
   }
@@ -61,92 +50,75 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
     {
       level: 'Critical',
       count: summary.critical || 0,
-      color: '#EF4444',
+      color: '#DC2626',
     },
     {
       level: 'High',
       count: summary.high || 0,
-      color: '#F59E0B',
+      color: '#D97706',
     },
     {
       level: 'Medium',
       count: summary.medium || 0,
-      color: '#EAB308',
+      color: '#CA8A04',
     },
     {
       level: 'Low',
       count: summary.low || 0,
-      color: '#22C55E',
+      color: '#16A34A',
     },
     {
       level: 'None',
       count: summary.none || 0,
-      color: '#64748B',
+      color: '#71717A',
     },
   ];
 
   return (
-    <div
-      className={`bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 shadow-sm ${className}`}
-    >
-      {/* Header & Subtitle */}
-      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-        <div>
-          <h2 className="text-base font-semibold text-[#F1F5F9]">
-            Risk Distribution
-          </h2>
-          <p className="text-xs text-[#64748B] mt-0.5">
-            {total} {total === 1 ? 'identity' : 'identities'} audited
-          </p>
-        </div>
-      </div>
+    <div className={`space-y-2.5 ${className}`}>
+      {rows.map((row) => {
+        const pct = total > 0 ? Math.round((row.count / total) * 100) : 0;
 
-      {/* 5 Rows */}
-      <div className="space-y-3 sm:space-y-4">
-        {rows.map((row) => {
-          const pct = total > 0 ? Math.round((row.count / total) * 100) : 0;
-
-          return (
-            <div
-              key={row.level}
-              className="flex items-center gap-2 sm:gap-4 text-xs"
-            >
-              {/* [RiskBadge] - reduced width on mobile */}
-              <div className="w-18 sm:w-24 shrink-0">
-                <RiskBadge level={row.level} />
-              </div>
-
-              {/* [Bar track] light grey bg (#334155), full width */}
-              <div className="flex-1 h-3 bg-[#334155] rounded-full overflow-hidden relative min-w-[60px]">
-                {/* [Bar fill] coloured by level, width 0 -> final over 600ms ease-out */}
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    backgroundColor: row.color,
-                    width: isMounted ? `${pct}%` : '0%',
-                    minWidth: isMounted ? '4px' : '0px',
-                    transition: 'width 600ms ease-out, min-width 600ms ease-out',
-                  }}
-                />
-              </div>
-
-              {/* [N] Count: right-aligned, bold if > 0 */}
-              <div
-                className={`w-8 sm:w-12 text-right font-mono text-xs sm:text-sm shrink-0 ${
-                  row.count > 0 ? 'font-bold text-[#F1F5F9]' : 'text-[#64748B]'
-                }`}
-              >
-                {row.count}
-              </div>
-
-              {/* [%] Percentage: muted, e.g. "42%" */}
-              <div className="w-8 sm:w-12 text-right font-mono text-xs text-[#64748B] shrink-0">
-                {pct}%
-              </div>
+        return (
+          <div
+            key={row.level}
+            className="flex items-center gap-2 sm:gap-3 text-xs"
+          >
+            {/* Badge */}
+            <div className="w-20 shrink-0">
+              <RiskBadge level={row.level} />
             </div>
-          );
-        })}
-      </div>
+
+            {/* Bar track */}
+            <div className="flex-1 h-2 bg-[#F4F4F5] dark:bg-[#0F172A] rounded-full overflow-hidden relative min-w-[50px] border border-[#E4E4E7] dark:border-[#334155]">
+              <div
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{
+                  backgroundColor: row.color,
+                  width: isMounted ? `${pct}%` : '0%',
+                  minWidth: isMounted && row.count > 0 ? '3px' : '0px',
+                }}
+              />
+            </div>
+
+            {/* Count */}
+            <div
+              className={`w-6 text-right font-mono text-xs shrink-0 ${
+                row.count > 0
+                  ? 'font-bold text-[#18181B] dark:text-[#F1F5F9]'
+                  : 'text-[#A1A1AA] dark:text-[#71717A]'
+              }`}
+            >
+              {row.count}
+            </div>
+
+            {/* Percentage */}
+            <div className="w-10 text-right font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8] shrink-0">
+              {pct}%
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

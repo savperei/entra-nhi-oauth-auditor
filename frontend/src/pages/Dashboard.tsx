@@ -67,7 +67,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit',
       });
     } catch {
       return ts;
@@ -77,60 +76,47 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
   const getScoreColorClass = (level: string) => {
     switch (level.toLowerCase()) {
       case 'critical':
-        return 'text-[#EF4444]';
+        return 'text-[#DC2626]';
       case 'high':
-        return 'text-[#F59E0B]';
+        return 'text-[#D97706]';
       case 'medium':
-        return 'text-[#EAB308]';
+        return 'text-[#CA8A04]';
       case 'low':
-        return 'text-[#22C55E]';
+        return 'text-[#16A34A]';
       default:
-        return 'text-[#64748B]';
+        return 'text-[#71717A] dark:text-[#94A3B8]';
     }
   };
 
   // --------------------------------------------------------------------------
-  // LOADING STATE (Skeleton ScoreCards + Skeleton Table)
+  // LOADING STATE
   // --------------------------------------------------------------------------
   if (loading) {
     return (
-      <div className="space-y-6 sm:space-y-8">
-        {/* Header Skeleton */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#334155] gap-3">
-          <div className="space-y-2">
-            <Skeleton width="180px" height="2rem" />
-            <Skeleton width="240px" height="1rem" />
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E4E4E7] dark:border-[#334155] gap-3">
+          <div className="space-y-1">
+            <Skeleton width="180px" height="1.75rem" />
+            <Skeleton width="220px" height="0.875rem" />
           </div>
-          <Skeleton width="220px" height="2.25rem" rounded="lg" />
+          <Skeleton width="160px" height="2rem" rounded="md" />
         </div>
 
-        {/* 4 Skeleton ScoreCards: 2-column mobile */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-[#1E293B] border border-[#334155] rounded-xl p-3.5 sm:p-5 space-y-3">
-              <Skeleton width="60%" height="0.75rem" />
-              <Skeleton width="40%" height="1.75rem" />
-              <Skeleton width="80%" height="0.75rem" />
+            <div key={i} className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 space-y-2">
+              <Skeleton width="50%" height="0.75rem" />
+              <Skeleton width="30%" height="1.5rem" />
+              <Skeleton width="80%" height="0.65rem" />
             </div>
           ))}
         </div>
 
-        {/* Chart Skeleton */}
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 space-y-4">
-          <Skeleton width="160px" height="1.25rem" />
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} height="1.25rem" rounded="full" />
-            ))}
-          </div>
-        </div>
-
-        {/* Table Skeleton */}
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 space-y-4">
-          <Skeleton width="200px" height="1.25rem" />
-          <div className="space-y-2.5">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} height="2.5rem" rounded="md" />
+        <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-5 space-y-3">
+          <Skeleton width="160px" height="1rem" />
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} height="1rem" rounded="full" />
             ))}
           </div>
         </div>
@@ -153,7 +139,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
   }
 
   // --------------------------------------------------------------------------
-  // EMPTY STATE (If no audit run)
+  // EMPTY STATE
   // --------------------------------------------------------------------------
   const isNoAudit =
     auditStatus?.status === 'no_audit_run' ||
@@ -163,9 +149,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
     return (
       <EmptyState
         title="No audit data yet"
-        message="Run your first audit to see results"
+        message="Run your first scan to discover all non-human identities, evaluate credential health, and flag high-privilege OAuth permissions."
         action={{
-          label: actionRunning ? 'Running First Audit...' : 'Run Audit',
+          label: actionRunning ? 'Auditing…' : 'Run First Audit',
           onClick: handleRunFirstAudit,
           disabled: actionRunning,
           loading: actionRunning,
@@ -211,7 +197,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
     (i) => !i.is_publisher_verified
   ).length;
 
-  // Risk summary counts for breakdown chart
   const summaryCounts = {
     critical: criticalCount,
     high: highCount,
@@ -220,89 +205,111 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
     none: noneCount,
   };
 
-  // Top 5 riskiest identities sorted descending by score
   const topRiskiest = [...identities]
     .sort((a, b) => (b.risk_score || 0) - (a.risk_score || 0))
     .slice(0, 5);
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto">
       {/* 1. PAGE HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#334155]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E4E4E7] dark:border-[#334155]">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#F1F5F9] tracking-tight">Dashboard</h1>
-          <p className="text-xs text-[#64748B] mt-1 font-mono">
-            Last audit: {formatTimestamp(auditStatus?.timestamp)}
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#18181B] dark:text-[#F1F5F9]">
+            Dashboard
+          </h1>
+          <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+            Last audit scan completed {formatTimestamp(auditStatus?.timestamp)}
           </p>
         </div>
         {exportControls ?? <ExportControls disabled={isNoAudit} />}
       </div>
 
-      {/* 2. FOUR SCORE CARDS: 2-column mobile */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+      {/* 2. STAT CARDS WITH EXPLANATORY DEFINITIONS & TOOLTIPS */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <ScoreCard
-          label="Total Identities"
+          label="Total identities"
           value={totalIdentities}
           accent="blue"
-          sublabel="Service Principals & Managed IDs"
+          sublabel="Apps, services and automation accounts found in this audit."
+          tooltip="Total count of all Entra ID service principals, app registrations, and managed identities discovered in this scan."
         />
         <ScoreCard
-          label="Critical Risks"
+          label="Critical risks"
           value={criticalCount}
           accent="critical"
-          sublabel="Immediate credential or grant risk"
+          sublabel="Identities scoring 80 or more. Fix these first."
+          tooltip="Identities with risk score 80 or higher, typically with expiring credentials and tenant-wide high-risk permissions."
         />
         <ScoreCard
-          label="High Risks"
+          label="High risks"
           value={highCount}
           accent="high"
-          sublabel="Requires urgent remediation"
+          sublabel="Identities scoring 50 to 79. Fix these next."
+          tooltip="Identities with score 50 to 79 due to org-wide AllPrincipals consent or unverified publisher integrations."
         />
         <ScoreCard
-          label="Unverified Publishers"
+          label="Unverified publishers"
           value={unverifiedPublishersCount}
           accent="high"
-          sublabel="Apps with unverified publishers"
+          sublabel="Apps from publishers Microsoft has not verified that still hold permissions."
+          tooltip="Third-party applications lacking a verified Microsoft Partner Network ID that hold active permissions in your directory."
         />
       </div>
 
-      {/* 3. RISK DISTRIBUTION (Horizontal Bar Chart Component) */}
-      <RiskBreakdownChart summary={summaryCounts} total={totalIdentities} />
+      {/* 3. RISK DISTRIBUTION WITH CLEAR HEADING */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+            How your {totalIdentities} identities split across risk levels
+          </h2>
+          <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+            The assigned risk level comes from each identity's calculated point total.{' '}
+            <Link to="/how-it-works" className="text-[#2563EB] hover:underline font-medium">
+              How is this calculated?
+            </Link>
+          </p>
+        </div>
 
-      {/* 4. TOP 5 RISKIEST IDENTITIES (Table) */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 sm:p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+        <RiskBreakdownChart summary={summaryCounts} total={totalIdentities} />
+      </div>
+
+      {/* 4. TOP 5 RISKIEST IDENTITIES TABLE */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
           <div>
-            <h2 className="text-sm sm:text-base font-semibold text-[#F1F5F9]">
-              Top 5 Riskiest Identities
+            <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+              Top 5 riskiest identities
             </h2>
-            <p className="text-xs text-[#64748B] mt-0.5">
-              Prioritized by aggregate calculated risk score
+            <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+              Higher is riskier. Click an identity to see which rules added points.{' '}
+              <Link to="/how-it-works" className="text-[#2563EB] hover:underline font-medium">
+                Learn how scoring works &rarr;
+              </Link>
             </p>
           </div>
           <Link
             to="/identities"
-            className="text-xs font-semibold text-[#3B82F6] hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+            className="text-xs font-medium text-[#2563EB] hover:underline whitespace-nowrap self-start sm:self-auto"
           >
             View all identities &rarr;
           </Link>
         </div>
 
-        <div className="overflow-x-auto border border-[#334155] rounded-lg">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-[#0F172A] text-[#64748B] text-xs uppercase tracking-wider font-semibold border-b border-[#334155]">
+        <div className="overflow-x-auto border border-[#E4E4E7] dark:border-[#334155] rounded">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
               <tr>
-                <th className="py-3 px-3 sm:px-4 w-12 sm:w-16">Rank</th>
-                <th className="py-3 px-3 sm:px-4">Name</th>
-                <th className="py-3 px-3 sm:px-4">Type</th>
-                <th className="py-3 px-3 sm:px-4 text-center">Risk Level</th>
-                <th className="py-3 px-3 sm:px-4 text-right">Score</th>
+                <th className="py-2.5 px-3 w-12">#</th>
+                <th className="py-2.5 px-3">Identity Name</th>
+                <th className="py-2.5 px-3">Type</th>
+                <th className="py-2.5 px-3">Risk Level</th>
+                <th className="py-2.5 px-3 text-right">Risk Score</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#334155] text-[#F1F5F9]">
+            <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
               {topRiskiest.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-[#64748B] text-xs">
+                  <td colSpan={5} className="py-6 text-center text-[#71717A] dark:text-[#94A3B8]">
                     No identities found.
                   </td>
                 </tr>
@@ -310,38 +317,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
                 topRiskiest.map((item, idx) => (
                   <tr
                     key={item.id}
-                    className="cursor-pointer hover:bg-[#0F172A]/70 transition-colors duration-100"
+                    className="hover:bg-[#F4F4F5]/50 dark:hover:bg-[#0F172A]/40 transition-colors"
                   >
-                    {/* Rank */}
-                    <td className="py-3 px-3 sm:px-4 font-mono text-xs text-[#64748B]">
+                    <td className="py-2.5 px-3 font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8]">
                       #{idx + 1}
                     </td>
-
-                    {/* Name (links to /identities/:id) */}
-                    <td className="py-3 px-3 sm:px-4 font-medium">
+                    <td className="py-2.5 px-3 font-medium">
                       <Link
                         to={`/identities/${item.id}`}
-                        className="text-[#38BDF8] hover:underline text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                        className="text-[#2563EB] hover:underline"
                       >
                         {item.display_name || item.name}
                       </Link>
                     </td>
-
-                    {/* Type */}
-                    <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
-                      <span className="text-xs text-[#94A3B8] bg-[#0F172A] px-2 py-0.5 rounded border border-[#334155]">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
+                      <span className="text-[11px] font-mono text-[#71717A] dark:text-[#94A3B8]">
                         {item.identity_type}
                       </span>
                     </td>
-
-                    {/* Risk Level Badge */}
-                    <td className="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       <RiskBadge level={item.risk_level} />
                     </td>
-
-                    {/* Score (bold, colored by level) */}
-                    <td className="py-3 px-3 sm:px-4 text-right font-mono font-bold whitespace-nowrap">
-                      <span className={`text-xs sm:text-sm ${getScoreColorClass(item.risk_level)}`}>
+                    <td className="py-2.5 px-3 text-right font-mono font-bold whitespace-nowrap">
+                      <span className={getScoreColorClass(item.risk_level)}>
                         {item.risk_score}
                       </span>
                     </td>

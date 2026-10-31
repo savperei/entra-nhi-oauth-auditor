@@ -14,7 +14,6 @@ export interface CredentialHealthProps {
 }
 
 export const CredentialHealth: React.FC<CredentialHealthProps> = ({ credentials = [] }) => {
-  // Normalize incoming credentials to match the expected interface
   const normalizedCredentials = useMemo<CredentialItem[]>(() => {
     return (credentials || []).map((cred: any) => {
       const credential_id = cred.credential_id || cred.key_id || '';
@@ -47,7 +46,6 @@ export const CredentialHealth: React.FC<CredentialHealthProps> = ({ credentials 
     });
   }, [credentials]);
 
-  // Critical check: expired OR days_until_expiry < 14
   const criticalCredentials = useMemo(() => {
     return normalizedCredentials.filter((c) => {
       if (c.days_until_expiry !== null && c.days_until_expiry < 14) {
@@ -59,210 +57,144 @@ export const CredentialHealth: React.FC<CredentialHealthProps> = ({ credentials 
 
   const criticalCount = criticalCredentials.length;
 
-  // Format date helper: "DD MMM YYYY"
-  const formatExpiryDate = (dateStr: string | null): string => {
-    if (!dateStr || dateStr === 'Managed by Azure') {
-      return 'No expiry';
-    }
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) {
+  const formatDate = (dateStr: string | null): string => {
+    if (!dateStr || dateStr === 'Managed by Azure') return dateStr || 'Never';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    } catch {
       return dateStr;
     }
-    const day = String(d.getDate()).padStart(2, '0');
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    const month = monthNames[d.getMonth()];
-    const year = d.getFullYear();
-    return `${day} ${month} ${year}`;
   };
 
-  // Status badge logic:
-  const getStatusBadge = (expires: string | null, days: number | null) => {
-    if (expires === null || expires === '' || expires === 'Managed by Azure' || days === null) {
-      return {
-        label: 'No expiry',
-        badgeClass: 'bg-[#F59E0B]/20 text-[#F59E0B] border-[#F59E0B]/30',
-      };
+  const getStatusBadge = (days: number | null, expires: string | null) => {
+    if (expires === null || expires === undefined || expires === 'Managed by Azure') {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] dark:bg-[#78350F]/30 dark:border-[#B45309] dark:text-[#FDE68A]">
+          No expiry
+        </span>
+      );
     }
+
+    if (days === null) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#F4F4F5] text-[#71717A] dark:bg-[#334155] dark:text-[#94A3B8]">
+          Unknown
+        </span>
+      );
+    }
+
     if (days < 0) {
-      return {
-        label: 'Expired',
-        badgeClass: 'bg-[#EF4444]/20 text-[#EF4444] border-[#EF4444]/40',
-      };
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA] dark:bg-[#7F1D1D]/30 dark:border-[#991B1B] dark:text-[#FCA5A5]">
+          Expired
+        </span>
+      );
     }
+
     if (days < 14) {
-      return {
-        label: `${days}d left`,
-        fullLabel: `${days} day${days === 1 ? '' : 's'} left`,
-        badgeClass: 'bg-[#EF4444]/20 text-[#EF4444] border-[#EF4444]/40',
-      };
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA] dark:bg-[#7F1D1D]/30 dark:border-[#991B1B] dark:text-[#FCA5A5]">
+          {days} {days === 1 ? 'day' : 'days'} left
+        </span>
+      );
     }
+
     if (days < 30) {
-      return {
-        label: `${days}d left`,
-        fullLabel: `${days} days left`,
-        badgeClass: 'bg-[#F59E0B]/20 text-[#F59E0B] border-[#F59E0B]/30',
-      };
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#FEF3C7] text-[#D97706] border border-[#FCD34D] dark:bg-[#78350F]/30 dark:border-[#B45309] dark:text-[#FDE68A]">
+          {days} days left
+        </span>
+      );
     }
+
     if (days < 90) {
-      return {
-        label: `${days}d left`,
-        fullLabel: `${days} days left`,
-        badgeClass: 'bg-[#EAB308]/20 text-[#EAB308] border-[#EAB308]/30',
-      };
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#FEF9C3] text-[#CA8A04] border border-[#FDE047] dark:bg-[#713F12]/30 dark:border-[#A16207] dark:text-[#FEF08A]">
+          {days} days left
+        </span>
+      );
     }
-    return {
-      label: 'Valid',
-      fullLabel: 'Valid',
-      badgeClass: 'bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/30',
-    };
+
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0] dark:bg-[#064E3B]/30 dark:border-[#065F46] dark:text-[#86EFAC]">
+        Valid
+      </span>
+    );
   };
 
   return (
     <div className="space-y-4">
-      {/* ALERT BANNER (show above table if any critical) */}
+      {/* Alert Banner */}
       {criticalCount > 0 && (
-        <div className="bg-[#EF4444]/15 border border-[#EF4444]/40 rounded-xl p-3.5 sm:p-4 flex items-center gap-3 text-[#FCA5A5] shadow-sm">
-          <svg
-            className="w-5 h-5 text-[#EF4444] shrink-0"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <div className="text-xs sm:text-sm font-semibold text-[#F1F5F9]">
-            {criticalCount} credential{criticalCount === 1 ? '' : 's'} need immediate attention
-          </div>
+        <div className="p-3 rounded-lg bg-[#FEF2F2] dark:bg-[#7F1D1D]/20 border border-[#FCA5A5] dark:border-[#991B1B] text-[#DC2626] dark:text-[#FCA5A5] flex items-center gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-[#DC2626] shrink-0" />
+          <span className="text-xs font-semibold">
+            {criticalCount} credential{criticalCount === 1 ? '' : 's'} need immediate attention (expired or expiring in &lt;14 days)
+          </span>
         </div>
       )}
 
-      {/* TABLE / EMPTY STATE CONTAINER */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden shadow-sm">
-        {normalizedCredentials.length === 0 ? (
-          <div className="p-8 text-center text-[#64748B] text-xs sm:text-sm italic">
-            No credentials configured.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#0F172A]/70 text-[#64748B] text-xs uppercase tracking-wider border-b border-[#334155]">
+      {/* Table */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
+              <tr>
+                <th className="py-2.5 px-3">Name</th>
+                <th className="py-2.5 px-3">Type</th>
+                <th className="py-2.5 px-3">Expires</th>
+                <th className="py-2.5 px-3 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+              {normalizedCredentials.length === 0 ? (
                 <tr>
-                  <th className="px-4 sm:px-5 py-3.5 font-semibold">Name</th>
-                  <th className="px-3 sm:px-5 py-3.5 font-semibold">Type</th>
-                  {/* Desktop header columns: separate Expires and Status */}
-                  <th className="hidden sm:table-cell px-5 py-3.5 font-semibold">Expires</th>
-                  <th className="hidden sm:table-cell px-5 py-3.5 font-semibold text-right">Status</th>
-                  {/* Mobile header column: single stacked Expires & Status */}
-                  <th className="sm:hidden px-4 py-3.5 font-semibold text-right">Expires & Status</th>
+                  <td colSpan={4} className="py-6 text-center text-[#71717A] italic">
+                    No credentials configured.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-[#334155]">
-                {normalizedCredentials.map((cred, idx) => {
-                  const isExpiringSoonOrExpired =
-                    cred.days_until_expiry !== null && cred.days_until_expiry < 14;
-                  const status = getStatusBadge(cred.expires, cred.days_until_expiry);
+              ) : (
+                normalizedCredentials.map((cred, idx) => {
+                  const isExpiringSoon = cred.days_until_expiry !== null && cred.days_until_expiry < 14;
 
                   return (
-                    <tr
-                      key={cred.credential_id || idx}
-                      className="hover:bg-[#334155]/30 transition-colors duration-150"
-                    >
-                      {/* Name: "Unnamed" in muted if display_name is null */}
-                      <td className="px-4 sm:px-5 py-3.5 whitespace-nowrap">
-                        {cred.display_name ? (
-                          <div className="font-semibold text-[#F1F5F9] text-xs sm:text-sm">
-                            {cred.display_name}
-                          </div>
-                        ) : (
-                          <div className="text-[#64748B] italic text-xs sm:text-sm">
-                            Unnamed
-                          </div>
-                        )}
+                    <tr key={cred.credential_id || idx} className="hover:bg-[#F4F4F5]/60 dark:hover:bg-[#0F172A]/40 transition-colors">
+                      <td className="py-2.5 px-3">
+                        <span className="font-medium">
+                          {cred.display_name || <span className="text-[#A1A1AA] italic">Unnamed</span>}
+                        </span>
                         {cred.credential_id && (
-                          <div className="font-mono text-xs text-[#64748B] mt-0.5 max-w-[120px] sm:max-w-none truncate">
-                            ID: {cred.credential_id}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Type column: "Secret" or "Certificate" chip */}
-                      <td className="px-3 sm:px-5 py-3.5 whitespace-nowrap">
-                        {cred.type === 'certificate' ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#3B82F6]/15 text-[#38BDF8] border border-[#3B82F6]/30">
-                            Cert
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                            Secret
+                          <span className="block font-mono text-[10px] text-[#71717A] dark:text-[#94A3B8] truncate max-w-[150px]">
+                            {cred.credential_id}
                           </span>
                         )}
                       </td>
-
-                      {/* DESKTOP Expires column */}
-                      <td className="hidden sm:table-cell px-5 py-3.5 whitespace-nowrap text-xs">
-                        <span
-                          className={
-                            isExpiringSoonOrExpired
-                              ? 'text-[#EF4444] font-semibold'
-                              : 'text-[#94A3B8] font-medium'
-                          }
-                        >
-                          {formatExpiryDate(cred.expires)}
+                      <td className="py-2.5 px-3 whitespace-nowrap">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono capitalize bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] border border-[#E4E4E7] dark:border-[#334155]">
+                          {cred.type}
                         </span>
                       </td>
-
-                      {/* DESKTOP Status column */}
-                      <td className="hidden sm:table-cell px-5 py-3.5 text-right whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${status.badgeClass}`}
-                        >
-                          {status.fullLabel || status.label}
+                      <td className="py-2.5 px-3 whitespace-nowrap">
+                        <span className={`font-mono text-xs ${isExpiringSoon ? 'font-bold text-[#DC2626]' : ''}`}>
+                          {formatDate(cred.expires)}
                         </span>
                       </td>
-
-                      {/* MOBILE STACKED COLUMN: Expires + Status vertically */}
-                      <td className="sm:hidden px-4 py-3.5 text-right whitespace-nowrap">
-                        <div className="flex flex-col items-end gap-1">
-                          <span
-                            className={`text-xs ${
-                              isExpiringSoonOrExpired
-                                ? 'text-[#EF4444] font-semibold'
-                                : 'text-[#94A3B8] font-medium'
-                            }`}
-                          >
-                            {formatExpiryDate(cred.expires)}
-                          </span>
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${status.badgeClass}`}
-                          >
-                            {status.label}
-                          </span>
-                        </div>
+                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                        {getStatusBadge(cred.days_until_expiry, cred.expires)}
                       </td>
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

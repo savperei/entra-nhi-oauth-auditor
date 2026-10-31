@@ -4,7 +4,7 @@ import { RiskBadge } from '../components/RiskBadge';
 import { Skeleton } from '../components/Skeleton';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorMessage } from '../components/ErrorMessage';
-import { apiClient } from '../services/api';
+import { apiClient, runAudit } from '../services/api';
 import { NonHumanIdentity, RiskLevel } from '../types';
 
 type SortField = 'name' | 'identity_type' | 'risk_level' | 'risk_score' | 'publisher' | 'credentials';
@@ -24,14 +24,14 @@ export const IdentityList: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedRisk, setSelectedRisk] = useState<string>('');
 
-  // Sorting - default sort: risk_score descending
+  // Sorting
   const [sortField, setSortField] = useState<SortField>('risk_score');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // Debounce search input changes
+  // Debounce search
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
@@ -39,12 +39,10 @@ export const IdentityList: React.FC = () => {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearch, selectedType, selectedRisk]);
 
-  // Fetch identities from API: GET /api/v1/identities?type=&risk_level=&search=
   const fetchIdentities = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -69,20 +67,18 @@ export const IdentityList: React.FC = () => {
     fetchIdentities();
   }, [fetchIdentities]);
 
-  // Trigger audit run for empty state
   const handleRunAudit = async () => {
     setIsAuditing(true);
     try {
-      await apiClient.post('/audit/run');
-    } catch (err) {
-      console.warn('Audit run endpoint error or fallback:', err);
-    } finally {
+      await runAudit();
       await fetchIdentities();
+    } catch (err) {
+      console.warn('Audit run error:', err);
+    } finally {
       setIsAuditing(false);
     }
   };
 
-  // Helper for type chip formatting
   const formatIdentityType = (type?: string): string => {
     switch (type) {
       case 'ServicePrincipal':
@@ -96,7 +92,6 @@ export const IdentityList: React.FC = () => {
     }
   };
 
-  // Helper for calculating/resolving score
   const getRiskScore = (item: NonHumanIdentity): number => {
     if (typeof item.risk_score === 'number') return item.risk_score;
     if (typeof item.score === 'number') return item.score;
@@ -114,23 +109,21 @@ export const IdentityList: React.FC = () => {
     }
   };
 
-  // Helper for score text color matching risk level
   const getScoreColorClass = (level?: string): string => {
     switch (level?.toUpperCase()) {
       case 'CRITICAL':
-        return 'text-[#EF4444]';
+        return 'text-[#DC2626]';
       case 'HIGH':
-        return 'text-[#F59E0B]';
+        return 'text-[#D97706]';
       case 'MEDIUM':
-        return 'text-[#EAB308]';
+        return 'text-[#CA8A04]';
       case 'LOW':
-        return 'text-[#22C55E]';
+        return 'text-[#16A34A]';
       default:
-        return 'text-[#94A3B8]';
+        return 'text-[#71717A] dark:text-[#94A3B8]';
     }
   };
 
-  // Helper for publisher verification check
   const isPublisherVerified = (item: NonHumanIdentity): boolean => {
     if (typeof item.publisher_verified === 'boolean') return item.publisher_verified;
     if (typeof item.is_publisher_verified === 'boolean') return item.is_publisher_verified;
@@ -145,10 +138,9 @@ export const IdentityList: React.FC = () => {
     return false;
   };
 
-  // Helper for credentials expiring within 14 days
-  const hasExpiringCredentials = (item: NonHumanIdentity): boolean => {
-    if (!item.credentials || item.credentials.length === 0) return false;
-    return item.credentials.some((cred) => {
+  const getExpiringCredCount = (item: NonHumanIdentity): number => {
+    if (!item.credentials || item.credentials.length === 0) return 0;
+    return item.credentials.filter((cred) => {
       if (cred.is_expired) return true;
       if (typeof cred.days_until_expiry === 'number') {
         return cred.days_until_expiry <= 14;
@@ -160,10 +152,9 @@ export const IdentityList: React.FC = () => {
         return diffDays <= 14;
       }
       return false;
-    });
+    }).length;
   };
 
-  // Filter check flag
   const isFilterActive = search.trim() !== '' || selectedType !== '' || selectedRisk !== '';
 
   const handleClearFilters = () => {
@@ -173,7 +164,6 @@ export const IdentityList: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // Sort handler
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
@@ -184,7 +174,6 @@ export const IdentityList: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // Fallback client-side filter
   const filteredIdentities = useMemo(() => {
     return identities.filter((item) => {
       if (debouncedSearch.trim()) {
@@ -201,25 +190,20 @@ export const IdentityList: React.FC = () => {
       }
 
       if (selectedRisk) {
-        if (item.risk_level?.toUpperCase() !== selectedRisk.toUpperCase()) return false;
+        const normalizedRiskFilter = selectedRisk.toUpperCase();
+        const normalizedItemRisk = (item.risk_level || '').toUpperCase();
+        if (normalizedItemRisk !== normalizedRiskFilter) return false;
       }
 
       return true;
     });
   }, [identities, debouncedSearch, selectedType, selectedRisk]);
 
-  // Risk weighting for sorting
-  const riskWeight: Record<string, number> = {
-    CRITICAL: 4,
-    HIGH: 3,
-    MEDIUM: 2,
-    LOW: 1,
-  };
-
-  // Sorted list
   const sortedIdentities = useMemo(() => {
-    return [...filteredIdentities].sort((a, b) => {
+    const list = [...filteredIdentities];
+    list.sort((a, b) => {
       let comparison = 0;
+
       switch (sortField) {
         case 'name':
           comparison = (a.name || '').localeCompare(b.name || '');
@@ -228,34 +212,36 @@ export const IdentityList: React.FC = () => {
           comparison = (a.identity_type || '').localeCompare(b.identity_type || '');
           break;
         case 'risk_level': {
-          const rA = riskWeight[a.risk_level?.toUpperCase()] || 0;
-          const rB = riskWeight[b.risk_level?.toUpperCase()] || 0;
-          comparison = rA - rB;
+          const rankMap: Record<string, number> = {
+            CRITICAL: 4,
+            HIGH: 3,
+            MEDIUM: 2,
+            LOW: 1,
+            NONE: 0,
+          };
+          const aRank = rankMap[(a.risk_level || '').toUpperCase()] ?? 0;
+          const bRank = rankMap[(b.risk_level || '').toUpperCase()] ?? 0;
+          comparison = aRank - bRank;
           break;
         }
         case 'risk_score':
           comparison = getRiskScore(a) - getRiskScore(b);
           break;
-        case 'publisher': {
-          const pA = isPublisherVerified(a) ? 1 : 0;
-          const pB = isPublisherVerified(b) ? 1 : 0;
-          comparison = pA - pB;
+        case 'publisher':
+          comparison = (isPublisherVerified(a) ? 1 : 0) - (isPublisherVerified(b) ? 1 : 0);
           break;
-        }
-        case 'credentials': {
-          const cA = a.credentials?.length || 0;
-          const cB = b.credentials?.length || 0;
-          comparison = cA - cB;
+        case 'credentials':
+          comparison = (a.credentials?.length ?? 0) - (b.credentials?.length ?? 0);
           break;
-        }
         default:
           comparison = 0;
       }
+
       return sortOrder === 'asc' ? comparison : -comparison;
     });
+    return list;
   }, [filteredIdentities, sortField, sortOrder]);
 
-  // Pagination calculations
   const totalCount = filteredIdentities.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const paginatedIdentities = useMemo(() => {
@@ -266,64 +252,72 @@ export const IdentityList: React.FC = () => {
   const renderSortArrow = (field: SortField) => {
     if (sortField !== field) {
       return (
-        <span className="text-[#64748B] ml-1 text-xs select-none" aria-hidden="true">
-          ↕
-        </span>
+        <span className="ml-1 text-[#A1A1AA] opacity-50 text-[10px]">↕</span>
       );
     }
     return (
-      <span className="text-[#3B82F6] ml-1 font-bold text-xs select-none" aria-hidden="true">
-        {sortOrder === 'asc' ? '▲' : '▼'}
+      <span className="ml-1 text-[#2563EB] text-[10px]">
+        {sortOrder === 'asc' ? '↑' : '↓'}
       </span>
     );
   };
 
   return (
-    <div className="space-y-6">
-      {/* PAGE TITLE + TOTAL COUNT BADGE */}
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#F1F5F9] tracking-tight">Identities</h1>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#3B82F6]/20 text-[#38BDF8] border border-[#3B82F6]/30">
-          {totalCount}
-        </span>
+    <div className="space-y-4 max-w-6xl mx-auto pb-12">
+      {/* PAGE HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E4E4E7] dark:border-[#334155]">
+        <div className="flex items-center gap-2.5">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#18181B] dark:text-[#F1F5F9]">
+            Identities
+          </h1>
+          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/20">
+            {identities.length} Total
+          </span>
+        </div>
+        <Link
+          to="/how-it-works"
+          className="text-xs text-[#2563EB] hover:underline flex items-center gap-1 font-medium"
+        >
+          <span>How is risk scored?</span> &rarr;
+        </Link>
       </div>
 
-      {/* FILTER BAR (horizontal, below title) */}
-      <div className="bg-[#1E293B] p-4 border border-[#334155] rounded-xl shadow-sm">
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Search input */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
+      {/* FILTER BAR */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-3 sm:p-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Search Input */}
+          <div className="flex-1 min-w-[200px]">
             <input
               type="text"
-              placeholder="Search by name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-2 text-xs sm:text-sm border border-[#334155] rounded-lg placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#0F172A] text-[#F1F5F9]"
+              placeholder="Search by identity name or App ID..."
+              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] placeholder-[#A1A1AA] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
             />
           </div>
 
-          {/* Type dropdown */}
-          <div className="min-w-[150px]">
+          {/* Type Dropdown */}
+          <div className="min-w-[140px]">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-2 text-xs sm:text-sm border border-[#334155] rounded-lg text-[#F1F5F9] bg-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
             >
-              <option value="">All Types</option>
+              <option value="">All Identity Types</option>
               <option value="ServicePrincipal">Service Principal</option>
               <option value="AppRegistration">App Registration</option>
               <option value="ManagedIdentity">Managed Identity</option>
             </select>
           </div>
 
-          {/* Risk Level dropdown */}
-          <div className="min-w-[130px]">
+          {/* Risk Level Dropdown */}
+          <div className="min-w-[120px]">
             <select
               value={selectedRisk}
               onChange={(e) => setSelectedRisk(e.target.value)}
-              className="w-full px-3 py-2 text-xs sm:text-sm border border-[#334155] rounded-lg text-[#F1F5F9] bg-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
             >
-              <option value="">All Risks</option>
+              <option value="">All Risk Levels</option>
               <option value="CRITICAL">Critical</option>
               <option value="HIGH">High</option>
               <option value="MEDIUM">Medium</option>
@@ -331,12 +325,12 @@ export const IdentityList: React.FC = () => {
             </select>
           </div>
 
-          {/* "Clear filters" link (only visible when filter active) */}
+          {/* Clear Filters Link */}
           {isFilterActive && (
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-xs sm:text-sm font-medium text-[#3B82F6] hover:text-blue-400 hover:underline transition-colors px-1 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              className="text-xs text-[#2563EB] hover:underline px-2 py-1"
             >
               Clear filters
             </button>
@@ -344,24 +338,23 @@ export const IdentityList: React.FC = () => {
         </div>
       </div>
 
-      {/* ERROR NOTICE IF OCCURRED */}
+      {/* ERROR NOTICE */}
       {error && (
-        <div className="my-4">
+        <div className="my-3">
           <ErrorMessage message={error} onRetry={fetchIdentities} />
         </div>
       )}
 
-      {/* TABLE CONTAINER: Wrapped in overflow-x: auto */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden shadow-sm">
+      {/* TABLE CONTAINER */}
+      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-[#334155] text-left text-sm">
-            <thead className="bg-[#0F172A]/70 border-b border-[#334155]">
+          <table className="min-w-full divide-y divide-[#E4E4E7] dark:divide-[#334155] text-left text-xs">
+            <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
               <tr>
-                {/* Column: Name */}
                 <th
                   scope="col"
                   onClick={() => handleSort('name')}
-                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Name</span>
@@ -369,11 +362,10 @@ export const IdentityList: React.FC = () => {
                   </div>
                 </th>
 
-                {/* Column: Type */}
                 <th
                   scope="col"
                   onClick={() => handleSort('identity_type')}
-                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Type</span>
@@ -381,194 +373,150 @@ export const IdentityList: React.FC = () => {
                   </div>
                 </th>
 
-                {/* Column: Risk Level */}
                 <th
                   scope="col"
                   onClick={() => handleSort('risk_level')}
-                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
+                  title="Severity level derived from point total: Critical (80+), High (50-79), Medium (25-49), Low (1-24)"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-1">
                     <span>Risk Level</span>
+                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Critical >=80, High >=50, Medium >=25, Low >=1">ⓘ</span>
                     {renderSortArrow('risk_level')}
                   </div>
                 </th>
 
-                {/* Column: Score */}
                 <th
                   scope="col"
                   onClick={() => handleSort('risk_score')}
-                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
+                  title="Points summed from triggered risk detection rules. Click to see scoring methodology."
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none text-right"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-end gap-1">
                     <span>Score</span>
+                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Higher score is riskier">ⓘ</span>
                     {renderSortArrow('risk_score')}
                   </div>
                 </th>
 
-                {/* Column: Publisher - HIDDEN BELOW 640px (<640px) */}
                 <th
                   scope="col"
                   onClick={() => handleSort('publisher')}
-                  className="hidden sm:table-cell px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
+                  title="Publisher verification via Microsoft Partner Network"
+                  className="hidden sm:table-cell px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-1">
                     <span>Publisher</span>
+                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Verified vs unverified publisher status">ⓘ</span>
                     {renderSortArrow('publisher')}
                   </div>
                 </th>
 
-                {/* Column: Credentials */}
                 <th
                   scope="col"
                   onClick={() => handleSort('credentials')}
-                  className="px-4 sm:px-6 py-3.5 text-xs font-semibold text-[#64748B] uppercase tracking-wider cursor-pointer hover:bg-[#334155]/40 transition-colors select-none"
+                  title="Attached secrets and certificates, highlighting credentials expiring within 14 days"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-1">
                     <span>Credentials</span>
+                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Count of secrets/certs and expiry warning">ⓘ</span>
                     {renderSortArrow('credentials')}
                   </div>
                 </th>
               </tr>
             </thead>
 
-            {/* TABLE STATES */}
             {loading ? (
-              /* LOADING STATE: 6 skeleton rows */
-              <tbody className="divide-y divide-[#334155]">
-                {[...Array(6)].map((_, idx) => (
-                  <tr
-                    key={`skeleton-${idx}`}
-                    className="bg-[#1E293B]"
-                  >
-                    {/* Name skeleton */}
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <Skeleton width="180px" height="1rem" className="mb-1.5" />
-                      <Skeleton width="100px" height="0.75rem" />
-                    </td>
-                    {/* Type skeleton */}
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <Skeleton width="110px" height="1.25rem" rounded="full" />
-                    </td>
-                    {/* Risk Level skeleton */}
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <Skeleton width="80px" height="1.25rem" rounded="full" />
-                    </td>
-                    {/* Score skeleton */}
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <Skeleton width="32px" height="1rem" />
-                    </td>
-                    {/* Publisher skeleton - hidden below 640px */}
-                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
-                      <Skeleton width="90px" height="1rem" />
-                    </td>
-                    {/* Credentials skeleton */}
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <Skeleton width="40px" height="1rem" />
-                    </td>
+              <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155]">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <tr key={i}>
+                    <td className="px-3 sm:px-4 py-2.5"><Skeleton width="130px" height="0.875rem" /></td>
+                    <td className="px-3 sm:px-4 py-2.5"><Skeleton width="90px" height="0.875rem" /></td>
+                    <td className="px-3 sm:px-4 py-2.5"><Skeleton width="70px" height="0.875rem" /></td>
+                    <td className="px-3 sm:px-4 py-2.5 text-right"><Skeleton width="30px" height="0.875rem" className="ml-auto" /></td>
+                    <td className="hidden sm:table-cell px-3 sm:px-4 py-2.5"><Skeleton width="80px" height="0.875rem" /></td>
+                    <td className="px-3 sm:px-4 py-2.5"><Skeleton width="100px" height="0.875rem" /></td>
                   </tr>
                 ))}
               </tbody>
             ) : paginatedIdentities.length > 0 ? (
-              /* POPULATED TABLE: interactive rows with cursor-pointer & hover highlight */
-              <tbody className="divide-y divide-[#334155]">
-                {paginatedIdentities.map((item, index) => {
+              <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+                {paginatedIdentities.map((item) => {
                   const verified = isPublisherVerified(item);
                   const credCount = item.credentials?.length ?? 0;
-                  const credExpiring = hasExpiringCredentials(item);
+                  const expiringCount = getExpiringCredCount(item);
                   const score = getRiskScore(item);
                   const scoreColor = getScoreColorClass(item.risk_level);
 
                   return (
                     <tr
                       key={item.id}
-                      className={`cursor-pointer transition-colors duration-150 hover:bg-[#334155]/40 ${
-                        index % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#0F172A]/30'
-                      }`}
+                      className="hover:bg-[#F4F4F5]/60 dark:hover:bg-[#0F172A]/40 transition-colors"
                     >
-                      {/* Name: clickable text -> /identities/:id */}
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      {/* Name */}
+                      <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
                         <Link
                           to={`/identities/${item.id}`}
-                          className="font-semibold text-[#38BDF8] hover:underline block text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                          className="font-medium text-[#2563EB] hover:underline"
                         >
                           {item.name}
                         </Link>
                         {item.app_id && (
-                          <span className="text-xs text-[#64748B] font-mono block mt-0.5 max-w-[160px] sm:max-w-none truncate">
+                          <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] font-mono block max-w-[160px] sm:max-w-none truncate">
                             {item.app_id}
                           </span>
                         )}
                       </td>
 
-                      {/* Type: small chip */}
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#0F172A] text-[#CBD5E1] border border-[#334155]">
+                      {/* Type */}
+                      <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
+                        <span className="text-[11px] font-mono text-[#71717A] dark:text-[#94A3B8]">
                           {formatIdentityType(item.identity_type)}
                         </span>
                       </td>
 
-                      {/* Risk Level: use RiskBadge component */}
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      {/* Risk Level */}
+                      <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
                         <RiskBadge level={item.risk_level as RiskLevel} />
                       </td>
 
-                      {/* Score: bold number, colour matches risk level */}
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                        <span className={`text-xs sm:text-sm font-bold font-mono ${scoreColor}`}>
+                      {/* Score */}
+                      <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap text-right">
+                        <span className={`font-mono font-bold ${scoreColor}`}>
                           {score}
                         </span>
                       </td>
 
-                      {/* Publisher: green checkmark if verified, red warning icon if not - HIDDEN BELOW 640px */}
-                      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                      {/* Publisher */}
+                      <td className="hidden sm:table-cell px-3 sm:px-4 py-2.5 whitespace-nowrap">
                         {verified ? (
-                          <div className="flex items-center gap-1.5 text-[#22C55E]" title="Verified Publisher">
-                            <svg
-                              className="w-4 h-4 text-[#22C55E] shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              aria-hidden="true"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            <span className="text-xs font-medium text-[#CBD5E1]">
+                          <span className="inline-flex items-center gap-1 text-[#16A34A] text-xs font-medium">
+                            <span>✓</span>
+                            <span className="text-[#3F3F46] dark:text-[#CBD5E1]">
                               {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Verified'}
                             </span>
-                          </div>
+                          </span>
                         ) : (
-                          <div className="flex items-center gap-1.5 text-[#EF4444]" title="Unverified Publisher">
-                            <svg
-                              className="w-4 h-4 text-[#EF4444] shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              aria-hidden="true"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            <span className="text-xs font-medium text-[#CBD5E1]">
+                          <span className="inline-flex items-center gap-1 text-[#DC2626] text-xs font-medium">
+                            <span>⚠</span>
+                            <span className="text-[#3F3F46] dark:text-[#CBD5E1]">
                               {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Unverified'}
                             </span>
-                          </div>
+                          </span>
                         )}
                       </td>
 
-                      {/* Credentials: count, red if any expiring within 14 days */}
-                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`text-xs sm:text-sm ${
-                            credExpiring ? 'font-bold text-[#EF4444]' : 'font-medium text-[#CBD5E1]'
-                          }`}
-                        >
-                          {credCount}
-                        </span>
+                      {/* Credentials */}
+                      <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
+                        {credCount === 0 ? (
+                          <span className="text-[#A1A1AA] text-[11px]">0 credentials</span>
+                        ) : (
+                          <span className={`text-[11px] ${expiringCount > 0 ? 'text-[#DC2626] font-medium' : 'text-[#71717A] dark:text-[#94A3B8]'}`}>
+                            {credCount} {credCount === 1 ? 'credential' : 'credentials'}
+                            {expiringCount > 0 ? `, ${expiringCount} expiring soon` : ''}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -579,13 +527,13 @@ export const IdentityList: React.FC = () => {
 
           {/* EMPTY STATES */}
           {!loading && filteredIdentities.length === 0 && (
-            <div className="py-12 px-4">
+            <div className="py-10 px-4">
               {identities.length === 0 && !isFilterActive ? (
                 <EmptyState
-                  title="No audit data"
-                  message="Run an audit first to discover and populate your non-human identity inventory."
+                  title="No audit data yet"
+                  message="Run an audit first to discover all non-human identities and analyze their credentials and permissions."
                   action={{
-                    label: isAuditing ? 'Running Audit...' : 'Run Audit',
+                    label: isAuditing ? 'Running Scan...' : 'Run Audit',
                     onClick: handleRunAudit,
                     disabled: isAuditing,
                     loading: isAuditing,
@@ -594,7 +542,7 @@ export const IdentityList: React.FC = () => {
               ) : (
                 <EmptyState
                   title="No matching identities"
-                  message="No identities found matching the selected filters or search term."
+                  message="No identities matched your filter or search query. Try clearing filters to inspect all identities."
                   action={{
                     label: 'Clear Filters',
                     onClick: handleClearFilters,
@@ -604,6 +552,33 @@ export const IdentityList: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* PAGINATION */}
+        {!loading && totalCount > 0 && (
+          <div className="px-3 sm:px-4 py-2.5 border-t border-[#E4E4E7] dark:border-[#334155] flex items-center justify-between text-xs text-[#71717A] dark:text-[#94A3B8] bg-[#F4F4F5]/30 dark:bg-[#0F172A]/30">
+            <span>
+              Page {currentPage} of {totalPages} ({totalCount} identities)
+            </span>
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="px-2.5 py-1 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#1E293B] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#334155] transition-colors"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="px-2.5 py-1 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#1E293B] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#334155] transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -48,7 +48,6 @@ export const IdentityDetail: React.FC = () => {
     fetchIdentity();
   }, [fetchIdentity]);
 
-  // Derived attributes
   const isPublisherVerified = useMemo(() => {
     if (!identity) return false;
     if (typeof identity.is_publisher_verified === 'boolean') return identity.is_publisher_verified;
@@ -96,15 +95,15 @@ export const IdentityDetail: React.FC = () => {
   const scoreColorClass = useMemo(() => {
     switch (identity?.risk_level?.toString().toUpperCase()) {
       case 'CRITICAL':
-        return 'text-[#EF4444]';
+        return 'text-[#DC2626]';
       case 'HIGH':
-        return 'text-[#F59E0B]';
+        return 'text-[#D97706]';
       case 'MEDIUM':
-        return 'text-[#EAB308]';
+        return 'text-[#CA8A04]';
       case 'LOW':
-        return 'text-[#22C55E]';
+        return 'text-[#16A34A]';
       default:
-        return 'text-[#94A3B8]';
+        return 'text-[#71717A] dark:text-[#94A3B8]';
     }
   }, [identity]);
 
@@ -117,36 +116,34 @@ export const IdentityDetail: React.FC = () => {
       case 'ManagedIdentity':
         return 'Managed Identity';
       default:
-        return type || 'Service Principal';
+        return type || 'Identity';
     }
   };
 
   const formatDate = (dateStr?: string | null): string => {
-    if (!dateStr) return 'N/A';
+    if (!dateStr) return 'Unknown';
     try {
       const d = new Date(dateStr);
-      return d.toLocaleDateString(undefined, {
-        year: 'numeric',
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-GB', {
+        day: '2-digit',
         month: 'short',
-        day: 'numeric',
+        year: 'numeric',
       });
     } catch {
       return dateStr;
     }
   };
 
-  // Resolve OAuth grants list (with fallback synthesis if not provided)
-  const oauthGrants: OAuthGrant[] = useMemo(() => {
+  const grantsList: OAuthGrant[] = useMemo(() => {
     if (!identity) return [];
     if (identity.oauth_grants && identity.oauth_grants.length > 0) {
       return identity.oauth_grants;
     }
-    const perms = identity.oauth_permissions || [];
-    if (perms.length === 0) return [];
-    return perms.map((p, idx) => ({
+    return (identity.oauth_permissions || []).map((p: any, idx: number) => ({
       grant_id: `grant-${idx + 1}`,
-      consent_type: p.admin_consent || p.type === 'Application' ? 'AllPrincipals' : 'Principal',
-      scope: p.permission,
+      consent_type: p.admin_consent ? 'AllPrincipals' : 'Principal',
+      scope: p.permission || '',
       resource_id: p.resource || '00000003-0000-0000-c000-000000000000',
     }));
   }, [identity]);
@@ -161,15 +158,14 @@ export const IdentityDetail: React.FC = () => {
     return identity.credentials || [];
   }, [identity]);
 
-  // =========================================================================
-  // STATES: LOADING, 404, ERROR
-  // =========================================================================
+  const findingsList = identity?.findings || [];
+  const findingsCount = findingsList.length;
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[420px] h-96">
-        <div className="w-10 h-10 border-4 border-[#3B82F6] border-t-transparent rounded-full animate-spin"></div>
-        <span className="mt-4 text-xs sm:text-sm font-medium text-[#94A3B8]">
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <div className="w-8 h-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></div>
+        <span className="mt-3 text-xs text-[#71717A] dark:text-[#94A3B8]">
           Loading identity details...
         </span>
       </div>
@@ -178,10 +174,10 @@ export const IdentityDetail: React.FC = () => {
 
   if (is404 || !identity) {
     return (
-      <div className="my-16">
+      <div className="my-12">
         <EmptyState
           title="Identity not found"
-          message={`No non-human identity matching the ID "${id}" was found in directory inventory.`}
+          message={`No identity matching the ID "${id}" was found in your directory.`}
           action={{
             label: "Back to Identities",
             onClick: () => window.location.assign('/identities'),
@@ -193,266 +189,254 @@ export const IdentityDetail: React.FC = () => {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto my-12">
+      <div className="max-w-xl mx-auto my-8">
         <ErrorMessage message={error} onRetry={fetchIdentity} />
       </div>
     );
   }
 
-  // =========================================================================
-  // MAIN VIEW
-  // =========================================================================
-
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto pb-16">
       {/* SECTION 1 — Identity Header card */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-4 sm:p-6 shadow-sm">
+      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
         {/* Back link */}
-        <div className="mb-4">
+        <div className="mb-3">
           <Link
             to="/identities"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#38BDF8] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+            className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:underline"
           >
             &larr; All Identities
           </Link>
         </div>
 
-        {/* Display name (large, bold) */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Display name & Score */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#F1F5F9] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#18181B] dark:text-[#F1F5F9] tracking-tight">
               {identity.display_name || identity.name}
             </h1>
             {identity.app_id && (
-              <span className="font-mono text-xs text-[#64748B] block mt-1">
+              <span className="font-mono text-xs text-[#71717A] dark:text-[#94A3B8] block mt-0.5">
                 App ID: {identity.app_id}
               </span>
             )}
           </div>
 
-          {/* Row: identity_type chip | RiskBadge | score (large, coloured by level) */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Identity type chip */}
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#334155] text-[#E2E8F0] border border-[#475569]">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono text-[#71717A] dark:text-[#94A3B8] bg-[#F4F4F5] dark:bg-[#0F172A] border border-[#E4E4E7] dark:border-[#334155]">
               {formatIdentityType(identity.identity_type)}
             </span>
 
-            {/* RiskBadge */}
             <RiskBadge level={identity.risk_level as RiskLevel} />
 
-            {/* Score (large, coloured by level) */}
-            <div className="flex items-baseline gap-1 pl-2 border-l border-[#334155]">
-              <span className="text-xs uppercase tracking-wider text-[#64748B] font-semibold">
+            <div className="flex items-baseline gap-1 pl-2 border-l border-[#E4E4E7] dark:border-[#334155]">
+              <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] font-medium">
                 Score
               </span>
-              <span className={`text-2xl sm:text-3xl font-black font-mono ${scoreColorClass}`}>
+              <span className={`text-xl sm:text-2xl font-bold font-mono ${scoreColorClass}`}>
                 {score}
               </span>
-              <span className="text-xs text-[#64748B] font-medium">/100</span>
             </div>
           </div>
         </div>
 
-        {/* Meta row (muted, small): Publisher | Created date | Enabled/Disabled status chip */}
-        <div className="mt-5 pt-4 border-t border-[#334155]/60 flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-[#94A3B8]">
-          {/* Publisher */}
-          <div className="flex items-center gap-1.5">
+        {/* Plain-English summary sentence (Part 3) */}
+        <div className="mt-3 p-3 rounded bg-[#F4F4F5]/60 dark:bg-[#0F172A]/50 border border-[#E4E4E7] dark:border-[#334155] text-xs text-[#3F3F46] dark:text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span>
+            This {formatIdentityType(identity.identity_type).toLowerCase()} scored{' '}
+            <strong className="font-mono font-bold text-[#18181B] dark:text-[#F1F5F9]">{score}</strong>{' '}
+            because {findingsCount} {findingsCount === 1 ? 'rule' : 'rules'} triggered. See the risk findings below for remediation steps.
+          </span>
+          <Link
+            to="/how-it-works"
+            className="text-[#2563EB] hover:underline font-medium whitespace-nowrap text-[11px]"
+          >
+            How is this calculated? &rarr;
+          </Link>
+        </div>
+
+        {/* Meta row */}
+        <div className="mt-3 pt-3 border-t border-[#E4E4E7] dark:border-[#334155] flex flex-wrap items-center gap-3 text-xs text-[#71717A] dark:text-[#94A3B8]">
+          <div className="flex items-center gap-1">
             {isPublisherVerified ? (
-              <span className="inline-flex items-center gap-1.5 text-[#22C55E] font-medium" title="Verified Publisher">
-                <svg className="w-4 h-4 text-[#22C55E] shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
-                </svg>
-                <span>{publisherName}</span>
+              <span className="text-[#16A34A] font-medium flex items-center gap-1">
+                <span>✓</span> {publisherName}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-[#EF4444] font-medium" title="Unverified Publisher">
-                <svg className="w-4 h-4 text-[#EF4444] shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                </svg>
-                <span>{publisherName}</span>
+              <span className="text-[#DC2626] font-medium flex items-center gap-1">
+                <span>⚠</span> {publisherName}
               </span>
             )}
           </div>
 
-          <span className="text-[#475569]">&bull;</span>
+          <span>&bull;</span>
 
-          {/* Created date */}
-          <div className="flex items-center gap-1.5 text-[#94A3B8]">
-            <svg className="w-3.5 h-3.5 text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
+          <div>
             <span>Created {formatDate(identity.created_at || identity.created_date)}</span>
           </div>
 
-          <span className="text-[#475569]">&bull;</span>
+          <span>&bull;</span>
 
-          {/* Enabled/Disabled status chip */}
           <div>
             {isEnabled ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span>
-                Enabled
+              <span className="inline-flex items-center gap-1 text-[#16A34A] font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" /> Enabled
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span>
-                Disabled
+              <span className="inline-flex items-center gap-1 text-[#DC2626] font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" /> Disabled
               </span>
             )}
           </div>
 
           {identity.owner && identity.owner !== 'unassigned' && (
             <>
-              <span className="text-[#475569]">&bull;</span>
-              <span className="text-[#64748B]">Owner: <span className="text-[#94A3B8] font-mono">{identity.owner}</span></span>
+              <span>&bull;</span>
+              <span>Owner: <span className="font-mono text-[#18181B] dark:text-[#F1F5F9]">{identity.owner}</span></span>
             </>
           )}
         </div>
       </div>
 
       {/* SECTION 2 — Three tabs */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Tab Headers */}
-        <div className="flex border-b border-[#334155] gap-1 sm:gap-2 overflow-x-auto">
+        <div className="flex border-b border-[#E4E4E7] dark:border-[#334155] gap-2">
           <button
             onClick={() => setActiveTab('permissions')}
-            className={`pb-3 px-3 sm:px-4 text-xs font-semibold transition-colors duration-150 relative shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${
+            className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'permissions'
-                ? 'text-[#38BDF8]'
-                : 'text-[#94A3B8] hover:text-[#E2E8F0]'
+                ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+                : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
             }`}
           >
-            <span>Permissions</span>
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-[#334155] text-[#CBD5E1]">
-              {permissionsList.length}
-            </span>
-            {activeTab === 'permissions' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#38BDF8]" />
-            )}
+            Permissions ({permissionsList.length})
           </button>
-
           <button
             onClick={() => setActiveTab('credentials')}
-            className={`pb-3 px-3 sm:px-4 text-xs font-semibold transition-colors duration-150 relative shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${
+            className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'credentials'
-                ? 'text-[#38BDF8]'
-                : 'text-[#94A3B8] hover:text-[#E2E8F0]'
+                ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+                : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
             }`}
           >
-            <span>Credentials</span>
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-[#334155] text-[#CBD5E1]">
-              {credentialsList.length}
-            </span>
-            {activeTab === 'credentials' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#38BDF8]" />
-            )}
+            Credentials ({credentialsList.length})
           </button>
-
           <button
             onClick={() => setActiveTab('grants')}
-            className={`pb-3 px-3 sm:px-4 text-xs font-semibold transition-colors duration-150 relative shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded ${
+            className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'grants'
-                ? 'text-[#38BDF8]'
-                : 'text-[#94A3B8] hover:text-[#E2E8F0]'
+                ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+                : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
             }`}
           >
-            <span>OAuth Grants</span>
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-[#334155] text-[#CBD5E1]">
-              {oauthGrants.length}
-            </span>
-            {activeTab === 'grants' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#38BDF8]" />
-            )}
+            OAuth Grants ({grantsList.length})
           </button>
         </div>
 
         {/* Tab 1: Permissions */}
         {activeTab === 'permissions' && (
-          <div>
-            <PermissionTable permissions={permissionsList} />
+          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
+            <PermissionTable
+              permissions={permissionsList.map((p: any) => ({
+                scope_or_role: p.scope_or_role || p.permission || '',
+                permission_type: (p.permission_type || p.type || 'Delegated') as 'Application' | 'Delegated',
+                resource_display_name: p.resource_display_name || p.resource || null,
+                is_high_risk: Boolean(p.is_high_risk || p.is_high_privilege),
+              }))}
+            />
           </div>
         )}
 
         {/* Tab 2: Credentials */}
         {activeTab === 'credentials' && (
-          <div>
-            <CredentialHealth credentials={credentialsList} />
+          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
+            <CredentialHealth
+              credentials={credentialsList.map((c: any) => ({
+                credential_id: c.credential_id || c.key_id || 'cred',
+                type: (c.type?.toLowerCase().includes('cert') ? 'certificate' : 'secret') as 'secret' | 'certificate',
+                display_name: c.display_name || c.displayName || null,
+                created: c.created || c.created_date || null,
+                expires: c.expires || c.expires_date || null,
+                days_until_expiry: c.days_until_expiry ?? null,
+              }))}
+            />
           </div>
         )}
 
         {/* Tab 3: OAuth Grants */}
         {activeTab === 'grants' && (
-          <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden shadow-sm">
-            {oauthGrants.length === 0 ? (
-              <div className="p-8 text-center text-[#94A3B8]">
-                <p className="text-xs sm:text-sm font-medium">No OAuth grants recorded.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#0F172A]/70 text-[#94A3B8] text-xs uppercase tracking-wider border-b border-[#334155]">
+          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
+            <div className="p-3 border-b border-[#E4E4E7] dark:border-[#334155]">
+              <h2 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+                Active Delegated and Application OAuth Grants
+              </h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
+                  <tr>
+                    <th className="py-2.5 px-3">Consent Type</th>
+                    <th className="py-2.5 px-3">Scope / Permissions</th>
+                    <th className="py-2.5 px-3">Target Resource ID</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+                  {grantsList.length === 0 ? (
                     <tr>
-                      <th className="px-4 sm:px-5 py-3.5 font-semibold">Consent Type</th>
-                      <th className="px-4 sm:px-5 py-3.5 font-semibold">Scope</th>
-                      <th className="px-4 sm:px-5 py-3.5 font-semibold">Resource ID</th>
+                      <td colSpan={3} className="py-6 text-center text-[#71717A]">
+                        No OAuth grants assigned.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#334155]/60 text-[#E2E8F0]">
-                    {oauthGrants.map((grant, idx) => {
-                      const isAllPrincipals = grant.consent_type === 'AllPrincipals';
-
+                  ) : (
+                    grantsList.map((grant) => {
+                      const isAll = grant.consent_type === 'AllPrincipals';
                       return (
                         <tr
-                          key={grant.grant_id || idx}
-                          className={`transition-colors duration-150 ${
-                            isAllPrincipals
-                              ? 'bg-[#F59E0B]/10 border-l-4 border-l-[#F59E0B] text-[#F1F5F9]'
-                              : 'hover:bg-[#334155]/30'
-                          }`}
+                          key={grant.grant_id}
+                          className={isAll ? 'bg-[#FEF3C7]/40 dark:bg-[#78350F]/20' : ''}
                         >
-                          {/* Consent Type */}
-                          <td className="px-4 sm:px-5 py-3.5 whitespace-nowrap">
-                            {isAllPrincipals ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/30">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></span>
-                                AllPrincipals
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#3B82F6]/15 text-[#38BDF8] border border-[#3B82F6]/30">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]"></span>
-                                Principal
-                              </span>
-                            )}
+                          <td className="py-2.5 px-3 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${
+                                isAll
+                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] dark:bg-[#B45309]/30 dark:text-[#FDE68A]'
+                                  : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8]'
+                              }`}
+                            >
+                              {grant.consent_type}
+                            </span>
                           </td>
-
-                          {/* Scope */}
-                          <td className="px-4 sm:px-5 py-3.5 font-mono text-xs text-[#38BDF8] break-all">
+                          <td className="py-2.5 px-3 font-mono text-[11px]">
                             {grant.scope}
                           </td>
-
-                          {/* Resource ID */}
-                          <td className="px-4 sm:px-5 py-3.5 font-mono text-xs text-[#94A3B8]">
+                          <td className="py-2.5 px-3 font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8]">
                             {grant.resource_id}
                           </td>
                         </tr>
                       );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
 
-      {/* SECTION 3 — Risk Findings: Full width below the tabs */}
-      <div>
+      {/* SECTION 3 — Risk Findings */}
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+          Triggered Risk Findings
+        </h2>
         <EvidencePanel
-          findings={identity.findings || []}
-          remediation={identity.remediation || identity.remediations || []}
+          findings={findingsList.map((f: any) => ({
+            rule_id: f.rule_id,
+            rule_name: f.rule_name || f.title || f.rule_id,
+            severity: (f.severity || 'Medium') as 'Critical' | 'High' | 'Medium' | 'Low',
+            evidence_text: f.evidence_text || f.description || '',
+            remediation: f.remediation || '',
+          }))}
         />
       </div>
     </div>
