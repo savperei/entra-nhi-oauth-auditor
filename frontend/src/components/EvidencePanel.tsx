@@ -128,7 +128,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
               onClick={() => handleChipClick(sev)}
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-colors ${
                 isSelected
-                  ? 'bg-[#2563EB] text-white font-semibold'
+                  ? 'bg-[#0F766E] text-white font-semibold'
                   : 'bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
               }`}
             >
@@ -145,7 +145,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
         {selectedSeverity && (
           <button
             onClick={() => setSelectedSeverity(null)}
-            className="text-xs text-[#2563EB] hover:underline ml-1"
+            className="text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline ml-1"
           >
             Clear
           </button>

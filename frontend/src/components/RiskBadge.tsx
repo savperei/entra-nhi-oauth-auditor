@@ -9,20 +9,25 @@ export interface RiskBadgeProps {
 export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, className = '' }) => {
   const normalized = (level || 'None').toString().trim().toLowerCase();
 
-  let colorClasses = 'bg-[#F1F5F9] text-[#64748B]'; // None / default
+  let dotColor = 'bg-[#71717A]';
+  let textColor = 'text-[#71717A]';
   let displayLabel = 'None';
 
   if (normalized === 'critical') {
-    colorClasses = 'bg-[#FEE2E2] text-[#DC2626]';
+    dotColor = 'bg-[#DC2626]';
+    textColor = 'text-[#DC2626]';
     displayLabel = 'Critical';
   } else if (normalized === 'high') {
-    colorClasses = 'bg-[#FEF3C7] text-[#D97706]';
+    dotColor = 'bg-[#D97706]';
+    textColor = 'text-[#D97706]';
     displayLabel = 'High';
   } else if (normalized === 'medium') {
-    colorClasses = 'bg-[#FEF9C3] text-[#CA8A04]';
+    dotColor = 'bg-[#CA8A04]';
+    textColor = 'text-[#CA8A04]';
     displayLabel = 'Medium';
   } else if (normalized === 'low') {
-    colorClasses = 'bg-[#DCFCE7] text-[#16A34A]';
+    dotColor = 'bg-[#16A34A]';
+    textColor = 'text-[#16A34A]';
     displayLabel = 'Low';
   } else {
     displayLabel = level ? level.toString() : 'None';
@@ -30,8 +35,9 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, className = '' }) =
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-colors duration-150 ${colorClasses} ${className}`}
+      className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap shrink-0 ${textColor} ${className}`}
     >
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} aria-hidden="true" />
       {displayLabel}
     </span>
   );

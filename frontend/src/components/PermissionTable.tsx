@@ -152,7 +152,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
           <h3 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
             Assigned Permissions
           </h3>
-          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/20">
+          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#0F766E]/10 text-[#0F766E] dark:text-[#2DD4BF] border border-[#0F766E]/20">
             {totalCount}
           </span>
         </div>
@@ -163,7 +163,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
             onClick={() => setActiveTab('all')}
             className={`px-2 py-1 text-xs rounded ${
               activeTab === 'all'
-                ? 'bg-[#2563EB] text-white'
+                ? 'bg-[#0F766E] text-white'
                 : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A]'
             }`}
           >
@@ -173,7 +173,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
             onClick={() => setActiveTab('application')}
             className={`px-2 py-1 text-xs rounded ${
               activeTab === 'application'
-                ? 'bg-[#2563EB] text-white'
+                ? 'bg-[#0F766E] text-white'
                 : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A]'
             }`}
           >
@@ -183,7 +183,7 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
             onClick={() => setActiveTab('delegated')}
             className={`px-2 py-1 text-xs rounded ${
               activeTab === 'delegated'
-                ? 'bg-[#2563EB] text-white'
+                ? 'bg-[#0F766E] text-white'
                 : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A]'
             }`}
           >

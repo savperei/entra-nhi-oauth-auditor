@@ -1,6 +1,7 @@
 """Config and rules API endpoints for the NHI OAuth Auditor."""
 
-from fastapi import APIRouter
+import os
+from fastapi import APIRouter, HTTPException
 from src.risk_engine.rule_loader import RuleLoader
 from src.risk_engine.scorer import HIGH_RISK_PERMISSIONS
 from src.api.pipeline import get_pipeline_cache
@@ -14,24 +15,26 @@ THRESHOLDS = {
     "high": 50,
     "medium": 25,
     "low": 1,
-    "none": 0,
 }
 
 
 @router.get("/rules")
 def list_rules():
     """Returns all risk rules loaded from default_rules.yaml."""
-    rules = RuleLoader.load()
-    return [
-        {
-            "id": r.id,
-            "name": r.name,
-            "severity": r.severity,
-            "score": r.score,
-            "remediation": r.remediation,
-        }
-        for r in rules
-    ]
+    try:
+        rules = RuleLoader.load()
+        return [
+            {
+                "id": r.id,
+                "name": r.name,
+                "severity": r.severity,
+                "score": r.score,
+                "remediation": r.remediation,
+            }
+            for r in rules
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load rules: {str(e)}")
 
 
 @router.get("/config")
@@ -44,12 +47,14 @@ def get_config():
     if cache:
         last_audit_at = cache.get("timestamp")
 
+    use_synthetic = os.getenv("USE_SYNTHETIC_DATA", "true").lower() == "true"
+    mode = "synthetic" if use_synthetic else "live"
+
     return {
-        "mode": "synthetic",
+        "mode": mode,
         "version": "1.0.0",
-        "rules_file": "rules/default_rules.yaml",
-        "last_audit_at": last_audit_at,
         "thresholds": THRESHOLDS,
         "high_risk_permissions": HIGH_RISK_PERMISSIONS_LIST,
+        "rules_file": "rules/default_rules.yaml",
+        "last_audit_at": last_audit_at,
     }
-

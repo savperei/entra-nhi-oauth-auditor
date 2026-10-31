@@ -256,7 +256,7 @@ export const IdentityList: React.FC = () => {
       );
     }
     return (
-      <span className="ml-1 text-[#2563EB] text-[10px]">
+      <span className="ml-1 text-[#0F766E] dark:text-[#2DD4BF] text-[10px]">
         {sortOrder === 'asc' ? '↑' : '↓'}
       </span>
     );
@@ -270,13 +270,13 @@ export const IdentityList: React.FC = () => {
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#18181B] dark:text-[#F1F5F9]">
             Identities
           </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/20">
+          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#0F766E]/10 text-[#0F766E] dark:text-[#2DD4BF] border border-[#0F766E]/20">
             {identities.length} Total
           </span>
         </div>
         <Link
           to="/how-it-works"
-          className="text-xs text-[#2563EB] hover:underline flex items-center gap-1 font-medium"
+          className="text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline flex items-center gap-1 font-medium"
         >
           <span>How is risk scored?</span> &rarr;
         </Link>
@@ -292,7 +292,7 @@ export const IdentityList: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by identity name or App ID..."
-              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] placeholder-[#A1A1AA] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] placeholder-[#A1A1AA] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             />
           </div>
 
@@ -301,7 +301,7 @@ export const IdentityList: React.FC = () => {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             >
               <option value="">All Identity Types</option>
               <option value="ServicePrincipal">Service Principal</option>
@@ -315,7 +315,7 @@ export const IdentityList: React.FC = () => {
             <select
               value={selectedRisk}
               onChange={(e) => setSelectedRisk(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             >
               <option value="">All Risk Levels</option>
               <option value="CRITICAL">Critical</option>
@@ -330,7 +330,7 @@ export const IdentityList: React.FC = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-xs text-[#2563EB] hover:underline px-2 py-1"
+              className="text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline px-2 py-1"
             >
               Clear filters
             </button>
@@ -458,7 +458,7 @@ export const IdentityList: React.FC = () => {
                       <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
                         <Link
                           to={`/identities/${item.id}`}
-                          className="font-medium text-[#2563EB] hover:underline"
+                          className="font-medium text-[#0F766E] dark:text-[#2DD4BF] hover:underline"
                         >
                           {item.name}
                         </Link>

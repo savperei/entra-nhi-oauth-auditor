@@ -264,7 +264,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
           </h2>
           <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
             The assigned risk level comes from each identity's calculated point total.{' '}
-            <Link to="/how-it-works" className="text-[#2563EB] hover:underline font-medium">
+            <Link to="/how-it-works" className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline font-medium">
               How is this calculated?
             </Link>
           </p>
@@ -282,14 +282,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
             </h2>
             <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
               Higher is riskier. Click an identity to see which rules added points.{' '}
-              <Link to="/how-it-works" className="text-[#2563EB] hover:underline font-medium">
+              <Link to="/how-it-works" className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline font-medium">
                 Learn how scoring works &rarr;
               </Link>
             </p>
           </div>
           <Link
             to="/identities"
-            className="text-xs font-medium text-[#2563EB] hover:underline whitespace-nowrap self-start sm:self-auto"
+            className="text-xs font-medium text-[#0F766E] dark:text-[#2DD4BF] hover:underline whitespace-nowrap self-start sm:self-auto"
           >
             View all identities &rarr;
           </Link>
@@ -325,7 +325,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
                     <td className="py-2.5 px-3 font-medium">
                       <Link
                         to={`/identities/${item.id}`}
-                        className="text-[#2563EB] hover:underline"
+                        className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline"
                       >
                         {item.display_name || item.name}
                       </Link>

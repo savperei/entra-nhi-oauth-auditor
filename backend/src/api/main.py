@@ -14,6 +14,7 @@ from src.api.audit import router as audit_router
 from src.api.identities import router as identities_router
 from src.api.findings import router as findings_router
 from src.api.reports import router as reports_router
+from src.api.config import router as config_router
 
 app = FastAPI(
     title="NHI OAuth Auditor API",
@@ -44,9 +45,11 @@ api_router = APIRouter(prefix="/api/v1")
 @api_router.get("/health")
 def get_health():
     """Health check endpoint indicating synthetic data operation mode."""
+    use_synthetic = os.getenv("USE_SYNTHETIC_DATA", "true").lower() == "true"
+    mode = "synthetic_data" if use_synthetic else "live_data"
     return {
         "status": "ok",
-        "mode": "synthetic_data",
+        "mode": mode,
     }
 
 
@@ -90,6 +93,7 @@ api_router.include_router(audit_router)
 api_router.include_router(identities_router)
 api_router.include_router(findings_router)
 api_router.include_router(reports_router)
+api_router.include_router(config_router)
 
 # Mount API router
 app.include_router(api_router)

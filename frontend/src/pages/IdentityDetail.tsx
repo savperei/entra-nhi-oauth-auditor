@@ -164,7 +164,7 @@ export const IdentityDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px]">
-        <div className="w-8 h-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-[#0F766E] border-t-transparent rounded-full animate-spin"></div>
         <span className="mt-3 text-xs text-[#71717A] dark:text-[#94A3B8]">
           Loading identity details...
         </span>
@@ -203,7 +203,7 @@ export const IdentityDetail: React.FC = () => {
         <div className="mb-3">
           <Link
             to="/identities"
-            className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline"
           >
             &larr; All Identities
           </Link>
@@ -249,7 +249,7 @@ export const IdentityDetail: React.FC = () => {
           </span>
           <Link
             to="/how-it-works"
-            className="text-[#2563EB] hover:underline font-medium whitespace-nowrap text-[11px]"
+            className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline font-medium whitespace-nowrap text-[11px]"
           >
             How is this calculated? &rarr;
           </Link>
@@ -306,7 +306,7 @@ export const IdentityDetail: React.FC = () => {
             onClick={() => setActiveTab('permissions')}
             className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'permissions'
-                ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+                ? 'border-[#0F766E] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
                 : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
             }`}
           >
@@ -316,7 +316,7 @@ export const IdentityDetail: React.FC = () => {
             onClick={() => setActiveTab('credentials')}
             className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'credentials'
-                ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+                ? 'border-[#0F766E] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
                 : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
             }`}
           >
@@ -326,7 +326,7 @@ export const IdentityDetail: React.FC = () => {
             onClick={() => setActiveTab('grants')}
             className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'grants'
-                ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+                ? 'border-[#0F766E] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
                 : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
             }`}
           >

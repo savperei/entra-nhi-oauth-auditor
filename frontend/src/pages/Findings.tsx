@@ -211,14 +211,14 @@ export const Findings: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#18181B] dark:text-[#F1F5F9]">
               Risk Findings
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/20">
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#0F766E]/10 text-[#0F766E] dark:text-[#2DD4BF] border border-[#0F766E]/20">
               {totalFilteredCount} {totalFilteredCount === 1 ? 'Finding' : 'Findings'}
             </span>
           </div>
           <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-1 leading-relaxed">
             A finding represents an identified risk pattern where an identity violates one of our detection rules.
             Each card details the <strong className="text-[#18181B] dark:text-[#F1F5F9]">Evidence</strong> (specific attributes detected) and the <strong className="text-[#18181B] dark:text-[#F1F5F9]">Remediation</strong> (how to fix or remove the exposure).{' '}
-            <Link to="/how-it-works" className="text-[#2563EB] hover:underline font-medium">
+            <Link to="/how-it-works" className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline font-medium">
               How is this calculated? &rarr;
             </Link>
           </p>
@@ -237,7 +237,7 @@ export const Findings: React.FC = () => {
             <select
               value={selectedSeverity}
               onChange={(e) => setSelectedSeverity(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             >
               <option value="ALL">All Severities</option>
               <option value="Critical">Critical</option>
@@ -252,7 +252,7 @@ export const Findings: React.FC = () => {
             <select
               value={selectedRule}
               onChange={(e) => setSelectedRule(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] font-mono focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] font-mono focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             >
               <option value="ALL">All Rules</option>
               {uniqueRuleIds.map((rId) => (
@@ -270,7 +270,7 @@ export const Findings: React.FC = () => {
               placeholder="Filter by identity name..."
               value={searchIdentity}
               onChange={(e) => setSearchIdentity(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] placeholder-[#A1A1AA] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] placeholder-[#A1A1AA] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             />
           </div>
 
@@ -279,7 +279,7 @@ export const Findings: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'severity' | 'identity_name')}
-              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full px-2.5 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             >
               <option value="severity">Sort: Severity (High &rarr; Low)</option>
               <option value="identity_name">Sort: Identity Name (A &rarr; Z)</option>
@@ -290,7 +290,7 @@ export const Findings: React.FC = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-xs text-[#2563EB] hover:underline px-2 py-1"
+              className="text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline px-2 py-1"
             >
               Clear filters
             </button>
@@ -424,7 +424,7 @@ export const Findings: React.FC = () => {
                             <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8]">Target:</span>
                             <Link
                               to={`/identities/${finding.identity_id || ''}`}
-                              className="font-semibold text-xs text-[#2563EB] hover:underline"
+                              className="font-semibold text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline"
                             >
                               {finding.identity_name || 'Identity'}
                             </Link>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getRules, getConfig, getFindings } from '../services/api';
 import { RiskBadge } from '../components/RiskBadge';
 
@@ -11,7 +12,7 @@ interface Rule {
 }
 
 interface Config {
-  thresholds: { critical: number; high: number; medium: number; low: number; none: number };
+  thresholds: { critical: number; high: number; medium: number; low: number; none?: number };
   high_risk_permissions: string[];
   mode: string;
   version: string;
@@ -24,7 +25,7 @@ const AUDIT_STEPS = [
     label: 'Collect',
     in: 'Entra ID tenant data: service principals, app registrations, managed identities',
     out: 'Raw identity objects with credentials, permissions, and OAuth grants',
-    desc: 'Connects to Microsoft Graph API in read-only mode to retrieve all non-human identity records, credentials, and grant objects.',
+    desc: 'Connects to Microsoft Graph API in read-only mode to retrieve all non-human identity records, credentials, and grant objects. In demo mode, uses synthetic tenant data.',
   },
   {
     num: '2',
@@ -60,30 +61,44 @@ const GLOSSARY = [
   {
     term: 'Service Principal',
     def: 'The local representation of an application within your specific Microsoft Entra ID tenant. It governs what the app can actually do in your directory.',
+    link: '/identities',
+    linkText: 'View identities',
   },
   {
     term: 'App Registration',
     def: 'The global blueprint and definition of an application across Microsoft Entra ID, where client credentials, identifiers, and redirect URIs are configured.',
+    link: '/identities',
+    linkText: 'View identities',
   },
   {
     term: 'Managed Identity',
     def: 'An automatically provisioned Entra identity for Azure cloud resources (e.g. VMs, Functions) that eliminates the need to manually store or rotate credentials.',
+    link: '/identities',
+    linkText: 'View identities',
   },
   {
     term: 'OAuth Grant',
     def: 'An authorisation delegating specific scopes to an application, either on behalf of an individual user (Principal) or tenant-wide (AllPrincipals).',
+    link: '/findings',
+    linkText: 'View grant findings',
   },
   {
     term: 'Credential',
     def: 'A password secret string or X.509 certificate used by an application to authenticate. Expired or unexpiring credentials present serious security risks.',
+    link: '/identities',
+    linkText: 'Inspect credentials',
   },
   {
     term: 'Verified Publisher',
     def: 'An organisation whose identity has been verified by Microsoft using the Microsoft Partner Network. Unverified publishers pose higher supply-chain risks.',
+    link: '/setup',
+    linkText: 'Check setup',
   },
   {
     term: 'AllPrincipals consent',
     def: 'An administrator-granted permission that applies to every single account in the organisation, giving the app tenant-wide access without user consent.',
+    link: '/findings',
+    linkText: 'View findings',
   },
 ];
 
@@ -196,7 +211,6 @@ export const HowItWorks: React.FC = () => {
     high: 50,
     medium: 25,
     low: 1,
-    none: 0,
   };
 
   return (
@@ -218,22 +232,22 @@ export const HowItWorks: React.FC = () => {
         </h2>
         <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5 text-xs sm:text-sm text-[#3F3F46] dark:text-[#CBD5E1] space-y-2 leading-relaxed">
           <p>
-            It finds non-human identities (apps, services, automation) and checks whether they have too much access, old or expiring credentials, or come from unverified publishers.
+            It finds non-human identities, including applications, services, and automation accounts operating in your directory.
           </p>
           <p>
-            Each identity is evaluated against security detection rules to compute a transparent risk score and assign an actionable severity rating.
+            It checks for excessive permissions, risky OAuth access, expiring or old credentials, unverified publishers, and other security risks supported by the actual rules.
           </p>
           <p>
-            It is read-only and never changes anything in your directory, ensuring zero disruption to existing business applications.
+            It is read-only and does not modify identities, permissions, credentials, or tenant configuration.
           </p>
         </div>
       </section>
 
-      {/* SECTION 2: The 5 steps behind every audit */}
+      {/* SECTION 2: The five steps behind every audit */}
       <section className="space-y-4">
         <div>
           <h2 className="text-base font-semibold text-[#18181B] dark:text-[#F1F5F9]">
-            The 5 steps behind every audit
+            The five steps behind every audit
           </h2>
           <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
             How data flows through the audit pipeline from initial collection to final reporting.
@@ -248,7 +262,7 @@ export const HowItWorks: React.FC = () => {
             >
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="w-5 h-5 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-[11px] font-bold flex items-center justify-center shrink-0">
+                  <span className="w-5 h-5 rounded-full bg-[#0F766E]/10 dark:bg-[#14B8A6]/20 text-[#0F766E] dark:text-[#2DD4BF] text-[11px] font-bold flex items-center justify-center shrink-0">
                     {step.num}
                   </span>
                   <span className="font-semibold text-xs text-[#18181B] dark:text-[#F1F5F9]">
@@ -282,7 +296,7 @@ export const HowItWorks: React.FC = () => {
             How a risk score is calculated
           </h2>
           <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
-            Each triggered rule adds points to an identity's total. That total decides the severity level.
+            Every triggered rule contributes its configured points according to the actual scoring implementation. Those points are combined to calculate the identity's total score, which determines its risk level.
           </p>
         </div>
 
@@ -327,7 +341,7 @@ export const HowItWorks: React.FC = () => {
         <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
           <div className="px-4 py-3 border-b border-[#E4E4E7] dark:border-[#334155] flex items-center justify-between">
             <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] uppercase tracking-wider text-[11px]">
-              Detection Rules Catalog ({rules.length} Active Rules)
+              Live Detection Rules ({rules.length} Loaded)
             </h3>
             <span className="text-[11px] font-mono text-[#71717A] dark:text-[#94A3B8]">
               rules/default_rules.yaml
@@ -349,7 +363,7 @@ export const HowItWorks: React.FC = () => {
                 {loading ? (
                   <tr>
                     <td colSpan={5} className="py-6 text-center text-[#71717A]">
-                      Loading detection rules...
+                      Loading detection rules from backend...
                     </td>
                   </tr>
                 ) : rules.length === 0 ? (
@@ -391,7 +405,7 @@ export const HowItWorks: React.FC = () => {
               Worked Example: How a Score is Built
             </h3>
             <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8]">
-              {workedExample?.isReal ? 'Live Audit Result' : 'Sample Identity'}
+              {workedExample?.isReal ? 'Live Audit Result' : 'Illustrative Sample (No audit run yet)'}
             </span>
           </div>
 
@@ -420,7 +434,7 @@ export const HowItWorks: React.FC = () => {
           ) : (
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2 text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
-                <span>Legacy CRM Connector</span>
+                <span>Legacy CRM Connector (Illustrative Sample)</span>
                 <RiskBadge level="Critical" />
               </div>
               <div className="border border-[#E4E4E7] dark:border-[#334155] rounded p-3 bg-[#F4F4F5]/40 dark:bg-[#0F172A]/40 space-y-1.5 font-mono text-[11px]">
@@ -471,13 +485,23 @@ export const HowItWorks: React.FC = () => {
         </h2>
         <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg divide-y divide-[#E4E4E7] dark:divide-[#334155]">
           {GLOSSARY.map((entry) => (
-            <div key={entry.term} className="p-3.5 text-xs">
-              <span className="font-semibold text-[#18181B] dark:text-[#F1F5F9] block mb-0.5">
-                {entry.term}
-              </span>
-              <span className="text-[#71717A] dark:text-[#94A3B8] leading-relaxed">
-                {entry.def}
-              </span>
+            <div key={entry.term} className="p-3.5 text-xs flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+              <div>
+                <span className="font-semibold text-[#18181B] dark:text-[#F1F5F9] block mb-0.5">
+                  {entry.term}
+                </span>
+                <span className="text-[#71717A] dark:text-[#94A3B8] leading-relaxed">
+                  {entry.def}
+                </span>
+              </div>
+              {entry.link && (
+                <Link
+                  to={entry.link}
+                  className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline whitespace-nowrap text-[11px] font-medium shrink-0"
+                >
+                  {entry.linkText} &rarr;
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -487,4 +511,3 @@ export const HowItWorks: React.FC = () => {
 };
 
 export default HowItWorks;
-
