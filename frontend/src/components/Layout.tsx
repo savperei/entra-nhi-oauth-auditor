@@ -187,7 +187,7 @@ export const Layout: React.FC = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#F5F4EF] dark:bg-[#111B18] text-[#202824] dark:text-[#E8EBE9] font-sans antialiased overflow-x-hidden transition-colors duration-150">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#F5F4EF] dark:bg-[#111B18] text-[#202824] dark:text-[#E8EBE9] font-sans antialiased transition-colors duration-150">
       {/* Mobile Backdrop Overlay (<768px) */}
       {mobileMenuOpen && (
         <div
@@ -197,16 +197,17 @@ export const Layout: React.FC = () => {
         />
       )}
 
-      {/* Editorially Crafted Deep Forest Sidebar */}
+      {/* Editorially Crafted Deep Forest Sidebar (Full viewport height, anchored) */}
       <aside
         ref={sidebarRef}
-        className={`fixed md:sticky top-0 z-50 md:z-20 h-screen bg-[#202F2A] dark:bg-[#131E1B] border-r border-[#2D3E38] dark:border-[#22332E] flex flex-col justify-between transition-all duration-200 ease-in-out ${
+        className={`fixed md:static inset-y-0 left-0 z-50 md:z-20 h-full bg-[#202F2A] dark:bg-[#131E1B] border-r border-[#2D3E38] dark:border-[#22332E] flex flex-col justify-between transition-transform duration-200 ease-in-out ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        } w-[230px] md:w-[56px] lg:w-[230px] shrink-0 text-[#E8EBE9] shadow-md`}
+        } w-[240px] md:w-[60px] lg:w-[240px] shrink-0 text-[#E8EBE9] shadow-md md:shadow-none`}
       >
-        <div>
+        {/* Top Brand Section & Navigation */}
+        <div className="flex flex-col flex-1 min-h-0">
           {/* Top Brand Area with Identity Shield */}
-          <div className="h-15 px-3.5 lg:px-5 flex items-center justify-between border-b border-[#2D3E38] dark:border-[#22332E]">
+          <div className="h-16 px-4 lg:px-5 flex items-center justify-between border-b border-[#2D3E38] dark:border-[#22332E] shrink-0">
             <div className="flex items-center gap-3 min-w-0 justify-center md:w-full lg:w-auto lg:justify-start">
               <div
                 className="w-8 h-8 rounded-md bg-[#147D68] border border-[#A7C4B5]/30 flex items-center justify-center text-white shrink-0 shadow-xs"
@@ -222,7 +223,7 @@ export const Layout: React.FC = () => {
                   NHI Auditor
                 </span>
                 <span className="text-[10px] text-[#A7C4B5] block font-mono tracking-wider uppercase">
-                  Console v1.0
+                  Security Console
                 </span>
               </div>
             </div>
@@ -240,8 +241,8 @@ export const Layout: React.FC = () => {
             </button>
           </div>
 
-          {/* Navigation Links with quiet active line and confident typography */}
-          <nav className="mt-4 px-2 flex flex-col gap-1">
+          {/* Navigation Links (Scrollable if viewport is short) */}
+          <nav className="flex-1 overflow-y-auto py-3 px-2 flex flex-col gap-1">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -250,7 +251,7 @@ export const Layout: React.FC = () => {
                 className={({ isActive }: { isActive: boolean }) =>
                   `px-3 py-2.5 rounded text-xs flex items-center justify-center lg:justify-start gap-3 transition-all focus:outline-none focus:ring-1 focus:ring-[#147D68] ${
                     isActive
-                      ? 'border-l-3 border-[#2DD4BF] text-white font-semibold bg-[#172622] pl-2.5'
+                      ? 'border-l-3 border-[#2DD4BF] text-white font-semibold bg-[#172622] pl-2.5 shadow-2xs'
                       : 'border-l-3 border-transparent text-[#97A8A0] hover:text-white hover:bg-[#172622]/60 font-normal'
                   }`
                 }
@@ -262,32 +263,60 @@ export const Layout: React.FC = () => {
           </nav>
         </div>
 
-        {/* Sidebar Footer: Mode info & Dark Mode Toggle */}
-        <div className="p-3 border-t border-[#2D3E38] dark:border-[#22332E] space-y-2.5">
-          {/* Real Backend Data Mode Indicator */}
+        {/* Sidebar Footer: Anchored at bottom with product info & connectivity status */}
+        <div className="p-3.5 border-t border-[#2D3E38] dark:border-[#22332E] space-y-2.5 shrink-0 bg-[#202F2A] dark:bg-[#131E1B]">
+          {/* Status & Version Card (Expanded on Desktop) */}
+          <div className="hidden lg:block p-2.5 rounded bg-[#172622] dark:bg-[#0E1614] border border-[#2D3E38] dark:border-[#22332E]">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#A7C4B5]">
+                Identity Console
+              </span>
+              <span className="text-[10px] font-mono text-[#97A8A0] bg-[#202F2A] px-1.5 py-0.5 rounded border border-[#2D3E38]">
+                v1.0.0
+              </span>
+            </div>
+
+            {/* Connectivity / Environment state */}
+            <div className="flex items-center gap-2 pt-1 text-[11px] text-[#E8EBE9]">
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 ${
+                  appMode === 'live'
+                    ? 'bg-[#39856A] shadow-[0_0_6px_#39856A]'
+                    : 'bg-[#D77928] shadow-[0_0_6px_#D77928]'
+                }`}
+              />
+              <div className="truncate font-sans leading-tight">
+                <div className="font-medium text-white truncate text-[11px]">
+                  {appMode === 'live' ? 'Entra ID: Connected' : 'Synthetic Benchmark'}
+                </div>
+                <div className="text-[10px] text-[#97A8A0] font-mono truncate">
+                  {appMode === 'live' ? 'Production Tenant' : 'Offline Dataset'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Compact indicator for tablet collapsed sidebar */}
           <div
-            title={appMode === 'live' ? 'Connected to Entra ID Live Tenant' : 'Running on Synthetic Benchmark Data'}
-            className="flex items-center justify-center lg:justify-start gap-2 px-2 py-1.5 rounded bg-[#172622] text-[11px] text-[#A7C4B5] border border-[#2D3E38]"
+            className="hidden md:flex lg:hidden items-center justify-center p-2 rounded bg-[#172622] border border-[#2D3E38]"
+            title={appMode === 'live' ? 'Entra ID: Connected (Live)' : 'Synthetic Benchmark Data'}
           >
             <span
-              className={`w-2 h-2 rounded-full shrink-0 ${
+              className={`w-2.5 h-2.5 rounded-full ${
                 appMode === 'live' ? 'bg-[#39856A]' : 'bg-[#D77928]'
               }`}
             />
-            <span className="md:hidden lg:inline truncate font-mono text-[10px]">
-              {appMode === 'live' ? 'Live Entra ID' : 'Synthetic demo data'}
-            </span>
           </div>
 
-          {/* Dark Mode Toggle */}
+          {/* Theme Toggle Button */}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="w-full flex items-center justify-center lg:justify-between px-2.5 py-1.5 rounded text-xs text-[#97A8A0] hover:text-white hover:bg-[#172622] transition-colors"
+            className="w-full flex items-center justify-center lg:justify-between px-2.5 py-1.5 rounded text-xs text-[#97A8A0] hover:text-white hover:bg-[#172622] border border-transparent hover:border-[#2D3E38] transition-colors cursor-pointer"
             title={darkMode ? 'Switch to warm linen theme' : 'Switch to dark forest theme'}
             aria-label="Toggle theme"
           >
-            <span className="md:hidden lg:inline text-[11px]">
-              {darkMode ? 'Linen theme' : 'Dark console'}
+            <span className="md:hidden lg:inline text-[11px] font-medium">
+              {darkMode ? 'Warm linen mode' : 'Dark forest mode'}
             </span>
             {darkMode ? (
               <svg className="w-3.5 h-3.5 text-[#DDB045]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -311,9 +340,10 @@ export const Layout: React.FC = () => {
       </aside>
 
       {/* Main Command Centre Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar with Primary & Secondary Actions */}
-        <header className="h-15 px-4 sm:px-6 lg:px-8 bg-[#FFFFFF] dark:bg-[#182622] border-b border-[#DCE2DB] dark:border-[#283C35] flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        {/* Top Bar with Comfortable Spacing, Baseline Alignment & Clean Action Hub */}
+        <header className="h-16 min-h-[64px] px-4 sm:px-6 lg:px-8 py-3.5 bg-[#FFFFFF] dark:bg-[#182622] border-b border-[#DCE2DB] dark:border-[#283C35] flex items-center justify-between gap-4 shrink-0 z-30 shadow-2xs">
+          {/* Left: Hamburger + Page Title + Audit Run ID neatly aligned */}
           <div className="flex items-center gap-3 min-w-0">
             {/* Hamburger Button (Mobile Only) */}
             <button
@@ -328,29 +358,32 @@ export const Layout: React.FC = () => {
               </svg>
             </button>
 
-            <h1 className="text-sm sm:text-base font-semibold text-[#202824] dark:text-[#E8EBE9] tracking-tight truncate">
-              {currentTitle}
-            </h1>
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <h1 className="text-base sm:text-lg font-semibold text-[#202824] dark:text-[#E8EBE9] tracking-tight truncate leading-tight">
+                {currentTitle}
+              </h1>
 
-            {result?.run_id && (
-              <span
-                title="Current Audit Run Identifier"
-                className="hidden sm:inline-block font-mono text-[10px] text-[#66736C] dark:text-[#95A69E] bg-[#ECEBE4] dark:bg-[#111B18] px-2 py-0.5 rounded border border-[#DCE2DB] dark:border-[#283C35]"
-              >
-                {result.run_id}
-              </span>
-            )}
+              {result?.run_id && (
+                <span
+                  title="Current Audit Run Identifier"
+                  className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[11px] text-[#66736C] dark:text-[#95A69E] bg-[#ECEBE4] dark:bg-[#111B18] px-2.5 py-1 rounded border border-[#DCE2DB] dark:border-[#283C35] leading-none shrink-0"
+                >
+                  <span className="text-[10px] font-sans font-medium uppercase tracking-wider text-[#97A8A0]">Run</span>
+                  <span className="font-semibold text-[#202824] dark:text-[#E8EBE9]">{result.run_id}</span>
+                </span>
+              )}
+            </div>
           </div>
 
-          {/* Action Hub: Secondary Exports & Primary Run Audit */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Right Action Hub: Cleanly Aligned Actions with Generous Breathing Room */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
             {/* Download HTML (Secondary) */}
             <button
               type="button"
               onClick={() => handleDownloadReport('html')}
               disabled={isNoAuditData || htmlExporting}
               title="Download HTML audit executive report"
-              className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] ${
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] cursor-pointer ${
                 isNoAuditData
                   ? 'border-[#DCE2DB] dark:border-[#283C35] text-[#97A8A0] dark:text-[#6E827A] cursor-not-allowed bg-transparent'
                   : 'border-[#DCE2DB] dark:border-[#283C35] bg-[#FFFFFF] dark:bg-[#202F2A] text-[#202824] dark:text-[#E8EBE9] hover:bg-[#ECEBE4] dark:hover:bg-[#2D3E38] hover:border-[#A7C4B5]'
@@ -380,7 +413,7 @@ export const Layout: React.FC = () => {
               onClick={() => handleDownloadReport('json')}
               disabled={isNoAuditData || jsonExporting}
               title="Download raw JSON findings export"
-              className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] ${
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] cursor-pointer ${
                 isNoAuditData
                   ? 'border-[#DCE2DB] dark:border-[#283C35] text-[#97A8A0] dark:text-[#6E827A] cursor-not-allowed bg-transparent'
                   : 'border-[#DCE2DB] dark:border-[#283C35] bg-[#FFFFFF] dark:bg-[#202F2A] text-[#202824] dark:text-[#E8EBE9] hover:bg-[#ECEBE4] dark:hover:bg-[#2D3E38] hover:border-[#A7C4B5]'
@@ -409,10 +442,10 @@ export const Layout: React.FC = () => {
               onClick={() => runAudit()}
               disabled={isLoading}
               title="Trigger a new non-human identity risk scan"
-              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-semibold tracking-wide transition-all shadow-xs focus:outline-none focus:ring-2 focus:ring-[#147D68] ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all shadow-xs focus:outline-none focus:ring-2 focus:ring-[#147D68] cursor-pointer ${
                 isLoading
                   ? 'bg-[#ECEBE4] dark:bg-[#283C35] text-[#97A8A0] cursor-not-allowed'
-                  : 'bg-[#147D68] hover:bg-[#0E6150] dark:bg-[#147D68] dark:hover:bg-[#0E6150] text-white active:scale-98'
+                  : 'bg-[#147D68] hover:bg-[#0E6150] text-white active:scale-98'
               }`}
             >
               {isLoading ? (
@@ -435,7 +468,7 @@ export const Layout: React.FC = () => {
           </div>
         </header>
 
-        {/* Dynamic Page Content Outlet */}
+        {/* Dynamic Page Content Outlet (Independently scrollable) */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#F5F4EF] dark:bg-[#111B18]">
           <Outlet context={{ auditResult: result, isLoading, runAudit }} />
         </main>

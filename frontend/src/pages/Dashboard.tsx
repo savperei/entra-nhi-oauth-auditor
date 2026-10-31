@@ -4,7 +4,6 @@ import { getIdentities, getAuditStatus, runAudit, getConfig } from '../services/
 import { IdentitySummary, AuditStatusResponse } from '../types';
 import { ScoreCard } from '../components/ScoreCard';
 import { RiskBadge } from '../components/RiskBadge';
-import { ExportControls } from '../components/ExportControls';
 import { RiskBreakdownChart } from '../components/RiskBreakdownChart';
 import { Skeleton } from '../components/Skeleton';
 import { EmptyState } from '../components/EmptyState';
@@ -243,7 +242,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ exportControls }) => {
           </div>
         </div>
 
-        <div>{exportControls ?? <ExportControls />}</div>
+        {exportControls && <div>{exportControls}</div>}
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────── */}
