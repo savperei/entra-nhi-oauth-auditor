@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAudit } from '../hooks/useAudit';
+import { getConfig, apiClient } from '../services/api';
 
 export const Layout: React.FC = () => {
   const location = useLocation();
@@ -9,6 +10,11 @@ export const Layout: React.FC = () => {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     return localStorage.getItem('theme') === 'dark';
   });
+  const [appMode, setAppMode] = useState<'synthetic' | 'live'>('synthetic');
+  const [htmlExporting, setHtmlExporting] = useState<boolean>(false);
+  const [jsonExporting, setJsonExporting] = useState<boolean>(false);
+  const [exportSuccess, setExportSuccess] = useState<string | null>(null);
+
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,6 +26,19 @@ export const Layout: React.FC = () => {
       localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
+
+  // Fetch real mode from backend config
+  useEffect(() => {
+    getConfig()
+      .then((cfg) => {
+        if (cfg?.mode) {
+          setAppMode(cfg.mode === 'live' ? 'live' : 'synthetic');
+        }
+      })
+      .catch(() => {
+        setAppMode('synthetic');
+      });
+  }, []);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -66,6 +85,49 @@ export const Layout: React.FC = () => {
   };
 
   const currentTitle = getPageTitle(location.pathname);
+
+  // Secondary Download actions
+  const handleDownloadReport = async (format: 'html' | 'json') => {
+    const isNoAudit =
+      !result ||
+      (result as any).status === 'no_audit_run' ||
+      (result as any).total_identities === 0;
+    if (isNoAudit) return;
+
+    if (format === 'html') setHtmlExporting(true);
+    else setJsonExporting(true);
+
+    try {
+      const response = await apiClient.get(`/reports/${format}`, {
+        responseType: 'blob',
+      });
+
+      const today = new Date().toISOString().split('T')[0];
+      const mimeType = format === 'html' ? 'text/html' : 'application/json';
+      const blob = new Blob([response.data], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `nhi-audit-${today}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      setExportSuccess(format.toUpperCase());
+      setTimeout(() => setExportSuccess(null), 2000);
+    } catch (err) {
+      console.error(`Failed to download ${format} report:`, err);
+    } finally {
+      if (format === 'html') setHtmlExporting(false);
+      else setJsonExporting(false);
+    }
+  };
+
+  const isNoAuditData =
+    !result ||
+    (result as any).status === 'no_audit_run' ||
+    (result as any).total_identities === 0;
 
   const navItems = [
     {
@@ -125,42 +187,42 @@ export const Layout: React.FC = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] font-sans antialiased overflow-x-hidden transition-colors duration-150">
+    <div className="flex min-h-screen bg-[#F5F4EF] dark:bg-[#111B18] text-[#202824] dark:text-[#E8EBE9] font-sans antialiased overflow-x-hidden transition-colors duration-150">
       {/* Mobile Backdrop Overlay (<768px) */}
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden transition-opacity duration-200"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden transition-opacity duration-200"
           aria-hidden="true"
         />
       )}
 
-      {/* Slim, quiet enterprise sidebar */}
+      {/* Editorially Crafted Deep Forest Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`fixed md:sticky top-0 z-50 md:z-20 h-screen bg-[#FFFFFF] dark:bg-[#1E293B] border-r border-[#E4E4E7] dark:border-[#334155] flex flex-col justify-between transition-all duration-200 ease-in-out ${
+        className={`fixed md:sticky top-0 z-50 md:z-20 h-screen bg-[#202F2A] dark:bg-[#131E1B] border-r border-[#2D3E38] dark:border-[#22332E] flex flex-col justify-between transition-all duration-200 ease-in-out ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        } w-[220px] md:w-[48px] lg:w-[220px] shrink-0`}
+        } w-[230px] md:w-[56px] lg:w-[230px] shrink-0 text-[#E8EBE9] shadow-md`}
       >
         <div>
-          {/* Top Logo Section */}
-          <div className="h-14 px-3 lg:px-5 flex items-center justify-between border-b border-[#E4E4E7] dark:border-[#334155]">
-            <div className="flex items-center gap-2.5 min-w-0 justify-center md:w-full lg:w-auto lg:justify-start">
+          {/* Top Brand Area with Identity Shield */}
+          <div className="h-15 px-3.5 lg:px-5 flex items-center justify-between border-b border-[#2D3E38] dark:border-[#22332E]">
+            <div className="flex items-center gap-3 min-w-0 justify-center md:w-full lg:w-auto lg:justify-start">
               <div
-                className="w-7 h-7 rounded-md bg-[#0F766E]/10 border border-[#0F766E]/20 flex items-center justify-center text-[#0F766E] dark:text-[#2DD4BF] shrink-0"
-                title="NHI Auditor"
+                className="w-8 h-8 rounded-md bg-[#147D68] border border-[#A7C4B5]/30 flex items-center justify-center text-white shrink-0 shadow-xs"
+                title="NHI Auditor Command Centre"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   <path d="M9 12l2 2 4-4" />
                 </svg>
               </div>
               <div className="md:hidden lg:block truncate">
-                <span className="font-semibold text-[#18181B] dark:text-[#F1F5F9] text-sm tracking-tight block truncate">
+                <span className="font-semibold text-[#FFFFFF] text-sm tracking-tight block truncate">
                   NHI Auditor
                 </span>
-                <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block font-mono">
-                  v1.0.0
+                <span className="text-[10px] text-[#A7C4B5] block font-mono tracking-wider uppercase">
+                  Console v1.0
                 </span>
               </div>
             </div>
@@ -168,8 +230,8 @@ export const Layout: React.FC = () => {
             {/* Mobile Close Button (<768px) */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="md:hidden p-1 rounded-md text-[#71717A] hover:text-[#18181B] dark:hover:text-[#F1F5F9] hover:bg-[#F4F4F5] dark:hover:bg-[#334155] focus:outline-none transition-colors"
-              aria-label="Close menu"
+              className="md:hidden p-1.5 rounded text-[#97A8A0] hover:text-[#FFFFFF] hover:bg-[#172622] focus:outline-none transition-colors"
+              aria-label="Close navigation"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -178,18 +240,18 @@ export const Layout: React.FC = () => {
             </button>
           </div>
 
-          {/* Navigation Links with narrow left rule and stronger text for active state */}
-          <nav className="mt-3 flex flex-col gap-0.5">
+          {/* Navigation Links with quiet active line and confident typography */}
+          <nav className="mt-4 px-2 flex flex-col gap-1">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 title={item.label}
                 className={({ isActive }: { isActive: boolean }) =>
-                  `px-3 lg:px-4 py-2.5 text-xs flex items-center justify-center lg:justify-start gap-2.5 transition-colors focus:outline-none focus:ring-1 focus:ring-[#0F766E] ${
+                  `px-3 py-2.5 rounded text-xs flex items-center justify-center lg:justify-start gap-3 transition-all focus:outline-none focus:ring-1 focus:ring-[#147D68] ${
                     isActive
-                      ? 'border-l-2 border-[#0F766E] dark:border-[#2DD4BF] text-[#0F766E] dark:text-[#2DD4BF] font-semibold bg-[#0F766E]/5 dark:bg-[#14B8A6]/10'
-                      : 'border-l-2 border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9] hover:bg-[#F4F4F5]/60 dark:hover:bg-[#334155]/40 font-normal'
+                      ? 'border-l-3 border-[#2DD4BF] text-white font-semibold bg-[#172622] pl-2.5'
+                      : 'border-l-3 border-transparent text-[#97A8A0] hover:text-white hover:bg-[#172622]/60 font-normal'
                   }`
                 }
               >
@@ -201,28 +263,34 @@ export const Layout: React.FC = () => {
         </div>
 
         {/* Sidebar Footer: Mode info & Dark Mode Toggle */}
-        <div className="p-2 lg:p-3 border-t border-[#E4E4E7] dark:border-[#334155] space-y-2">
-          {/* Subtle Mode Indicator */}
+        <div className="p-3 border-t border-[#2D3E38] dark:border-[#22332E] space-y-2.5">
+          {/* Real Backend Data Mode Indicator */}
           <div
-            title="Mode: Synthetic Demo Data"
-            className="flex items-center justify-center lg:justify-start gap-2 px-2 py-1 text-[11px] text-[#71717A] dark:text-[#94A3B8]"
+            title={appMode === 'live' ? 'Connected to Entra ID Live Tenant' : 'Running on Synthetic Benchmark Data'}
+            className="flex items-center justify-center lg:justify-start gap-2 px-2 py-1.5 rounded bg-[#172622] text-[11px] text-[#A7C4B5] border border-[#2D3E38]"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D97706] shrink-0"></span>
-            <span className="md:hidden lg:inline truncate">Synthetic demo data</span>
+            <span
+              className={`w-2 h-2 rounded-full shrink-0 ${
+                appMode === 'live' ? 'bg-[#39856A]' : 'bg-[#D77928]'
+              }`}
+            />
+            <span className="md:hidden lg:inline truncate font-mono text-[10px]">
+              {appMode === 'live' ? 'Live Entra ID' : 'Synthetic demo data'}
+            </span>
           </div>
 
           {/* Dark Mode Toggle */}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="w-full flex items-center justify-center lg:justify-between px-2 py-1.5 rounded text-xs text-[#71717A] dark:text-[#94A3B8] hover:bg-[#F4F4F5] dark:hover:bg-[#334155] transition-colors"
-            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="w-full flex items-center justify-center lg:justify-between px-2.5 py-1.5 rounded text-xs text-[#97A8A0] hover:text-white hover:bg-[#172622] transition-colors"
+            title={darkMode ? 'Switch to warm linen theme' : 'Switch to dark forest theme'}
             aria-label="Toggle theme"
           >
             <span className="md:hidden lg:inline text-[11px]">
-              {darkMode ? 'Light mode' : 'Dark mode'}
+              {darkMode ? 'Linen theme' : 'Dark console'}
             </span>
             {darkMode ? (
-              <svg className="w-3.5 h-3.5 text-[#F59E0B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-3.5 h-3.5 text-[#DDB045]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="5" />
                 <line x1="12" y1="1" x2="12" y2="3" />
                 <line x1="12" y1="21" x2="12" y2="23" />
@@ -234,7 +302,7 @@ export const Layout: React.FC = () => {
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
             ) : (
-              <svg className="w-3.5 h-3.5 text-[#71717A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-3.5 h-3.5 text-[#97A8A0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             )}
@@ -242,15 +310,15 @@ export const Layout: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Command Centre Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
-        <header className="h-14 px-4 sm:px-6 lg:px-8 bg-[#FFFFFF] dark:bg-[#1E293B] border-b border-[#E4E4E7] dark:border-[#334155] flex items-center justify-between sticky top-0 z-10">
+        {/* Top Bar with Primary & Secondary Actions */}
+        <header className="h-15 px-4 sm:px-6 lg:px-8 bg-[#FFFFFF] dark:bg-[#182622] border-b border-[#DCE2DB] dark:border-[#283C35] flex items-center justify-between sticky top-0 z-30 shadow-2xs">
           <div className="flex items-center gap-3 min-w-0">
             {/* Hamburger Button (Mobile Only) */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-1.5 rounded text-[#71717A] hover:text-[#18181B] dark:hover:text-[#F1F5F9] hover:bg-[#F4F4F5] dark:hover:bg-[#334155] focus:outline-none transition-colors shrink-0"
+              className="md:hidden p-1.5 rounded text-[#66736C] hover:text-[#202824] dark:hover:text-white hover:bg-[#ECEBE4] dark:hover:bg-[#202F2A] focus:outline-none transition-colors shrink-0"
               aria-label="Open sidebar navigation"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -260,25 +328,91 @@ export const Layout: React.FC = () => {
               </svg>
             </button>
 
-            <h1 className="text-sm sm:text-base font-semibold text-[#18181B] dark:text-[#F1F5F9] tracking-tight truncate">
+            <h1 className="text-sm sm:text-base font-semibold text-[#202824] dark:text-[#E8EBE9] tracking-tight truncate">
               {currentTitle}
             </h1>
 
             {result?.run_id && (
-              <span className="hidden sm:inline-block font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8] bg-[#F4F4F5] dark:bg-[#0F172A] px-2 py-0.5 rounded border border-[#E4E4E7] dark:border-[#334155]">
+              <span
+                title="Current Audit Run Identifier"
+                className="hidden sm:inline-block font-mono text-[10px] text-[#66736C] dark:text-[#95A69E] bg-[#ECEBE4] dark:bg-[#111B18] px-2 py-0.5 rounded border border-[#DCE2DB] dark:border-[#283C35]"
+              >
                 {result.run_id}
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Action Hub: Secondary Exports & Primary Run Audit */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Download HTML (Secondary) */}
+            <button
+              type="button"
+              onClick={() => handleDownloadReport('html')}
+              disabled={isNoAuditData || htmlExporting}
+              title="Download HTML audit executive report"
+              className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] ${
+                isNoAuditData
+                  ? 'border-[#DCE2DB] dark:border-[#283C35] text-[#97A8A0] dark:text-[#6E827A] cursor-not-allowed bg-transparent'
+                  : 'border-[#DCE2DB] dark:border-[#283C35] bg-[#FFFFFF] dark:bg-[#202F2A] text-[#202824] dark:text-[#E8EBE9] hover:bg-[#ECEBE4] dark:hover:bg-[#2D3E38] hover:border-[#A7C4B5]'
+              }`}
+            >
+              {htmlExporting ? (
+                <svg className="w-3.5 h-3.5 animate-spin text-[#147D68]" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+              ) : exportSuccess === 'HTML' ? (
+                <span className="text-[#39856A] font-bold">✓</span>
+              ) : (
+                <svg className="w-3.5 h-3.5 text-[#66736C] dark:text-[#95A69E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              )}
+              <span className="hidden md:inline">Download HTML</span>
+              <span className="md:hidden">HTML</span>
+            </button>
+
+            {/* Download JSON (Secondary) */}
+            <button
+              type="button"
+              onClick={() => handleDownloadReport('json')}
+              disabled={isNoAuditData || jsonExporting}
+              title="Download raw JSON findings export"
+              className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium border transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] ${
+                isNoAuditData
+                  ? 'border-[#DCE2DB] dark:border-[#283C35] text-[#97A8A0] dark:text-[#6E827A] cursor-not-allowed bg-transparent'
+                  : 'border-[#DCE2DB] dark:border-[#283C35] bg-[#FFFFFF] dark:bg-[#202F2A] text-[#202824] dark:text-[#E8EBE9] hover:bg-[#ECEBE4] dark:hover:bg-[#2D3E38] hover:border-[#A7C4B5]'
+              }`}
+            >
+              {jsonExporting ? (
+                <svg className="w-3.5 h-3.5 animate-spin text-[#147D68]" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+              ) : exportSuccess === 'JSON' ? (
+                <span className="text-[#39856A] font-bold">✓</span>
+              ) : (
+                <svg className="w-3.5 h-3.5 text-[#66736C] dark:text-[#95A69E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              )}
+              <span className="hidden md:inline">Download JSON</span>
+              <span className="md:hidden">JSON</span>
+            </button>
+
+            {/* Run Audit (Primary Action) */}
             <button
               onClick={() => runAudit()}
               disabled={isLoading}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#0F766E] ${
+              title="Trigger a new non-human identity risk scan"
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-semibold tracking-wide transition-all shadow-xs focus:outline-none focus:ring-2 focus:ring-[#147D68] ${
                 isLoading
-                  ? 'bg-[#E4E4E7] dark:bg-[#334155] text-[#A1A1AA] cursor-not-allowed'
-                  : 'bg-[#0F766E] hover:bg-[#115E59] dark:bg-[#0D9488] dark:hover:bg-[#0F766E] text-white active:scale-98'
+                  ? 'bg-[#ECEBE4] dark:bg-[#283C35] text-[#97A8A0] cursor-not-allowed'
+                  : 'bg-[#147D68] hover:bg-[#0E6150] dark:bg-[#147D68] dark:hover:bg-[#0E6150] text-white active:scale-98'
               }`}
             >
               {isLoading ? (
@@ -287,11 +421,11 @@ export const Layout: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  <span className="hidden sm:inline">Auditing…</span>
+                  <span>Auditing…</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                   </svg>
                   <span>Run Audit</span>
@@ -302,7 +436,7 @@ export const Layout: React.FC = () => {
         </header>
 
         {/* Dynamic Page Content Outlet */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#FAFAF9] dark:bg-[#0F172A]">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-[#F5F4EF] dark:bg-[#111B18]">
           <Outlet context={{ auditResult: result, isLoading, runAudit }} />
         </main>
       </div>

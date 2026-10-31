@@ -37,16 +37,16 @@ function CopyableCode({ code }: { code: string }) {
 
   return (
     <div className="relative group">
-      <pre className="p-3 rounded bg-[#F4F4F5] dark:bg-[#0F172A] border border-[#E4E4E7] dark:border-[#334155] font-mono text-xs text-[#18181B] dark:text-[#E2E8F0] overflow-x-auto">
+      <pre className="p-3.5 rounded bg-[#172622] text-[#E8EBE9] border border-[#283C35] font-mono text-xs overflow-x-auto">
         {code}
       </pre>
       <button
         type="button"
         onClick={handleCopy}
         aria-label="Copy code to clipboard"
-        className="absolute top-2 right-2 px-2 py-0.5 rounded text-[11px] font-mono bg-[#E4E4E7] dark:bg-[#334155] text-[#18181B] dark:text-[#F1F5F9] hover:bg-[#D4D4D8] dark:hover:bg-[#475569] transition-colors"
+        className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded text-[11px] font-mono bg-[#283C35] text-[#A7C4B5] hover:bg-[#147D68] hover:text-white transition-colors"
       >
-        {copied ? 'Copied' : 'Copy'}
+        {copied ? 'Copied ✓' : 'Copy'}
       </button>
     </div>
   );
@@ -103,24 +103,24 @@ export const SetupConfig: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6 pb-16">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#18181B] dark:text-[#F1F5F9]">
-          Setup & Configuration
+        <h1 className="text-2xl font-bold tracking-tight text-[#202824] dark:text-[#E8EBE9]">
+          Setup &amp; Configuration
         </h1>
-        <p className="text-xs sm:text-sm text-[#71717A] dark:text-[#94A3B8] mt-1">
+        <p className="text-xs sm:text-sm text-[#66736C] dark:text-[#95A69E] mt-1">
           Inspect connection status, learn how to connect your Microsoft Entra ID tenant, or examine detection settings.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[#E4E4E7] dark:border-[#334155] gap-2 overflow-x-auto" role="tablist">
+      <div className="flex border-b border-[#DCE2DB] dark:border-[#283C35] gap-2 overflow-x-auto" role="tablist">
         <button
           role="tab"
           aria-selected={activeTab === 'status'}
           onClick={() => setActiveTab('status')}
           className={`py-2 px-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap focus:outline-none ${
             activeTab === 'status'
-              ? 'border-[#0F766E] dark:border-[#2DD4BF] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
-              : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
+              ? 'border-[#147D68] dark:border-[#2DD4BF] text-[#147D68] dark:text-[#2DD4BF] font-semibold'
+              : 'border-transparent text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9]'
           }`}
         >
           Connection status
@@ -131,8 +131,8 @@ export const SetupConfig: React.FC = () => {
           onClick={() => setActiveTab('connect')}
           className={`py-2 px-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap focus:outline-none ${
             activeTab === 'connect'
-              ? 'border-[#0F766E] dark:border-[#2DD4BF] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
-              : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
+              ? 'border-[#147D68] dark:border-[#2DD4BF] text-[#147D68] dark:text-[#2DD4BF] font-semibold'
+              : 'border-transparent text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9]'
           }`}
         >
           Connect your environment
@@ -143,8 +143,8 @@ export const SetupConfig: React.FC = () => {
           onClick={() => setActiveTab('detection')}
           className={`py-2 px-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap focus:outline-none ${
             activeTab === 'detection'
-              ? 'border-[#0F766E] dark:border-[#2DD4BF] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
-              : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
+              ? 'border-[#147D68] dark:border-[#2DD4BF] text-[#147D68] dark:text-[#2DD4BF] font-semibold'
+              : 'border-transparent text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9]'
           }`}
         >
           Detection settings
@@ -154,69 +154,69 @@ export const SetupConfig: React.FC = () => {
       {/* TAB 1: Connection status */}
       {activeTab === 'status' && (
         <div className="space-y-4">
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-5 space-y-4">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 sm:p-6 space-y-4 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+                <h2 className="text-sm font-semibold text-[#202824] dark:text-[#E8EBE9]">
                   Auditor Environment Status
                 </h2>
-                <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+                <p className="text-xs text-[#66736C] dark:text-[#95A69E] mt-0.5">
                   Real-time status of backend API connectivity and data source mode.
                 </p>
               </div>
               <div>
                 {config?.mode === 'live' ? (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0] dark:bg-[#064E3B]/30 dark:border-[#065F46] dark:text-[#86EFAC]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold bg-[#F0FDF4] text-[#39856A] border border-[#A7C4B5]/40 dark:bg-[#142A22] dark:border-[#283C35] dark:text-[#2DD4BF]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#39856A]" />
                     Live Entra ID data
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold bg-[#FEF3C7] dark:bg-[#78350F]/40 text-[#92400E] dark:text-[#FDE68A] border border-[#FCD34D] dark:border-[#B45309]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#D97706]" />
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold bg-[#FEF7EE] text-[#D77928] border border-[#D77928]/30 dark:bg-[#2A2016] dark:text-[#E58B3C]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#D77928]" />
                     Synthetic demo data
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-[#E4E4E7] dark:border-[#334155] pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-[#ECEBE4] dark:border-[#283C35] pt-4">
               {/* API Status */}
-              <div className="p-3 bg-[#F4F4F5] dark:bg-[#0F172A] rounded border border-[#E4E4E7] dark:border-[#334155]">
-                <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block">API status</span>
+              <div className="p-3 bg-[#F5F4EF] dark:bg-[#111B18] rounded border border-[#DCE2DB] dark:border-[#283C35]">
+                <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] block">API status</span>
                 {healthLoading ? (
-                  <span className="text-xs text-[#71717A] mt-1 block">Checking API...</span>
+                  <span className="text-xs text-[#66736C] mt-1 block">Checking API...</span>
                 ) : health && health.status === 'ok' ? (
-                  <span className="text-xs font-semibold text-[#16A34A] flex items-center gap-1 mt-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
+                  <span className="text-xs font-semibold text-[#39856A] dark:text-[#4AA484] flex items-center gap-1 mt-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#39856A]" />
                     API reachable
                   </span>
                 ) : (
-                  <span className="text-xs font-semibold text-[#DC2626] flex items-center gap-1 mt-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
+                  <span className="text-xs font-semibold text-[#C74444] dark:text-[#E05A5A] flex items-center gap-1 mt-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C74444]" />
                     API unavailable
                   </span>
                 )}
               </div>
 
               {/* Data mode */}
-              <div className="p-3 bg-[#F4F4F5] dark:bg-[#0F172A] rounded border border-[#E4E4E7] dark:border-[#334155]">
-                <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block">Data mode</span>
-                <span className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] mt-1 block">
+              <div className="p-3 bg-[#F5F4EF] dark:bg-[#111B18] rounded border border-[#DCE2DB] dark:border-[#283C35]">
+                <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] block">Data mode</span>
+                <span className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] mt-1 block">
                   {config?.mode === 'live' ? 'Live Entra ID tenant' : 'Synthetic demonstration'}
                 </span>
               </div>
 
               {/* Last audit */}
-              <div className="p-3 bg-[#F4F4F5] dark:bg-[#0F172A] rounded border border-[#E4E4E7] dark:border-[#334155]">
-                <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block">Last audit</span>
-                <span className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] mt-1 block leading-tight">
+              <div className="p-3 bg-[#F5F4EF] dark:bg-[#111B18] rounded border border-[#DCE2DB] dark:border-[#283C35]">
+                <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] block">Last audit</span>
+                <span className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] mt-1 block leading-tight">
                   {formatTimestamp(config?.last_audit_at)}
                 </span>
               </div>
             </div>
 
             {/* Data mode explanation */}
-            <div className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed pt-1 border-t border-[#E4E4E7] dark:border-[#334155]">
+            <div className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed pt-1 border-t border-[#ECEBE4] dark:border-[#283C35]">
               {config?.mode === 'live' ? (
                 <p>
                   The auditor is connected to your Microsoft Entra ID tenant and collects real identities, permissions, and credential records via Microsoft Graph.
@@ -235,79 +235,79 @@ export const SetupConfig: React.FC = () => {
       {activeTab === 'connect' && (
         <div className="space-y-6">
           {/* Demo-mode callout: exact required text, restrained note styling */}
-          <div className="p-3 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5] dark:bg-[#0F172A] text-xs text-[#71717A] dark:text-[#94A3B8] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0F766E] dark:bg-[#2DD4BF] shrink-0" />
+          <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF] dark:bg-[#111B18] text-xs text-[#66736C] dark:text-[#95A69E] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#147D68] dark:text-[#2DD4BF] shrink-0" />
             <span>The demo runs on synthetic data, so none of these values are needed to try the tool.</span>
           </div>
 
           <div className="space-y-4">
             {/* Step 1 */}
-            <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
-              <h2 className="text-xs font-bold text-[#0F766E] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
+            <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+              <h2 className="text-xs font-bold text-[#147D68] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
                 Step 1: Understand where the data comes from
               </h2>
-              <p className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed">
+              <p className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed">
                 The auditor reads identity and permission information from Microsoft Entra ID through the Microsoft Graph API when configured for live mode.
               </p>
-              <p className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed mt-2">
+              <p className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed mt-2">
                 Legacy applications such as CRM systems can appear as app registrations or service principals in Entra ID. Connecting Entra ID helps reveal the permissions and credentials associated with those identities.
               </p>
-              <p className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed mt-2">
+              <p className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed mt-2">
                 Clarify that the auditor does not automatically discover every legacy application's internal users, database permissions or local credentials. Its visibility depends on what is represented in Entra ID and what the configured APIs return.
               </p>
             </div>
 
             {/* Step 2 */}
-            <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
-              <h2 className="text-xs font-bold text-[#0F766E] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
+            <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+              <h2 className="text-xs font-bold text-[#147D68] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
                 Step 2: Register the auditor application
               </h2>
-              <ol className="list-decimal list-inside text-xs text-[#71717A] dark:text-[#94A3B8] space-y-1.5 leading-relaxed mt-2">
+              <ol className="list-decimal list-inside text-xs text-[#66736C] dark:text-[#95A69E] space-y-1.5 leading-relaxed mt-2">
                 <li>Open the Microsoft Entra admin centre.</li>
                 <li>Select Microsoft Entra ID.</li>
                 <li>Open App registrations.</li>
                 <li>Select New registration.</li>
-                <li>Give the application a clear name, such as <code className="font-mono bg-[#F4F4F5] dark:bg-[#0F172A] px-1 py-0.5 rounded">NHI OAuth Auditor</code>.</li>
+                <li>Give the application a clear name, such as <code className="font-mono bg-[#ECEBE4] dark:bg-[#111B18] px-1 py-0.5 rounded">NHI OAuth Auditor</code>.</li>
                 <li>Select the appropriate supported account type for the organisation.</li>
                 <li>Register the application.</li>
                 <li>Record the tenant ID and application/client ID.</li>
-                <li>Create a client secret under Certificates & secrets only if required by your client credentials grant flow.</li>
+                <li>Create a client secret under Certificates &amp; secrets only if required by your client credentials grant flow.</li>
                 <li>Store the secret securely.</li>
               </ol>
             </div>
 
             {/* Step 3 */}
-            <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
-              <h2 className="text-xs font-bold text-[#0F766E] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
+            <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 space-y-3 shadow-xs">
+              <h2 className="text-xs font-bold text-[#147D68] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
                 Step 3: Explain Microsoft Graph permissions
               </h2>
-              <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mb-3 leading-relaxed">
+              <p className="text-xs text-[#66736C] dark:text-[#95A69E] mb-3 leading-relaxed">
                 The product is intended to be read-only and never requires write permissions. The following Application permissions require administrator consent:
               </p>
 
               <div className="space-y-2 text-xs">
-                <div className="p-2.5 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
-                  <div className="font-mono font-semibold text-[#18181B] dark:text-[#F1F5F9]">Application.Read.All</div>
-                  <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+                <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
+                  <div className="font-mono font-semibold text-[#202824] dark:text-[#E8EBE9]">Application.Read.All</div>
+                  <div className="text-[11px] text-[#66736C] dark:text-[#95A69E] mt-0.5">
                     Reads application and service-principal information, allowing discovery of non-human identities, credentials, and attached API permissions.
                   </div>
                 </div>
-                <div className="p-2.5 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
-                  <div className="font-mono font-semibold text-[#18181B] dark:text-[#F1F5F9]">Directory.Read.All</div>
-                  <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+                <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
+                  <div className="font-mono font-semibold text-[#202824] dark:text-[#E8EBE9]">Directory.Read.All</div>
+                  <div className="text-[11px] text-[#66736C] dark:text-[#95A69E] mt-0.5">
                     Reads relevant directory objects and relationships, including publisher domain verification and tenant directory metadata.
                   </div>
                 </div>
-                <div className="p-2.5 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
-                  <div className="font-mono font-semibold text-[#18181B] dark:text-[#F1F5F9]">AuditLog.Read.All</div>
-                  <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+                <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
+                  <div className="font-mono font-semibold text-[#202824] dark:text-[#E8EBE9]">AuditLog.Read.All</div>
+                  <div className="text-[11px] text-[#66736C] dark:text-[#95A69E] mt-0.5">
                     Reads audit-log information where used by the application, such as recent service principal sign-in activity and inactive accounts.
                   </div>
                 </div>
               </div>
 
               <div className="mt-3">
-                <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block mb-1">Permission names:</span>
+                <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] block mb-1">Permission names:</span>
                 <CopyableCode code={`Application.Read.All
 Directory.Read.All
 AuditLog.Read.All`} />
@@ -315,50 +315,50 @@ AuditLog.Read.All`} />
             </div>
 
             {/* Step 4 */}
-            <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5 space-y-3">
-              <h2 className="text-xs font-bold text-[#0F766E] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
+            <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 space-y-3 shadow-xs">
+              <h2 className="text-xs font-bold text-[#147D68] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
                 Step 4: Configure environment variables
               </h2>
-              <p className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed">
-                Environment variables belong in <code className="font-mono bg-[#F4F4F5] dark:bg-[#0F172A] px-1 py-0.5 rounded">backend/.env</code>. This file is excluded by <code className="font-mono">.gitignore</code> and must never be committed to source control.
+              <p className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed">
+                Environment variables belong in <code className="font-mono bg-[#ECEBE4] dark:bg-[#111B18] px-1 py-0.5 rounded">backend/.env</code>. This file is excluded by <code className="font-mono">.gitignore</code> and must never be committed to source control.
               </p>
 
-              <div className="overflow-x-auto border border-[#E4E4E7] dark:border-[#334155] rounded">
+              <div className="overflow-x-auto border border-[#DCE2DB] dark:border-[#283C35] rounded">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
+                  <thead className="bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] text-[11px] font-semibold border-b border-[#DCE2DB] dark:border-[#283C35]">
                     <tr>
-                      <th className="py-2 px-3">Variable</th>
-                      <th className="py-2 px-3">What it means</th>
-                      <th className="py-2 px-3">Where to find it</th>
+                      <th className="py-2.5 px-3">Variable</th>
+                      <th className="py-2.5 px-3">What it means</th>
+                      <th className="py-2.5 px-3">Where to find it</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+                  <tbody className="divide-y divide-[#ECEBE4] dark:divide-[#283C35] text-[#202824] dark:text-[#E8EBE9]">
                     <tr>
-                      <td className="py-2 px-3 font-mono text-[11px]">AZURE_TENANT_ID</td>
-                      <td className="py-2 px-3">The organisation's Entra tenant identifier</td>
-                      <td className="py-2 px-3 text-[#71717A] dark:text-[#94A3B8]">Entra tenant overview</td>
+                      <td className="py-2.5 px-3 font-mono text-[11px]">AZURE_TENANT_ID</td>
+                      <td className="py-2.5 px-3">The organisation's Entra tenant identifier</td>
+                      <td className="py-2.5 px-3 text-[#66736C] dark:text-[#95A69E]">Entra tenant overview</td>
                     </tr>
                     <tr>
-                      <td className="py-2 px-3 font-mono text-[11px]">AZURE_CLIENT_ID</td>
-                      <td className="py-2 px-3">The auditor application's client ID</td>
-                      <td className="py-2 px-3 text-[#71717A] dark:text-[#94A3B8]">App registration overview</td>
+                      <td className="py-2.5 px-3 font-mono text-[11px]">AZURE_CLIENT_ID</td>
+                      <td className="py-2.5 px-3">The auditor application's client ID</td>
+                      <td className="py-2.5 px-3 text-[#66736C] dark:text-[#95A69E]">App registration overview</td>
                     </tr>
                     <tr>
-                      <td className="py-2 px-3 font-mono text-[11px]">AZURE_CLIENT_SECRET</td>
-                      <td className="py-2 px-3">The application secret, if required by the implemented authentication flow</td>
-                      <td className="py-2 px-3 text-[#71717A] dark:text-[#94A3B8]">App registration certificate and secrets</td>
+                      <td className="py-2.5 px-3 font-mono text-[11px]">AZURE_CLIENT_SECRET</td>
+                      <td className="py-2.5 px-3">The application secret, if required by the implemented authentication flow</td>
+                      <td className="py-2.5 px-3 text-[#66736C] dark:text-[#95A69E]">App registration certificate and secrets</td>
                     </tr>
                     <tr>
-                      <td className="py-2 px-3 font-mono text-[11px]">USE_SYNTHETIC_DATA</td>
-                      <td className="py-2 px-3">Controls whether demonstration data is used</td>
-                      <td className="py-2 px-3 text-[#71717A] dark:text-[#94A3B8]">Backend environment configuration (set to "false" for live mode)</td>
+                      <td className="py-2.5 px-3 font-mono text-[11px]">USE_SYNTHETIC_DATA</td>
+                      <td className="py-2.5 px-3">Controls whether demonstration data is used</td>
+                      <td className="py-2.5 px-3 text-[#66736C] dark:text-[#95A69E]">Backend environment configuration (set to "false" for live mode)</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <div>
-                <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block mb-1">Illustrative .env template (not real credentials):</span>
+                <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] block mb-1">Illustrative .env template (not real credentials):</span>
                 <CopyableCode
                   code={`AZURE_TENANT_ID=your-tenant-id
 AZURE_CLIENT_ID=your-client-id
@@ -369,17 +369,17 @@ USE_SYNTHETIC_DATA=false`}
             </div>
 
             {/* Step 5 */}
-            <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
-              <h2 className="text-xs font-bold text-[#0F766E] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
+            <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+              <h2 className="text-xs font-bold text-[#147D68] dark:text-[#2DD4BF] uppercase tracking-wider mb-1">
                 Step 5: Restart and run an audit
               </h2>
-              <ol className="list-decimal list-inside text-xs text-[#71717A] dark:text-[#94A3B8] space-y-1.5 leading-relaxed mt-2 mb-3">
+              <ol className="list-decimal list-inside text-xs text-[#66736C] dark:text-[#95A69E] space-y-1.5 leading-relaxed mt-2 mb-3">
                 <li>Save the environment configuration in <code className="font-mono">backend/.env</code>.</li>
                 <li>Restart the backend service.</li>
                 <li>Verify the API health status on the Connection status tab.</li>
                 <li>Confirm the actual data mode indicates live Entra ID data.</li>
                 <li>Run an audit by selecting the Run Audit button in the top bar.</li>
-                <li>Open the <Link to="/identities" className="text-[#0F766E] dark:text-[#2DD4BF] underline">Identities</Link> and <Link to="/findings" className="text-[#0F766E] dark:text-[#2DD4BF] underline">Findings</Link> pages.</li>
+                <li>Open the <Link to="/identities" className="text-[#147D68] dark:text-[#2DD4BF] underline font-medium">Identities</Link> and <Link to="/findings" className="text-[#147D68] dark:text-[#2DD4BF] underline font-medium">Findings</Link> pages.</li>
                 <li>Review the resulting scores and remediation guidance.</li>
               </ol>
               <CopyableCode code={`cd backend
@@ -387,15 +387,15 @@ uvicorn src.api.main:app --reload --port 8000`} />
             </div>
 
             {/* Auditing a legacy CRM panel */}
-            <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border-l-4 border-l-[#0F766E] border border-[#E4E4E7] dark:border-[#334155] rounded-r-lg p-4 sm:p-5">
-              <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9] mb-1">
+            <div className="bg-[#FFFFFF] dark:bg-[#182622] border-l-4 border-l-[#147D68] border border-[#DCE2DB] dark:border-[#283C35] rounded-r-lg p-5 shadow-xs">
+              <h2 className="text-sm font-semibold text-[#202824] dark:text-[#E8EBE9] mb-1">
                 Auditing a legacy CRM
               </h2>
-              <p className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed mb-3">
+              <p className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed mb-3">
                 Legacy CRM connectors (such as Salesforce sync accounts, older Dynamics integrations, or custom customer database tools) often hold high privileges. To audit a legacy CRM:
               </p>
-              <ul className="list-disc list-inside text-xs text-[#71717A] dark:text-[#94A3B8] space-y-1.5">
-                <li>Search for the CRM by its name on the <Link to="/identities" className="text-[#0F766E] dark:text-[#2DD4BF] underline font-medium">Identities page</Link>.</li>
+              <ul className="list-disc list-inside text-xs text-[#66736C] dark:text-[#95A69E] space-y-1.5">
+                <li>Search for the CRM by its name on the <Link to="/identities" className="text-[#147D68] dark:text-[#2DD4BF] underline font-medium">Identities page</Link>.</li>
                 <li>Identify its associated app registration or service principal.</li>
                 <li>Review the permissions granted to it.</li>
                 <li>Look for expiring or old secrets and certificates.</li>
@@ -403,7 +403,7 @@ uvicorn src.api.main:app --reload --port 8000`} />
                 <li>Check publisher verification and identity status where available.</li>
                 <li>Follow the findings and remediation guidance to decide what an administrator should review.</li>
               </ul>
-              <p className="text-[11px] text-[#A1A1AA] mt-3 italic">
+              <p className="text-[11px] text-[#97A8A0] mt-3 italic">
                 Note: An application's appearance in Entra ID does not automatically mean its entire internal CRM environment has been audited; visibility reflects the Entra ID identity object and what the configured APIs return.
               </p>
             </div>
@@ -414,58 +414,58 @@ uvicorn src.api.main:app --reload --port 8000`} />
       {/* TAB 3: Detection settings */}
       {activeTab === 'detection' && (
         <div className="space-y-5">
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
-            <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9] mb-1">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+            <h2 className="text-sm font-semibold text-[#202824] dark:text-[#E8EBE9] mb-1">
               Detection settings (Read-only)
             </h2>
-            <p className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed">
-              Rules are defined in <code className="font-mono text-[#0F766E] dark:text-[#2DD4BF] bg-[#F4F4F5] dark:bg-[#0F172A] px-1 py-0.5 rounded">rules/default_rules.yaml</code>. An administrator can modify point values, add new rules, or adjust severity by editing that file and restarting the backend service.
+            <p className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed">
+              Rules are defined in <code className="font-mono text-[#147D68] dark:text-[#2DD4BF] bg-[#ECEBE4] dark:bg-[#111B18] px-1 py-0.5 rounded">rules/default_rules.yaml</code>. An administrator can modify point values, add new rules, or adjust severity by editing that file and restarting the backend service.
             </p>
           </div>
 
           {/* Config Summary Card */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3.5 bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg">
-              <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block">Current data mode</span>
-              <span className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] mt-1 block capitalize font-mono">
+            <div className="p-4 bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg shadow-xs">
+              <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] block">Current data mode</span>
+              <span className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] mt-1 block capitalize font-mono">
                 {config?.mode || 'synthetic'}
               </span>
             </div>
-            <div className="p-3.5 bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg">
-              <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] block">Rules file path</span>
-              <span className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] mt-1 block font-mono truncate">
+            <div className="p-4 bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg shadow-xs">
+              <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] block">Rules file path</span>
+              <span className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] mt-1 block font-mono truncate">
                 {config?.rules_file || 'rules/default_rules.yaml'}
               </span>
             </div>
           </div>
 
           {/* Effective Risk Thresholds */}
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
-            <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] uppercase tracking-wider text-[11px] mb-2">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+            <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] uppercase tracking-wider text-[11px] mb-3">
               Effective Risk Thresholds
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="p-2.5 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+              <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
                 <RiskBadge level="Low" />
-                <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+                <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                   {config?.thresholds?.low ?? 1} – {(config?.thresholds?.medium ?? 25) - 1} pts
                 </div>
               </div>
-              <div className="p-2.5 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+              <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
                 <RiskBadge level="Medium" />
-                <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+                <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                   {config?.thresholds?.medium ?? 25} – {(config?.thresholds?.high ?? 50) - 1} pts
                 </div>
               </div>
-              <div className="p-2.5 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+              <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
                 <RiskBadge level="High" />
-                <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+                <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                   {config?.thresholds?.high ?? 50} – {(config?.thresholds?.critical ?? 80) - 1} pts
                 </div>
               </div>
-              <div className="p-2.5 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+              <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
                 <RiskBadge level="Critical" />
-                <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+                <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                   {config?.thresholds?.critical ?? 80}+ pts
                 </div>
               </div>
@@ -473,32 +473,32 @@ uvicorn src.api.main:app --reload --port 8000`} />
           </div>
 
           {/* Active Rules Catalog */}
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#E4E4E7] dark:border-[#334155] flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] uppercase tracking-wider text-[11px]">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg overflow-hidden shadow-xs">
+            <div className="px-4 py-3 border-b border-[#ECEBE4] dark:border-[#283C35] flex items-center justify-between">
+              <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] uppercase tracking-wider text-[11px]">
                 Configured Rules ({rules.length})
               </h3>
-              <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] font-mono">rules/default_rules.yaml</span>
+              <span className="text-[11px] text-[#66736C] dark:text-[#A7C4B5] font-mono">rules/default_rules.yaml</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
+                <thead className="bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] text-[11px] font-semibold border-b border-[#DCE2DB] dark:border-[#283C35]">
                   <tr>
-                    <th className="py-2.5 px-3">Rule ID</th>
-                    <th className="py-2.5 px-3">Name</th>
-                    <th className="py-2.5 px-3">Severity</th>
-                    <th className="py-2.5 px-3 text-right">Points</th>
-                    <th className="py-2.5 px-3">Remediation</th>
+                    <th className="py-2.5 px-3.5">Rule ID</th>
+                    <th className="py-2.5 px-3.5">Name</th>
+                    <th className="py-2.5 px-3.5">Severity</th>
+                    <th className="py-2.5 px-3.5 text-right">Points</th>
+                    <th className="py-2.5 px-3.5">Remediation</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+                <tbody className="divide-y divide-[#ECEBE4] dark:divide-[#283C35] text-[#202824] dark:text-[#E8EBE9]">
                   {rules.map((r) => (
-                    <tr key={r.id}>
-                      <td className="py-2 px-3 font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8]">{r.id}</td>
-                      <td className="py-2 px-3 font-medium">{r.name}</td>
-                      <td className="py-2 px-3"><RiskBadge level={r.severity} /></td>
-                      <td className="py-2 px-3 text-right font-mono font-semibold">+{r.score}</td>
-                      <td className="py-2 px-3 text-[#71717A] dark:text-[#94A3B8] text-[11px]">{r.remediation}</td>
+                    <tr key={r.id} className="hover:bg-[#ECEBE4]/50 dark:hover:bg-[#111B18]/60 transition-colors">
+                      <td className="py-2 px-3.5 font-mono text-[11px] text-[#66736C] dark:text-[#A7C4B5]">{r.id}</td>
+                      <td className="py-2 px-3.5 font-medium">{r.name}</td>
+                      <td className="py-2 px-3.5"><RiskBadge level={r.severity} /></td>
+                      <td className="py-2 px-3.5 text-right font-mono font-bold text-[#D77928]">+{r.score}</td>
+                      <td className="py-2 px-3.5 text-[#66736C] dark:text-[#95A69E] text-[11px] leading-relaxed">{r.remediation}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -507,11 +507,11 @@ uvicorn src.api.main:app --reload --port 8000`} />
           </div>
 
           {/* High-Risk Permissions List */}
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
-            <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] uppercase tracking-wider text-[11px] mb-2">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+            <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] uppercase tracking-wider text-[11px] mb-2">
               High-Risk Permission Scopes (Flagged by PERM_001)
             </h3>
-            <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mb-3 leading-relaxed">
+            <p className="text-xs text-[#66736C] dark:text-[#95A69E] mb-3 leading-relaxed">
               When an application permission matches any scope in this list, rule PERM_001 fires (+50 points):
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -526,7 +526,7 @@ uvicorn src.api.main:app --reload --port 8000`} />
               ]).map((perm) => (
                 <span
                   key={perm}
-                  className="px-2 py-0.5 rounded font-mono text-[11px] bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA] dark:bg-[#7F1D1D]/30 dark:border-[#991B1B] dark:text-[#FCA5A5]"
+                  className="px-2 py-0.5 rounded font-mono text-[11px] bg-[#FDF2F2] text-[#C74444] border border-[#C74444]/30 dark:bg-[#202F2A] dark:text-[#E05A5A]"
                 >
                   {perm}
                 </span>
@@ -535,11 +535,11 @@ uvicorn src.api.main:app --reload --port 8000`} />
           </div>
 
           {/* Illustrative Rule YAML Example */}
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
-            <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] uppercase tracking-wider text-[11px] mb-1">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+            <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] uppercase tracking-wider text-[11px] mb-1">
               Adding or Editing Rules in default_rules.yaml
             </h3>
-            <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mb-3 leading-relaxed">
+            <p className="text-xs text-[#66736C] dark:text-[#95A69E] mb-3 leading-relaxed">
               Rules contain an identifier, human name, severity, score addition, and recommended remediation. Example schema structure:
             </p>
             <CopyableCode

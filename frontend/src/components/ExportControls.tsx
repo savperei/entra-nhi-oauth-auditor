@@ -9,9 +9,6 @@ export interface ExportControlsProps {
   className?: string;
 }
 
-/**
- * Generates today's date in YYYY-MM-DD format.
- */
 const getTodayDateString = (): string => {
   const now = new Date();
   const year = now.getFullYear();
@@ -28,7 +25,6 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
   const [htmlStatus, setHtmlStatus] = useState<ExportStatus>('idle');
   const [jsonStatus, setJsonStatus] = useState<ExportStatus>('idle');
 
-  // Determine if export should be disabled (either via prop or if no audit data exists)
   const isNoAudit =
     !result ||
     (result as any).status === 'no_audit_run' ||
@@ -79,9 +75,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
       return (
         <>
           <svg
-            className={`w-3.5 h-3.5 animate-spin shrink-0 ${
-              format === 'html' ? 'text-[#22C55E]' : 'text-[#3B82F6]'
-            }`}
+            className="w-3.5 h-3.5 animate-spin text-[#147D68] shrink-0"
             viewBox="0 0 24 24"
             fill="none"
           >
@@ -107,18 +101,8 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
     if (status === 'success') {
       return (
         <>
-          <svg
-            className="w-3.5 h-3.5 text-[#22C55E] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          <span className="text-[#22C55E] whitespace-nowrap">Downloaded!</span>
+          <span className="text-[#39856A] font-bold">✓</span>
+          <span className="text-[#39856A] whitespace-nowrap font-medium">Downloaded</span>
         </>
       );
     }
@@ -126,50 +110,17 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
     if (status === 'error') {
       return (
         <>
-          <svg
-            className="w-3.5 h-3.5 text-[#EF4444] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="15" y1="9" x2="9" y2="15" />
-            <line x1="9" y1="9" x2="15" y2="15" />
-          </svg>
-          <span className="text-[#EF4444] whitespace-nowrap">Failed</span>
+          <span className="text-[#C74444] font-bold">⚠</span>
+          <span className="text-[#C74444] whitespace-nowrap font-medium">Failed</span>
         </>
       );
     }
 
     // Default 'idle' state
-    if (format === 'html') {
-      return (
-        <>
-          <svg
-            className="w-3.5 h-3.5 text-[#22C55E] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <circle cx="12" cy="14" r="3" />
-          </svg>
-          <span className="whitespace-nowrap">Download HTML</span>
-        </>
-      );
-    }
-
     return (
       <>
         <svg
-          className="w-3.5 h-3.5 text-[#3B82F6] shrink-0"
+          className="w-3.5 h-3.5 text-[#66736C] dark:text-[#95A69E] shrink-0"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -177,51 +128,46 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="16" y1="13" x2="8" y2="13" />
-          <line x1="16" y1="17" x2="8" y2="17" />
-          <polyline points="10 9 9 9 8 9" />
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
-        <span className="whitespace-nowrap">Download JSON</span>
+        <span className="whitespace-nowrap font-medium">
+          {format === 'html' ? 'Download HTML' : 'Download JSON'}
+        </span>
       </>
     );
   };
 
   const getButtonClasses = (status: ExportStatus) => {
     if (isDisabled) {
-      return 'bg-[#1E293B]/40 border-[#334155]/60 text-[#64748B] opacity-50 cursor-not-allowed';
+      return 'bg-transparent border-[#DCE2DB] dark:border-[#283C35] text-[#97A8A0] dark:text-[#6E827A] opacity-50 cursor-not-allowed';
     }
     if (status === 'success') {
-      return 'bg-[#1E293B] border-[#22C55E]/60 text-[#22C55E] cursor-default';
+      return 'bg-[#F0FDF4] dark:bg-[#142A22] border-[#A7C4B5] text-[#39856A] dark:text-[#2DD4BF] cursor-default';
     }
     if (status === 'error') {
-      return 'bg-[#1E293B] border-[#EF4444]/60 text-[#EF4444] hover:bg-[#334155]';
+      return 'bg-[#FDF2F2] dark:bg-[#202F2A] border-[#C74444]/40 text-[#C74444] hover:bg-[#FDF2F2]';
     }
     if (status === 'loading') {
-      return 'bg-[#1E293B] border-[#334155] text-[#F1F5F9] cursor-wait opacity-80';
+      return 'bg-[#FFFFFF] dark:bg-[#182622] border-[#DCE2DB] dark:border-[#283C35] text-[#202824] dark:text-[#E8EBE9] cursor-wait opacity-80';
     }
-    return 'bg-[#1E293B] hover:bg-[#334155] border-[#334155] text-[#F1F5F9] active:scale-95 cursor-pointer';
+    return 'bg-[#FFFFFF] dark:bg-[#182622] hover:bg-[#ECEBE4] dark:hover:bg-[#202F2A] border-[#DCE2DB] dark:border-[#283C35] text-[#202824] dark:text-[#E8EBE9] active:scale-95 cursor-pointer';
   };
 
-  const tooltipText = isDisabled ? 'Run an audit first' : undefined;
+  const tooltipText = isDisabled ? 'Run an audit first to enable exports' : undefined;
 
   return (
     <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-2 ${className}`}>
-      {/* "Export:" Label */}
-      <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider select-none shrink-0 self-start sm:self-center">
-        Export:
-      </span>
-
-      {/* Button group - stacked on mobile, inline on sm+ */}
+      {/* Button group */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         {/* [Download HTML] Button */}
         <span title={tooltipText} className={`w-full sm:w-auto ${isDisabled ? 'cursor-not-allowed' : ''}`}>
           <button
             onClick={() => handleDownload('html')}
             disabled={isDisabled || htmlStatus === 'loading'}
-            title={tooltipText || 'Download HTML report'}
-            className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getButtonClasses(
+            title={tooltipText || 'Download HTML executive report'}
+            className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded text-xs border shadow-2xs transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] ${getButtonClasses(
               htmlStatus
             )}`}
           >
@@ -234,8 +180,8 @@ export const ExportControls: React.FC<ExportControlsProps> = ({
           <button
             onClick={() => handleDownload('json')}
             disabled={isDisabled || jsonStatus === 'loading'}
-            title={tooltipText || 'Download JSON report'}
-            className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getButtonClasses(
+            title={tooltipText || 'Download raw JSON findings export'}
+            className={`w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded text-xs border shadow-2xs transition-colors focus:outline-none focus:ring-1 focus:ring-[#147D68] ${getButtonClasses(
               jsonStatus
             )}`}
           >

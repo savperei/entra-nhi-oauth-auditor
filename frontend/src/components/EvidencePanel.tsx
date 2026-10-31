@@ -76,15 +76,15 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
   const getBorderColor = (sev: string): string => {
     switch (sev) {
       case 'Critical':
-        return '#DC2626';
+        return '#C74444';
       case 'High':
-        return '#D97706';
+        return '#D77928';
       case 'Medium':
-        return '#CA8A04';
+        return '#C59A32';
       case 'Low':
-        return '#16A34A';
+        return '#39856A';
       default:
-        return '#71717A';
+        return '#66736C';
     }
   };
 
@@ -98,8 +98,8 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
 
   if (normalizedFindings.length === 0) {
     return (
-      <div className="bg-[#DCFCE7]/40 dark:bg-[#064E3B]/20 border border-[#86EFAC]/50 dark:border-[#065F46] rounded-lg p-5 flex items-center gap-3 text-xs text-[#166534] dark:text-[#86EFAC]">
-        <span className="w-5 h-5 rounded-full bg-[#16A34A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+      <div className="bg-[#F0FDF4] dark:bg-[#142A22] border border-[#A7C4B5]/50 dark:border-[#283C35] rounded-lg p-5 flex items-center gap-3 text-xs text-[#39856A] dark:text-[#2DD4BF] shadow-xs">
+        <span className="w-5 h-5 rounded-full bg-[#39856A] text-white flex items-center justify-center font-bold text-xs shrink-0">
           ✓
         </span>
         <span className="font-medium">
@@ -113,7 +113,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
     <div className="space-y-3">
       {/* Summary Row */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8]">
+        <span className="text-[11px] text-[#66736C] dark:text-[#95A69E]">
           Filter by severity:
         </span>
         {(['Critical', 'High', 'Medium', 'Low'] as const).map((sev) => {
@@ -128,8 +128,8 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
               onClick={() => handleChipClick(sev)}
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-colors ${
                 isSelected
-                  ? 'bg-[#0F766E] text-white font-semibold'
-                  : 'bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
+                  ? 'bg-[#147D68] text-white font-semibold shadow-2xs'
+                  : 'bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9]'
               }`}
             >
               <span
@@ -145,7 +145,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
         {selectedSeverity && (
           <button
             onClick={() => setSelectedSeverity(null)}
-            className="text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline ml-1"
+            className="text-xs text-[#147D68] dark:text-[#2DD4BF] hover:underline ml-1 font-semibold"
           >
             Clear
           </button>
@@ -161,36 +161,36 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ findings = [] }) =
             <div
               key={`${finding.rule_id}-${idx}`}
               style={{ borderLeftColor: borderColor }}
-              className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] border-l-4 rounded-r-lg p-3.5 sm:p-4 space-y-2.5"
+              className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] border-l-4 rounded-r-lg p-4 sm:p-5 space-y-3 shadow-xs"
             >
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-2 border-b border-[#ECEBE4] dark:border-[#283C35] pb-2">
                 <div className="flex items-center gap-2">
                   <RiskBadge level={finding.severity} />
-                  <span className="font-semibold text-xs text-[#18181B] dark:text-[#F1F5F9]">
+                  <span className="font-semibold text-xs text-[#202824] dark:text-[#E8EBE9]">
                     {finding.rule_name}
                   </span>
                 </div>
-                <span className="font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8]">
+                <span className="font-mono text-[11px] text-[#66736C] dark:text-[#A7C4B5] bg-[#ECEBE4] dark:bg-[#111B18] px-2 py-0.5 rounded border border-[#DCE2DB] dark:border-[#283C35]">
                   {finding.rule_id}
                 </span>
               </div>
 
               {/* Evidence */}
               <div className="space-y-1">
-                <span className="text-[10px] font-semibold tracking-wider uppercase text-[#71717A] dark:text-[#94A3B8]">
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[#66736C] dark:text-[#95A69E]">
                   Evidence
                 </span>
-                <div className="p-2.5 rounded bg-[#F4F4F5] dark:bg-[#0F172A] border border-[#E4E4E7] dark:border-[#334155] font-mono text-[11px] text-[#18181B] dark:text-[#CBD5E1] leading-relaxed break-words">
+                <div className="p-2.5 rounded bg-[#172622] text-[#E8EBE9] border border-[#283C35] font-mono text-[11px] leading-relaxed break-words">
                   {finding.evidence_text || 'No explicit evidence details available.'}
                 </div>
               </div>
 
               {/* Remediation */}
               <div className="space-y-1">
-                <span className="text-[10px] font-semibold tracking-wider uppercase text-[#71717A] dark:text-[#94A3B8]">
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[#66736C] dark:text-[#95A69E]">
                   Remediation
                 </span>
-                <div className="p-2.5 rounded bg-[#DCFCE7]/40 dark:bg-[#064E3B]/20 border border-[#86EFAC]/40 dark:border-[#065F46] text-[11px] text-[#166534] dark:text-[#86EFAC] leading-relaxed">
+                <div className="p-2.5 rounded bg-[#F0FDF4] dark:bg-[#142A22] border border-[#A7C4B5]/40 dark:border-[#283C35] text-[11px] text-[#147D68] dark:text-[#2DD4BF] leading-relaxed">
                   {finding.remediation || 'Review directory configuration and permissions.'}
                 </div>
               </div>

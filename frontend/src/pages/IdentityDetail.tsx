@@ -95,15 +95,15 @@ export const IdentityDetail: React.FC = () => {
   const scoreColorClass = useMemo(() => {
     switch (identity?.risk_level?.toString().toUpperCase()) {
       case 'CRITICAL':
-        return 'text-[#DC2626]';
+        return 'text-[#C74444] dark:text-[#E05A5A]';
       case 'HIGH':
-        return 'text-[#D97706]';
+        return 'text-[#D77928] dark:text-[#E58B3C]';
       case 'MEDIUM':
-        return 'text-[#CA8A04]';
+        return 'text-[#C59A32] dark:text-[#DDB045]';
       case 'LOW':
-        return 'text-[#16A34A]';
+        return 'text-[#39856A] dark:text-[#4AA484]';
       default:
-        return 'text-[#71717A] dark:text-[#94A3B8]';
+        return 'text-[#66736C] dark:text-[#95A69E]';
     }
   }, [identity]);
 
@@ -164,8 +164,8 @@ export const IdentityDetail: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px]">
-        <div className="w-8 h-8 border-2 border-[#0F766E] border-t-transparent rounded-full animate-spin"></div>
-        <span className="mt-3 text-xs text-[#71717A] dark:text-[#94A3B8]">
+        <div className="w-8 h-8 border-2 border-[#147D68] border-t-transparent rounded-full animate-spin"></div>
+        <span className="mt-3 text-xs text-[#66736C] dark:text-[#95A69E]">
           Loading identity details...
         </span>
       </div>
@@ -198,12 +198,12 @@ export const IdentityDetail: React.FC = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
       {/* SECTION 1 — Identity Header card */}
-      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
+      <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 sm:p-6 shadow-xs">
         {/* Back link */}
         <div className="mb-3">
           <Link
             to="/identities"
-            className="inline-flex items-center gap-1 text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-[#147D68] dark:text-[#2DD4BF] hover:underline font-semibold"
           >
             &larr; All Identities
           </Link>
@@ -212,25 +212,25 @@ export const IdentityDetail: React.FC = () => {
         {/* Display name & Score */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#18181B] dark:text-[#F1F5F9] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#202824] dark:text-[#E8EBE9] tracking-tight">
               {identity.display_name || identity.name}
             </h1>
             {identity.app_id && (
-              <span className="font-mono text-xs text-[#71717A] dark:text-[#94A3B8] block mt-0.5">
+              <span className="font-mono text-xs text-[#66736C] dark:text-[#95A69E] block mt-0.5">
                 App ID: {identity.app_id}
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono text-[#71717A] dark:text-[#94A3B8] bg-[#F4F4F5] dark:bg-[#0F172A] border border-[#E4E4E7] dark:border-[#334155]">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono text-[#66736C] dark:text-[#A7C4B5] bg-[#ECEBE4] dark:bg-[#111B18] border border-[#DCE2DB] dark:border-[#283C35]">
               {formatIdentityType(identity.identity_type)}
             </span>
 
             <RiskBadge level={identity.risk_level as RiskLevel} />
 
-            <div className="flex items-baseline gap-1 pl-2 border-l border-[#E4E4E7] dark:border-[#334155]">
-              <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] font-medium">
+            <div className="flex items-baseline gap-1 pl-2 border-l border-[#DCE2DB] dark:border-[#283C35]">
+              <span className="text-[11px] text-[#66736C] dark:text-[#95A69E] font-medium">
                 Score
               </span>
               <span className={`text-xl sm:text-2xl font-bold font-mono ${scoreColorClass}`}>
@@ -240,30 +240,30 @@ export const IdentityDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Plain-English summary sentence (Part 3) */}
-        <div className="mt-3 p-3 rounded bg-[#F4F4F5]/60 dark:bg-[#0F172A]/50 border border-[#E4E4E7] dark:border-[#334155] text-xs text-[#3F3F46] dark:text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        {/* Plain-English summary sentence */}
+        <div className="mt-3.5 p-3 rounded bg-[#F5F4EF] dark:bg-[#111B18] border border-[#DCE2DB] dark:border-[#283C35] text-xs text-[#202824] dark:text-[#E8EBE9] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <span>
             This {formatIdentityType(identity.identity_type).toLowerCase()} scored{' '}
-            <strong className="font-mono font-bold text-[#18181B] dark:text-[#F1F5F9]">{score}</strong>{' '}
-            because {findingsCount} {findingsCount === 1 ? 'rule' : 'rules'} triggered. See the risk findings below for remediation steps.
+            <strong className="font-mono font-bold text-[#202824] dark:text-[#E8EBE9]">{score}</strong>{' '}
+            because {findingsCount} {findingsCount === 1 ? 'rule' : 'rules'} triggered. Review the findings below to understand what needs attention.
           </span>
           <Link
             to="/how-it-works"
-            className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline font-medium whitespace-nowrap text-[11px]"
+            className="text-[#147D68] dark:text-[#2DD4BF] hover:underline font-semibold whitespace-nowrap text-[11px]"
           >
             How is this calculated? &rarr;
           </Link>
         </div>
 
         {/* Meta row */}
-        <div className="mt-3 pt-3 border-t border-[#E4E4E7] dark:border-[#334155] flex flex-wrap items-center gap-3 text-xs text-[#71717A] dark:text-[#94A3B8]">
+        <div className="mt-3.5 pt-3.5 border-t border-[#ECEBE4] dark:border-[#283C35] flex flex-wrap items-center gap-3 text-xs text-[#66736C] dark:text-[#95A69E]">
           <div className="flex items-center gap-1">
             {isPublisherVerified ? (
-              <span className="text-[#16A34A] font-medium flex items-center gap-1">
+              <span className="text-[#39856A] font-medium flex items-center gap-1">
                 <span>✓</span> {publisherName}
               </span>
             ) : (
-              <span className="text-[#DC2626] font-medium flex items-center gap-1">
+              <span className="text-[#C74444] font-medium flex items-center gap-1">
                 <span>⚠</span> {publisherName}
               </span>
             )}
@@ -279,12 +279,12 @@ export const IdentityDetail: React.FC = () => {
 
           <div>
             {isEnabled ? (
-              <span className="inline-flex items-center gap-1 text-[#16A34A] font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" /> Enabled
+              <span className="inline-flex items-center gap-1 text-[#39856A] font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39856A]" /> Enabled
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[#DC2626] font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" /> Disabled
+              <span className="inline-flex items-center gap-1 text-[#C74444] font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C74444]" /> Disabled
               </span>
             )}
           </div>
@@ -292,7 +292,7 @@ export const IdentityDetail: React.FC = () => {
           {identity.owner && identity.owner !== 'unassigned' && (
             <>
               <span>&bull;</span>
-              <span>Owner: <span className="font-mono text-[#18181B] dark:text-[#F1F5F9]">{identity.owner}</span></span>
+              <span>Owner: <span className="font-mono text-[#202824] dark:text-[#E8EBE9]">{identity.owner}</span></span>
             </>
           )}
         </div>
@@ -301,13 +301,13 @@ export const IdentityDetail: React.FC = () => {
       {/* SECTION 2 — Three tabs */}
       <div className="space-y-3">
         {/* Tab Headers */}
-        <div className="flex border-b border-[#E4E4E7] dark:border-[#334155] gap-2">
+        <div className="flex border-b border-[#DCE2DB] dark:border-[#283C35] gap-2">
           <button
             onClick={() => setActiveTab('permissions')}
             className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'permissions'
-                ? 'border-[#0F766E] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
-                : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
+                ? 'border-[#147D68] text-[#147D68] dark:text-[#2DD4BF] font-semibold'
+                : 'border-transparent text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9]'
             }`}
           >
             Permissions ({permissionsList.length})
@@ -316,8 +316,8 @@ export const IdentityDetail: React.FC = () => {
             onClick={() => setActiveTab('credentials')}
             className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'credentials'
-                ? 'border-[#0F766E] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
-                : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
+                ? 'border-[#147D68] text-[#147D68] dark:text-[#2DD4BF] font-semibold'
+                : 'border-transparent text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9]'
             }`}
           >
             Credentials ({credentialsList.length})
@@ -326,8 +326,8 @@ export const IdentityDetail: React.FC = () => {
             onClick={() => setActiveTab('grants')}
             className={`py-2 px-3 text-xs font-medium border-b-2 transition-colors ${
               activeTab === 'grants'
-                ? 'border-[#0F766E] text-[#0F766E] dark:text-[#2DD4BF] font-semibold'
-                : 'border-transparent text-[#71717A] dark:text-[#94A3B8] hover:text-[#18181B] dark:hover:text-[#F1F5F9]'
+                ? 'border-[#147D68] text-[#147D68] dark:text-[#2DD4BF] font-semibold'
+                : 'border-transparent text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9]'
             }`}
           >
             OAuth Grants ({grantsList.length})
@@ -336,7 +336,7 @@ export const IdentityDetail: React.FC = () => {
 
         {/* Tab 1: Permissions */}
         {activeTab === 'permissions' && (
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-4 shadow-xs">
             <PermissionTable
               permissions={permissionsList.map((p: any) => ({
                 scope_or_role: p.scope_or_role || p.permission || '',
@@ -350,7 +350,7 @@ export const IdentityDetail: React.FC = () => {
 
         {/* Tab 2: Credentials */}
         {activeTab === 'credentials' && (
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-4 shadow-xs">
             <CredentialHealth
               credentials={credentialsList.map((c: any) => ({
                 credential_id: c.credential_id || c.key_id || 'cred',
@@ -366,25 +366,25 @@ export const IdentityDetail: React.FC = () => {
 
         {/* Tab 3: OAuth Grants */}
         {activeTab === 'grants' && (
-          <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
-            <div className="p-3 border-b border-[#E4E4E7] dark:border-[#334155]">
-              <h2 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+          <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg overflow-hidden shadow-xs">
+            <div className="p-3.5 border-b border-[#ECEBE4] dark:border-[#283C35]">
+              <h2 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9]">
                 Active Delegated and Application OAuth Grants
               </h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
+                <thead className="bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] text-[11px] font-semibold border-b border-[#DCE2DB] dark:border-[#283C35]">
                   <tr>
-                    <th className="py-2.5 px-3">Consent Type</th>
-                    <th className="py-2.5 px-3">Scope / Permissions</th>
-                    <th className="py-2.5 px-3">Target Resource ID</th>
+                    <th className="py-2.5 px-3.5">Consent Type</th>
+                    <th className="py-2.5 px-3.5">Scope / Permissions</th>
+                    <th className="py-2.5 px-3.5">Target Resource ID</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+                <tbody className="divide-y divide-[#ECEBE4] dark:divide-[#283C35] text-[#202824] dark:text-[#E8EBE9]">
                   {grantsList.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="py-6 text-center text-[#71717A]">
+                      <td colSpan={3} className="py-6 text-center text-[#66736C]">
                         No OAuth grants assigned.
                       </td>
                     </tr>
@@ -394,23 +394,23 @@ export const IdentityDetail: React.FC = () => {
                       return (
                         <tr
                           key={grant.grant_id}
-                          className={isAll ? 'bg-[#FEF3C7]/40 dark:bg-[#78350F]/20' : ''}
+                          className={isAll ? 'bg-[#FEF7EE] dark:bg-[#D77928]/10' : ''}
                         >
-                          <td className="py-2.5 px-3 whitespace-nowrap">
+                          <td className="py-2.5 px-3.5 whitespace-nowrap">
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${
                                 isAll
-                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] dark:bg-[#B45309]/30 dark:text-[#FDE68A]'
-                                  : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8]'
+                                  ? 'bg-[#FEF7EE] text-[#D77928] border border-[#D77928]/30 dark:text-[#E58B3C]'
+                                  : 'bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E]'
                               }`}
                             >
                               {grant.consent_type}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 font-mono text-[11px]">
+                          <td className="py-2.5 px-3.5 font-mono text-[11px]">
                             {grant.scope}
                           </td>
-                          <td className="py-2.5 px-3 font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8]">
+                          <td className="py-2.5 px-3.5 font-mono text-[11px] text-[#66736C] dark:text-[#95A69E]">
                             {grant.resource_id}
                           </td>
                         </tr>
@@ -425,8 +425,8 @@ export const IdentityDetail: React.FC = () => {
       </div>
 
       {/* SECTION 3 — Risk Findings */}
-      <div className="space-y-2">
-        <h2 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+      <div className="space-y-2.5 pt-2">
+        <h2 className="text-sm font-semibold text-[#202824] dark:text-[#E8EBE9]">
           Triggered Risk Findings
         </h2>
         <EvidencePanel

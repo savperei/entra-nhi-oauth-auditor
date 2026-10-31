@@ -23,6 +23,8 @@ export const IdentityList: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedRisk, setSelectedRisk] = useState<string>('');
+  const [selectedPublisher, setSelectedPublisher] = useState<string>('');
+  const [selectedCredStatus, setSelectedCredStatus] = useState<string>('');
 
   // Sorting
   const [sortField, setSortField] = useState<SortField>('risk_score');
@@ -41,7 +43,7 @@ export const IdentityList: React.FC = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, selectedType, selectedRisk]);
+  }, [debouncedSearch, selectedType, selectedRisk, selectedPublisher, selectedCredStatus]);
 
   const fetchIdentities = useCallback(async () => {
     setLoading(true);
@@ -112,15 +114,15 @@ export const IdentityList: React.FC = () => {
   const getScoreColorClass = (level?: string): string => {
     switch (level?.toUpperCase()) {
       case 'CRITICAL':
-        return 'text-[#DC2626]';
+        return 'text-[#C74444] dark:text-[#E05A5A]';
       case 'HIGH':
-        return 'text-[#D97706]';
+        return 'text-[#D77928] dark:text-[#E58B3C]';
       case 'MEDIUM':
-        return 'text-[#CA8A04]';
+        return 'text-[#C59A32] dark:text-[#DDB045]';
       case 'LOW':
-        return 'text-[#16A34A]';
+        return 'text-[#39856A] dark:text-[#4AA484]';
       default:
-        return 'text-[#71717A] dark:text-[#94A3B8]';
+        return 'text-[#66736C] dark:text-[#95A69E]';
     }
   };
 
@@ -155,12 +157,19 @@ export const IdentityList: React.FC = () => {
     }).length;
   };
 
-  const isFilterActive = search.trim() !== '' || selectedType !== '' || selectedRisk !== '';
+  const isFilterActive =
+    search.trim() !== '' ||
+    selectedType !== '' ||
+    selectedRisk !== '' ||
+    selectedPublisher !== '' ||
+    selectedCredStatus !== '';
 
   const handleClearFilters = () => {
     setSearch('');
     setSelectedType('');
     setSelectedRisk('');
+    setSelectedPublisher('');
+    setSelectedCredStatus('');
     setCurrentPage(1);
   };
 
@@ -195,9 +204,23 @@ export const IdentityList: React.FC = () => {
         if (normalizedItemRisk !== normalizedRiskFilter) return false;
       }
 
+      if (selectedPublisher) {
+        const verified = isPublisherVerified(item);
+        if (selectedPublisher === 'verified' && !verified) return false;
+        if (selectedPublisher === 'unverified' && verified) return false;
+      }
+
+      if (selectedCredStatus) {
+        const credCount = item.credentials?.length ?? 0;
+        const expiringCount = getExpiringCredCount(item);
+        if (selectedCredStatus === 'expiring' && expiringCount === 0) return false;
+        if (selectedCredStatus === 'has_creds' && credCount === 0) return false;
+        if (selectedCredStatus === 'none' && credCount > 0) return false;
+      }
+
       return true;
     });
-  }, [identities, debouncedSearch, selectedType, selectedRisk]);
+  }, [identities, debouncedSearch, selectedType, selectedRisk, selectedPublisher, selectedCredStatus]);
 
   const sortedIdentities = useMemo(() => {
     const list = [...filteredIdentities];
@@ -252,56 +275,61 @@ export const IdentityList: React.FC = () => {
   const renderSortArrow = (field: SortField) => {
     if (sortField !== field) {
       return (
-        <span className="ml-1 text-[#A1A1AA] opacity-50 text-[10px]">↕</span>
+        <span className="ml-1 text-[#97A8A0] opacity-50 text-[10px]">↕</span>
       );
     }
     return (
-      <span className="ml-1 text-[#0F766E] dark:text-[#2DD4BF] text-[10px]">
+      <span className="ml-1 text-[#147D68] dark:text-[#2DD4BF] text-[10px]">
         {sortOrder === 'asc' ? '↑' : '↓'}
       </span>
     );
   };
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto pb-12">
+    <div className="space-y-5 max-w-6xl mx-auto pb-12">
       {/* PAGE HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E4E4E7] dark:border-[#334155]">
-        <div className="flex items-center gap-2.5">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#18181B] dark:text-[#F1F5F9]">
-            Identities
-          </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#0F766E]/10 text-[#0F766E] dark:text-[#2DD4BF] border border-[#0F766E]/20">
-            {identities.length} Total
-          </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE2DB] dark:border-[#283C35]">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#202824] dark:text-[#E8EBE9]">
+              Identities
+            </h1>
+            <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-[#ECEBE4] dark:bg-[#1E302B] text-[#147D68] dark:text-[#2DD4BF] border border-[#DCE2DB] dark:border-[#283C35]">
+              {identities.length} Total
+            </span>
+          </div>
+          <p className="text-xs text-[#66736C] dark:text-[#95A69E] mt-0.5">
+            Directory inventory of all service principals, app registrations and managed identities evaluated during audit scans.
+          </p>
         </div>
         <Link
           to="/how-it-works"
-          className="text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline flex items-center gap-1 font-medium"
+          className="text-xs text-[#147D68] dark:text-[#2DD4BF] hover:underline flex items-center gap-1 font-semibold self-start sm:self-auto"
         >
           <span>How is risk scored?</span> &rarr;
         </Link>
       </div>
 
-      {/* FILTER BAR */}
-      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-3 sm:p-4">
-        <div className="flex flex-wrap items-center gap-2.5">
+      {/* FILTER & INVESTIGATION BAR */}
+      <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-3.5 sm:p-4 shadow-xs space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 items-center">
           {/* Search Input */}
-          <div className="flex-1 min-w-[200px]">
+          <div className="lg:col-span-2">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by identity name or App ID..."
-              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] placeholder-[#A1A1AA] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
+              className="w-full px-3 py-1.5 text-xs border border-[#DCE2DB] dark:border-[#283C35] rounded bg-[#F5F4EF] dark:bg-[#111B18] text-[#202824] dark:text-[#E8EBE9] placeholder-[#97A8A0] focus:outline-none focus:ring-1 focus:ring-[#147D68]"
             />
           </div>
 
           {/* Type Dropdown */}
-          <div className="min-w-[140px]">
+          <div>
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
+              className="w-full px-2.5 py-1.5 text-xs border border-[#DCE2DB] dark:border-[#283C35] rounded bg-[#F5F4EF] dark:bg-[#111B18] text-[#202824] dark:text-[#E8EBE9] focus:outline-none focus:ring-1 focus:ring-[#147D68]"
             >
               <option value="">All Identity Types</option>
               <option value="ServicePrincipal">Service Principal</option>
@@ -311,28 +339,71 @@ export const IdentityList: React.FC = () => {
           </div>
 
           {/* Risk Level Dropdown */}
-          <div className="min-w-[120px]">
+          <div>
             <select
               value={selectedRisk}
               onChange={(e) => setSelectedRisk(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs border border-[#E4E4E7] dark:border-[#334155] rounded bg-[#FAFAF9] dark:bg-[#0F172A] text-[#18181B] dark:text-[#F1F5F9] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
+              className="w-full px-2.5 py-1.5 text-xs border border-[#DCE2DB] dark:border-[#283C35] rounded bg-[#F5F4EF] dark:bg-[#111B18] text-[#202824] dark:text-[#E8EBE9] focus:outline-none focus:ring-1 focus:ring-[#147D68]"
             >
               <option value="">All Risk Levels</option>
-              <option value="CRITICAL">Critical</option>
-              <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="LOW">Low</option>
+              <option value="CRITICAL">Critical (&ge;80)</option>
+              <option value="HIGH">High (50-79)</option>
+              <option value="MEDIUM">Medium (25-49)</option>
+              <option value="LOW">Low (1-24)</option>
             </select>
           </div>
 
-          {/* Clear Filters Link */}
+          {/* Publisher Verification Filter */}
+          <div>
+            <select
+              value={selectedPublisher}
+              onChange={(e) => setSelectedPublisher(e.target.value)}
+              className="w-full px-2.5 py-1.5 text-xs border border-[#DCE2DB] dark:border-[#283C35] rounded bg-[#F5F4EF] dark:bg-[#111B18] text-[#202824] dark:text-[#E8EBE9] focus:outline-none focus:ring-1 focus:ring-[#147D68]"
+            >
+              <option value="">Publisher: All</option>
+              <option value="verified">Verified Publishers</option>
+              <option value="unverified">Unverified Publishers</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Secondary Filter & Active Filters row */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#ECEBE4] dark:border-[#20312B] text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-[#66736C] dark:text-[#95A69E]">Credentials:</span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => setSelectedCredStatus(selectedCredStatus === 'expiring' ? '' : 'expiring')}
+                className={`px-2 py-0.5 rounded text-[11px] border transition-colors ${
+                  selectedCredStatus === 'expiring'
+                    ? 'bg-[#C74444] text-white border-[#C74444]'
+                    : 'bg-[#F5F4EF] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] border-[#DCE2DB] dark:border-[#283C35] hover:border-[#C74444]'
+                }`}
+              >
+                Expiring soon (&le;14d)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedCredStatus(selectedCredStatus === 'has_creds' ? '' : 'has_creds')}
+                className={`px-2 py-0.5 rounded text-[11px] border transition-colors ${
+                  selectedCredStatus === 'has_creds'
+                    ? 'bg-[#147D68] text-white border-[#147D68]'
+                    : 'bg-[#F5F4EF] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] border-[#DCE2DB] dark:border-[#283C35] hover:border-[#147D68]'
+                }`}
+              >
+                Has credentials
+              </button>
+            </div>
+          </div>
+
           {isFilterActive && (
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-xs text-[#0F766E] dark:text-[#2DD4BF] hover:underline px-2 py-1"
+              className="text-xs font-semibold text-[#147D68] dark:text-[#2DD4BF] hover:underline"
             >
-              Clear filters
+              Clear all filters ({totalCount} matching)
             </button>
           )}
         </div>
@@ -346,18 +417,18 @@ export const IdentityList: React.FC = () => {
       )}
 
       {/* TABLE CONTAINER */}
-      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
+      <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-[#E4E4E7] dark:divide-[#334155] text-left text-xs">
-            <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
+          <table className="min-w-full divide-y divide-[#ECEBE4] dark:divide-[#283C35] text-left text-xs">
+            <thead className="bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] text-[11px] font-semibold border-b border-[#DCE2DB] dark:border-[#283C35]">
               <tr>
                 <th
                   scope="col"
                   onClick={() => handleSort('name')}
-                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
+                  className="px-3.5 sm:px-4 py-2.5 cursor-pointer hover:bg-[#DCE2DB]/50 dark:hover:bg-[#202F2A]/60 transition-colors select-none"
                 >
                   <div className="flex items-center">
-                    <span>Name</span>
+                    <span>Identity Name &amp; ID</span>
                     {renderSortArrow('name')}
                   </div>
                 </th>
@@ -365,7 +436,7 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('identity_type')}
-                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#DCE2DB]/50 dark:hover:bg-[#202F2A]/60 transition-colors select-none"
                 >
                   <div className="flex items-center">
                     <span>Type</span>
@@ -376,12 +447,12 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('risk_level')}
-                  title="Severity level derived from point total: Critical (80+), High (50-79), Medium (25-49), Low (1-24)"
-                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
+                  title="Severity level derived from point total: Critical (>=80), High (>=50), Medium (>=25), Low (>=1)"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#DCE2DB]/50 dark:hover:bg-[#202F2A]/60 transition-colors select-none"
                 >
                   <div className="flex items-center gap-1">
                     <span>Risk Level</span>
-                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Critical >=80, High >=50, Medium >=25, Low >=1">ⓘ</span>
+                    <span className="text-[10px] text-[#97A8A0] cursor-help" title="Critical >=80, High >=50, Medium >=25, Low >=1">ⓘ</span>
                     {renderSortArrow('risk_level')}
                   </div>
                 </th>
@@ -389,12 +460,12 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('risk_score')}
-                  title="Points summed from triggered risk detection rules. Click to see scoring methodology."
-                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none text-right"
+                  title="Calculated point total based on triggered risk rules"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#DCE2DB]/50 dark:hover:bg-[#202F2A]/60 transition-colors select-none text-right"
                 >
                   <div className="flex items-center justify-end gap-1">
                     <span>Score</span>
-                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Higher score is riskier">ⓘ</span>
+                    <span className="text-[10px] text-[#97A8A0] cursor-help" title="Higher score is riskier">ⓘ</span>
                     {renderSortArrow('risk_score')}
                   </div>
                 </th>
@@ -402,12 +473,12 @@ export const IdentityList: React.FC = () => {
                 <th
                   scope="col"
                   onClick={() => handleSort('publisher')}
-                  title="Publisher verification via Microsoft Partner Network"
-                  className="hidden sm:table-cell px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
+                  title="Publisher verification through Microsoft Partner Network"
+                  className="hidden sm:table-cell px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#DCE2DB]/50 dark:hover:bg-[#202F2A]/60 transition-colors select-none"
                 >
                   <div className="flex items-center gap-1">
                     <span>Publisher</span>
-                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Verified vs unverified publisher status">ⓘ</span>
+                    <span className="text-[10px] text-[#97A8A0] cursor-help" title="Verified vs unverified publisher status">ⓘ</span>
                     {renderSortArrow('publisher')}
                   </div>
                 </th>
@@ -416,11 +487,11 @@ export const IdentityList: React.FC = () => {
                   scope="col"
                   onClick={() => handleSort('credentials')}
                   title="Attached secrets and certificates, highlighting credentials expiring within 14 days"
-                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#E4E4E7]/50 dark:hover:bg-[#334155]/40 transition-colors select-none"
+                  className="px-3 sm:px-4 py-2.5 cursor-pointer hover:bg-[#DCE2DB]/50 dark:hover:bg-[#202F2A]/60 transition-colors select-none"
                 >
                   <div className="flex items-center gap-1">
                     <span>Credentials</span>
-                    <span className="text-[10px] text-[#A1A1AA] cursor-help" title="Count of secrets/certs and expiry warning">ⓘ</span>
+                    <span className="text-[10px] text-[#97A8A0] cursor-help" title="Count of secrets/certs and expiry warning">ⓘ</span>
                     {renderSortArrow('credentials')}
                   </div>
                 </th>
@@ -428,20 +499,20 @@ export const IdentityList: React.FC = () => {
             </thead>
 
             {loading ? (
-              <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155]">
+              <tbody className="divide-y divide-[#ECEBE4] dark:divide-[#283C35]">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <tr key={i}>
-                    <td className="px-3 sm:px-4 py-2.5"><Skeleton width="130px" height="0.875rem" /></td>
+                    <td className="px-3.5 sm:px-4 py-2.5"><Skeleton width="140px" height="0.875rem" /></td>
                     <td className="px-3 sm:px-4 py-2.5"><Skeleton width="90px" height="0.875rem" /></td>
                     <td className="px-3 sm:px-4 py-2.5"><Skeleton width="70px" height="0.875rem" /></td>
                     <td className="px-3 sm:px-4 py-2.5 text-right"><Skeleton width="30px" height="0.875rem" className="ml-auto" /></td>
                     <td className="hidden sm:table-cell px-3 sm:px-4 py-2.5"><Skeleton width="80px" height="0.875rem" /></td>
-                    <td className="px-3 sm:px-4 py-2.5"><Skeleton width="100px" height="0.875rem" /></td>
+                    <td className="px-3 sm:px-4 py-2.5"><Skeleton width="110px" height="0.875rem" /></td>
                   </tr>
                 ))}
               </tbody>
             ) : paginatedIdentities.length > 0 ? (
-              <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+              <tbody className="divide-y divide-[#ECEBE4] dark:divide-[#283C35] text-[#202824] dark:text-[#E8EBE9]">
                 {paginatedIdentities.map((item) => {
                   const verified = isPublisherVerified(item);
                   const credCount = item.credentials?.length ?? 0;
@@ -452,18 +523,22 @@ export const IdentityList: React.FC = () => {
                   return (
                     <tr
                       key={item.id}
-                      className="hover:bg-[#F4F4F5]/60 dark:hover:bg-[#0F172A]/40 transition-colors"
+                      className="hover:bg-[#ECEBE4]/50 dark:hover:bg-[#111B18]/60 transition-colors cursor-pointer"
+                      onClick={() => {
+                        window.location.assign(`/identities/${item.id}`);
+                      }}
                     >
-                      {/* Name */}
-                      <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
+                      {/* Name & Technical ID */}
+                      <td className="px-3.5 sm:px-4 py-2.5">
                         <Link
                           to={`/identities/${item.id}`}
-                          className="font-medium text-[#0F766E] dark:text-[#2DD4BF] hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-semibold text-[#147D68] dark:text-[#2DD4BF] hover:underline"
                         >
                           {item.name}
                         </Link>
                         {item.app_id && (
-                          <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8] font-mono block max-w-[160px] sm:max-w-none truncate">
+                          <span className="text-[10px] text-[#66736C] dark:text-[#95A69E] font-mono block max-w-[180px] sm:max-w-none truncate mt-0.5">
                             {item.app_id}
                           </span>
                         )}
@@ -471,7 +546,7 @@ export const IdentityList: React.FC = () => {
 
                       {/* Type */}
                       <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
-                        <span className="text-[11px] font-mono text-[#71717A] dark:text-[#94A3B8]">
+                        <span className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E]">
                           {formatIdentityType(item.identity_type)}
                         </span>
                       </td>
@@ -491,16 +566,16 @@ export const IdentityList: React.FC = () => {
                       {/* Publisher */}
                       <td className="hidden sm:table-cell px-3 sm:px-4 py-2.5 whitespace-nowrap">
                         {verified ? (
-                          <span className="inline-flex items-center gap-1 text-[#16A34A] text-xs font-medium">
+                          <span className="inline-flex items-center gap-1 text-[#39856A] text-xs font-medium">
                             <span>✓</span>
-                            <span className="text-[#3F3F46] dark:text-[#CBD5E1]">
+                            <span className="text-[#202824] dark:text-[#E8EBE9]">
                               {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Verified'}
                             </span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[#DC2626] text-xs font-medium">
+                          <span className="inline-flex items-center gap-1 text-[#C74444] text-xs font-medium">
                             <span>⚠</span>
-                            <span className="text-[#3F3F46] dark:text-[#CBD5E1]">
+                            <span className="text-[#202824] dark:text-[#E8EBE9]">
                               {typeof item.publisher === 'string' && item.publisher ? item.publisher : 'Unverified'}
                             </span>
                           </span>
@@ -510,9 +585,9 @@ export const IdentityList: React.FC = () => {
                       {/* Credentials */}
                       <td className="px-3 sm:px-4 py-2.5 whitespace-nowrap">
                         {credCount === 0 ? (
-                          <span className="text-[#A1A1AA] text-[11px]">0 credentials</span>
+                          <span className="text-[#97A8A0] text-[11px]">0 credentials</span>
                         ) : (
-                          <span className={`text-[11px] ${expiringCount > 0 ? 'text-[#DC2626] font-medium' : 'text-[#71717A] dark:text-[#94A3B8]'}`}>
+                          <span className={`text-[11px] font-mono ${expiringCount > 0 ? 'text-[#C74444] font-semibold' : 'text-[#66736C] dark:text-[#95A69E]'}`}>
                             {credCount} {credCount === 1 ? 'credential' : 'credentials'}
                             {expiringCount > 0 ? `, ${expiringCount} expiring soon` : ''}
                           </span>
@@ -555,16 +630,16 @@ export const IdentityList: React.FC = () => {
 
         {/* PAGINATION */}
         {!loading && totalCount > 0 && (
-          <div className="px-3 sm:px-4 py-2.5 border-t border-[#E4E4E7] dark:border-[#334155] flex items-center justify-between text-xs text-[#71717A] dark:text-[#94A3B8] bg-[#F4F4F5]/30 dark:bg-[#0F172A]/30">
+          <div className="px-3.5 sm:px-4 py-2.5 border-t border-[#DCE2DB] dark:border-[#283C35] flex items-center justify-between text-xs text-[#66736C] dark:text-[#95A69E] bg-[#ECEBE4]/40 dark:bg-[#111B18]/40">
             <span>
-              Page {currentPage} of {totalPages} ({totalCount} identities)
+              Page <strong className="text-[#202824] dark:text-[#E8EBE9]">{currentPage}</strong> of <strong className="text-[#202824] dark:text-[#E8EBE9]">{totalPages}</strong> ({totalCount} identities)
             </span>
             <div className="flex gap-1.5">
               <button
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage <= 1}
-                className="px-2.5 py-1 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#1E293B] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#334155] transition-colors"
+                className="px-2.5 py-1 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#FFFFFF] dark:bg-[#182622] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#ECEBE4] dark:hover:bg-[#202F2A] transition-colors"
               >
                 Previous
               </button>
@@ -572,7 +647,7 @@ export const IdentityList: React.FC = () => {
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages}
-                className="px-2.5 py-1 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#1E293B] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#334155] transition-colors"
+                className="px-2.5 py-1 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#FFFFFF] dark:bg-[#182622] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#ECEBE4] dark:hover:bg-[#202F2A] transition-colors"
               >
                 Next
               </button>

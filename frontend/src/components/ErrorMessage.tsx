@@ -6,10 +6,6 @@ export interface ErrorMessageProps {
   className?: string;
 }
 
-/**
- * Reusable ErrorMessage component in a red-tinted box (#FEF2F2 bg, #DC2626 border),
- * displaying an error icon, error message, and optional Retry action.
- */
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   message,
   onRetry,
@@ -18,13 +14,13 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   return (
     <div
       role="alert"
-      className={`bg-[#FEF2F2] border border-[#DC2626] rounded-xl p-5 shadow-sm text-[#991B1B] ${className}`}
+      className={`bg-[#FDF2F2] dark:bg-[#202F2A] border border-[#C74444]/40 rounded-lg p-4 shadow-2xs text-[#C74444] dark:text-[#E05A5A] ${className}`}
     >
-      <div className="flex items-start gap-3.5">
+      <div className="flex items-start gap-3">
         {/* Error Alert Icon */}
-        <div className="shrink-0 text-[#DC2626] mt-0.5">
+        <div className="shrink-0 text-[#C74444] mt-0.5">
           <svg
-            className="w-5 h-5"
+            className="w-4 h-4"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -40,18 +36,18 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 
         {/* Message and optional Retry action */}
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-[#DC2626]">
+          <h3 className="text-xs font-bold text-[#C74444] dark:text-[#E05A5A]">
             Application Notice
           </h3>
-          <p className="text-xs text-[#991B1B] mt-1 leading-relaxed">
+          <p className="text-xs text-[#202824] dark:text-[#E8EBE9] mt-0.5 leading-relaxed">
             {message}
           </p>
 
           {onRetry && (
-            <div className="mt-3">
+            <div className="mt-2.5">
               <button
                 onClick={onRetry}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#DC2626] hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors duration-150 active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C74444] hover:bg-[#A83232] text-white text-xs font-semibold rounded shadow-2xs transition-colors active:scale-95"
               >
                 <svg
                   className="w-3.5 h-3.5"
@@ -75,4 +71,3 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 };
 
 export default ErrorMessage;
-

@@ -9,25 +9,25 @@ export interface RiskBadgeProps {
 export const RiskBadge: React.FC<RiskBadgeProps> = ({ level, className = '' }) => {
   const normalized = (level || 'None').toString().trim().toLowerCase();
 
-  let dotColor = 'bg-[#71717A]';
-  let textColor = 'text-[#71717A]';
+  let dotColor = 'bg-[#66736C]';
+  let textColor = 'text-[#66736C]';
   let displayLabel = 'None';
 
   if (normalized === 'critical') {
-    dotColor = 'bg-[#DC2626]';
-    textColor = 'text-[#DC2626]';
+    dotColor = 'bg-[#C74444]';
+    textColor = 'text-[#C74444] dark:text-[#E05A5A]';
     displayLabel = 'Critical';
   } else if (normalized === 'high') {
-    dotColor = 'bg-[#D97706]';
-    textColor = 'text-[#D97706]';
+    dotColor = 'bg-[#D77928]';
+    textColor = 'text-[#D77928] dark:text-[#E58B3C]';
     displayLabel = 'High';
   } else if (normalized === 'medium') {
-    dotColor = 'bg-[#CA8A04]';
-    textColor = 'text-[#CA8A04]';
+    dotColor = 'bg-[#C59A32]';
+    textColor = 'text-[#C59A32] dark:text-[#DDB045]';
     displayLabel = 'Medium';
   } else if (normalized === 'low') {
-    dotColor = 'bg-[#16A34A]';
-    textColor = 'text-[#16A34A]';
+    dotColor = 'bg-[#39856A]';
+    textColor = 'text-[#39856A] dark:text-[#4AA484]';
     displayLabel = 'Low';
   } else {
     displayLabel = level ? level.toString() : 'None';

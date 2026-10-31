@@ -40,7 +40,7 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
 
   if (isEmpty) {
     return (
-      <div className={`py-6 text-center text-xs text-[#71717A] dark:text-[#94A3B8] ${className}`}>
+      <div className={`py-6 text-center text-xs text-[#66736C] dark:text-[#95A69E] ${className}`}>
         Run an audit to view the risk breakdown.
       </div>
     );
@@ -50,32 +50,32 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
     {
       level: 'Critical',
       count: summary.critical || 0,
-      color: '#DC2626',
+      color: '#C74444',
     },
     {
       level: 'High',
       count: summary.high || 0,
-      color: '#D97706',
+      color: '#D77928',
     },
     {
       level: 'Medium',
       count: summary.medium || 0,
-      color: '#CA8A04',
+      color: '#C59A32',
     },
     {
       level: 'Low',
       count: summary.low || 0,
-      color: '#16A34A',
+      color: '#39856A',
     },
     {
       level: 'None',
       count: summary.none || 0,
-      color: '#71717A',
+      color: '#66736C',
     },
   ];
 
   return (
-    <div className={`space-y-2.5 ${className}`}>
+    <div className={`space-y-3 ${className}`}>
       {rows.map((row) => {
         const pct = total > 0 ? Math.round((row.count / total) * 100) : 0;
 
@@ -90,13 +90,13 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
             </div>
 
             {/* Bar track */}
-            <div className="flex-1 h-2 bg-[#F4F4F5] dark:bg-[#0F172A] rounded-full overflow-hidden relative min-w-[50px] border border-[#E4E4E7] dark:border-[#334155]">
+            <div className="flex-1 h-2.5 bg-[#ECEBE4] dark:bg-[#111B18] rounded-full overflow-hidden relative min-w-[50px] border border-[#DCE2DB] dark:border-[#283C35]">
               <div
                 className="h-full rounded-full transition-all duration-500 ease-out"
                 style={{
                   backgroundColor: row.color,
                   width: isMounted ? `${pct}%` : '0%',
-                  minWidth: isMounted && row.count > 0 ? '3px' : '0px',
+                  minWidth: isMounted && row.count > 0 ? '4px' : '0px',
                 }}
               />
             </div>
@@ -105,15 +105,15 @@ export const RiskBreakdownChart: React.FC<RiskBreakdownChartProps> = ({
             <div
               className={`w-6 text-right font-mono text-xs shrink-0 ${
                 row.count > 0
-                  ? 'font-bold text-[#18181B] dark:text-[#F1F5F9]'
-                  : 'text-[#A1A1AA] dark:text-[#71717A]'
+                  ? 'font-bold text-[#202824] dark:text-[#E8EBE9]'
+                  : 'text-[#97A8A0] dark:text-[#6E827A]'
               }`}
             >
               {row.count}
             </div>
 
             {/* Percentage */}
-            <div className="w-10 text-right font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8] shrink-0">
+            <div className="w-12 text-right font-mono text-[11px] text-[#66736C] dark:text-[#95A69E] shrink-0">
               {pct}%
             </div>
           </div>

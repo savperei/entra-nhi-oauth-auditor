@@ -2,23 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Central Design Tokens (Warm off-white light mode default) ──────── */
+/* ─── Premium Cybersecurity Design Tokens (Warm Linen & Forest Green) ── */
 :root {
-  --color-background: #FAFAF9;
+  /* Surfaces */
+  --color-primary-dark: #172622;
+  --color-sidebar: #202F2A;
+  --color-sidebar-border: #2D3E38;
+  --color-background: #F5F4EF;
   --color-surface: #FFFFFF;
-  --color-subtle: #F4F4F5;
-  --color-text: #18181B;
-  --color-text-muted: #71717A;
-  --color-border: #E4E4E7;
-  --color-accent: #0F766E;
-  --color-accent-hover: #115E59;
-  --color-accent-subtle: rgba(15, 118, 110, 0.08);
+  --color-subtle: #ECEBE4;
+  --color-card-muted: #F8F7F3;
 
-  --color-critical: #DC2626;
-  --color-high: #D97706;
-  --color-medium: #CA8A04;
-  --color-low: #16A34A;
+  /* Typography */
+  --color-text: #202824;
+  --color-text-muted: #66736C;
+  --color-text-dim: #97A8A0;
 
+  /* Borders */
+  --color-border: #DCE2DB;
+  --color-border-subtle: #E8ECE6;
+
+  /* Brand Accents */
+  --color-accent: #147D68;
+  --color-accent-hover: #0E6150;
+  --color-accent-secondary: #A7C4B5;
+  --color-accent-subtle: rgba(20, 125, 104, 0.08);
+
+  /* Semantic Security Severities (Editorial Restrained) */
+  --color-critical: #C74444;
+  --color-critical-subtle: #FDF2F2;
+  --color-high: #D77928;
+  --color-high-subtle: #FEF7EE;
+  --color-medium: #C59A32;
+  --color-medium-subtle: #FEFCE8;
+  --color-low: #39856A;
+  --color-low-subtle: #F0FDF4;
+  --color-none: #66736C;
+
+  /* Spacing Scale */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -27,17 +48,37 @@
   --space-8: 32px;
 }
 
-/* ─── Optional Dark Mode ─────────────────────────────────────────────── */
+/* ─── Optional Dark Mode (Deep Forest Console) ───────────────────────── */
 .dark {
-  --color-background: #0F172A;
-  --color-surface: #1E293B;
-  --color-subtle: #192231;
-  --color-text: #F1F5F9;
-  --color-text-muted: #94A3B8;
-  --color-border: #334155;
-  --color-accent: #14B8A6;
-  --color-accent-hover: #2DD4BF;
-  --color-accent-subtle: rgba(20, 184, 166, 0.12);
+  --color-primary-dark: #0D1614;
+  --color-sidebar: #131E1B;
+  --color-sidebar-border: #22332E;
+  --color-background: #111B18;
+  --color-surface: #182622;
+  --color-subtle: #1E302B;
+  --color-card-muted: #14221E;
+
+  --color-text: #E8EBE9;
+  --color-text-muted: #95A69E;
+  --color-text-dim: #6E827A;
+
+  --color-border: #283C35;
+  --color-border-subtle: #20312B;
+
+  --color-accent: #2DD4BF;
+  --color-accent-hover: #14B8A6;
+  --color-accent-secondary: #A7C4B5;
+  --color-accent-subtle: rgba(45, 212, 191, 0.12);
+
+  --color-critical: #E05A5A;
+  --color-critical-subtle: rgba(224, 90, 90, 0.12);
+  --color-high: #E58B3C;
+  --color-high-subtle: rgba(229, 139, 60, 0.12);
+  --color-medium: #DDB045;
+  --color-medium-subtle: rgba(221, 176, 69, 0.12);
+  --color-low: #4AA484;
+  --color-low-subtle: rgba(74, 164, 132, 0.12);
+  --color-none: #95A69E;
 }
 
 body {
@@ -49,7 +90,7 @@ body {
   min-height: 100vh;
 }
 
-/* ─── Refined Scrollbars ─────────────────────────────────────────────── */
+/* ─── Refined Editorial Scrollbars ───────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -58,14 +99,14 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4D4D8;
+  background: #DCE2DB;
   border-radius: 3px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #283C35;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A1A1AA;
+  background: #97A8A0;
 }
 
 /* ─── Skeleton Shimmer ────────────────────────────────────────────────── */
@@ -79,13 +120,13 @@ body {
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, #F4F4F5 25%, #E4E4E7 50%, #F4F4F5 75%);
+  background: linear-gradient(90deg, #ECEBE4 25%, #DCE2DB 50%, #ECEBE4 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite linear;
 }
 
 .dark .animate-shimmer {
-  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+  background: linear-gradient(90deg, #182622 25%, #283C35 50%, #182622 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite linear;
 }

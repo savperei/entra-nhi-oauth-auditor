@@ -193,7 +193,7 @@ export const HowItWorks: React.FC = () => {
             }
           }
         } catch {
-          // Fall back to sample if findings call fails
+          // Fall back to sample
         }
       } catch (err) {
         console.error('Failed to load rules/config', err);
@@ -217,20 +217,20 @@ export const HowItWorks: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-10 pb-16">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#18181B] dark:text-[#F1F5F9]">
+        <h1 className="text-2xl font-bold tracking-tight text-[#202824] dark:text-[#E8EBE9]">
           How it works
         </h1>
-        <p className="text-xs sm:text-sm text-[#71717A] dark:text-[#94A3B8] mt-1">
+        <p className="text-xs sm:text-sm text-[#66736C] dark:text-[#95A69E] mt-1">
           A guide to non-human identity auditing, detection rules, and risk scoring methodology.
         </p>
       </div>
 
       {/* SECTION 1: What this tool does */}
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#66736C] dark:text-[#A7C4B5]">
           What this tool does
         </h2>
-        <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5 text-xs sm:text-sm text-[#3F3F46] dark:text-[#CBD5E1] space-y-2 leading-relaxed">
+        <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 text-xs sm:text-sm text-[#202824] dark:text-[#E8EBE9] space-y-2.5 leading-relaxed shadow-xs">
           <p>
             It finds non-human identities, including applications, services, and automation accounts operating in your directory.
           </p>
@@ -243,45 +243,51 @@ export const HowItWorks: React.FC = () => {
         </div>
       </section>
 
-      {/* SECTION 2: The five steps behind every audit */}
+      {/* SECTION 2: The five steps behind every audit (Connected Horizontal Flow) */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-base font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#66736C] dark:text-[#A7C4B5]">
             The five steps behind every audit
           </h2>
-          <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+          <p className="text-xs text-[#66736C] dark:text-[#95A69E] mt-0.5">
             How data flows through the audit pipeline from initial collection to final reporting.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-          {AUDIT_STEPS.map((step) => (
+        {/* Process Flow: Connected sequence */}
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 relative">
+          {AUDIT_STEPS.map((step, idx) => (
             <div
               key={step.num}
-              className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-3.5 flex flex-col justify-between"
+              className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-4 flex flex-col justify-between shadow-xs relative"
             >
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-5 h-5 rounded-full bg-[#0F766E]/10 dark:bg-[#14B8A6]/20 text-[#0F766E] dark:text-[#2DD4BF] text-[11px] font-bold flex items-center justify-center shrink-0">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="w-6 h-6 rounded-full bg-[#147D68] text-white text-xs font-bold font-mono flex items-center justify-center shrink-0">
                     {step.num}
                   </span>
-                  <span className="font-semibold text-xs text-[#18181B] dark:text-[#F1F5F9]">
-                    {step.label}
-                  </span>
+                  {idx < AUDIT_STEPS.length - 1 && (
+                    <span className="hidden sm:inline-block text-[#A7C4B5] dark:text-[#147D68] text-xs font-bold font-mono">
+                      &rarr;
+                    </span>
+                  )}
                 </div>
-                <p className="text-[11px] text-[#71717A] dark:text-[#94A3B8] leading-normal mb-3">
+                <h3 className="font-semibold text-xs text-[#202824] dark:text-[#E8EBE9] mb-1">
+                  {step.label}
+                </h3>
+                <p className="text-[11px] text-[#66736C] dark:text-[#95A69E] leading-relaxed mb-3">
                   {step.desc}
                 </p>
               </div>
 
-              <div className="border-t border-[#F4F4F5] dark:border-[#334155] pt-2 text-[10px] space-y-1">
+              <div className="border-t border-[#ECEBE4] dark:border-[#283C35] pt-2.5 text-[10px] space-y-1 font-mono">
                 <div>
-                  <span className="font-semibold text-[#71717A] dark:text-[#94A3B8]">In: </span>
-                  <span className="text-[#3F3F46] dark:text-[#CBD5E1]">{step.in}</span>
+                  <span className="font-semibold text-[#66736C] dark:text-[#95A69E]">In: </span>
+                  <span className="text-[#202824] dark:text-[#E8EBE9]">{step.in}</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-[#71717A] dark:text-[#94A3B8]">Out: </span>
-                  <span className="text-[#3F3F46] dark:text-[#CBD5E1]">{step.out}</span>
+                  <span className="font-semibold text-[#66736C] dark:text-[#95A69E]">Out: </span>
+                  <span className="text-[#202824] dark:text-[#E8EBE9]">{step.out}</span>
                 </div>
               </div>
             </div>
@@ -292,45 +298,45 @@ export const HowItWorks: React.FC = () => {
       {/* SECTION 3: How a risk score is calculated */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-base font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#66736C] dark:text-[#A7C4B5]">
             How a risk score is calculated
           </h2>
-          <p className="text-xs text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+          <p className="text-xs text-[#66736C] dark:text-[#95A69E] mt-0.5 leading-relaxed">
             Every triggered rule contributes its configured points according to the actual scoring implementation. Those points are combined to calculate the identity's total score, which determines its risk level.
           </p>
         </div>
 
         {/* Thresholds Scale */}
-        <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4">
-          <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] mb-2 uppercase tracking-wider text-[11px]">
+        <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+          <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] mb-3 uppercase tracking-wider text-[11px]">
             Severity Score Thresholds
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
-            <div className="p-2 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+            <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
               <RiskBadge level="None" />
-              <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">0 points</div>
+              <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">0 points</div>
             </div>
-            <div className="p-2 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+            <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
               <RiskBadge level="Low" />
-              <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+              <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                 {thresholds.low} – {thresholds.medium - 1} points
               </div>
             </div>
-            <div className="p-2 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+            <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
               <RiskBadge level="Medium" />
-              <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+              <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                 {thresholds.medium} – {thresholds.high - 1} points
               </div>
             </div>
-            <div className="p-2 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50">
+            <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60">
               <RiskBadge level="High" />
-              <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+              <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                 {thresholds.high} – {thresholds.critical - 1} points
               </div>
             </div>
-            <div className="p-2 rounded border border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5]/50 dark:bg-[#0F172A]/50 col-span-2 sm:col-span-1">
+            <div className="p-3 rounded border border-[#DCE2DB] dark:border-[#283C35] bg-[#F5F4EF]/60 dark:bg-[#111B18]/60 col-span-2 sm:col-span-1">
               <RiskBadge level="Critical" />
-              <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-1">
+              <div className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E] mt-1.5 font-semibold">
                 {thresholds.critical}+ points
               </div>
             </div>
@@ -338,56 +344,56 @@ export const HowItWorks: React.FC = () => {
         </div>
 
         {/* Live Rules Table */}
-        <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden">
-          <div className="px-4 py-3 border-b border-[#E4E4E7] dark:border-[#334155] flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] uppercase tracking-wider text-[11px]">
-              Live Detection Rules ({rules.length} Loaded)
+        <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg overflow-hidden shadow-xs">
+          <div className="px-4 py-3 border-b border-[#ECEBE4] dark:border-[#283C35] flex items-center justify-between">
+            <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] uppercase tracking-wider text-[11px]">
+              Live Detection Rules ({rules.length} Active in Engine)
             </h3>
-            <span className="text-[11px] font-mono text-[#71717A] dark:text-[#94A3B8]">
+            <span className="text-[11px] font-mono text-[#66736C] dark:text-[#A7C4B5]">
               rules/default_rules.yaml
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] font-semibold border-b border-[#E4E4E7] dark:border-[#334155]">
+              <thead className="bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] text-[11px] font-semibold border-b border-[#DCE2DB] dark:border-[#283C35]">
                 <tr>
-                  <th className="py-2.5 px-3">Rule ID</th>
-                  <th className="py-2.5 px-3">What it checks</th>
-                  <th className="py-2.5 px-3">Severity</th>
-                  <th className="py-2.5 px-3 text-right">Points</th>
-                  <th className="py-2.5 px-3">How to fix it</th>
+                  <th className="py-2.5 px-3.5">Rule ID</th>
+                  <th className="py-2.5 px-3.5">What it checks</th>
+                  <th className="py-2.5 px-3.5">Severity</th>
+                  <th className="py-2.5 px-3.5 text-right">Points</th>
+                  <th className="py-2.5 px-3.5">How to fix it</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155] text-[#18181B] dark:text-[#F1F5F9]">
+              <tbody className="divide-y divide-[#ECEBE4] dark:divide-[#283C35] text-[#202824] dark:text-[#E8EBE9]">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="py-6 text-center text-[#71717A]">
+                    <td colSpan={5} className="py-6 text-center text-[#66736C]">
                       Loading detection rules from backend...
                     </td>
                   </tr>
                 ) : rules.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-6 text-center text-[#71717A]">
+                    <td colSpan={5} className="py-6 text-center text-[#66736C]">
                       No rules loaded.
                     </td>
                   </tr>
                 ) : (
                   rules.map((rule) => (
-                    <tr key={rule.id} className="hover:bg-[#F4F4F5]/50 dark:hover:bg-[#0F172A]/40 transition-colors">
-                      <td className="py-2.5 px-3 font-mono text-[11px] text-[#71717A] dark:text-[#94A3B8] whitespace-nowrap">
+                    <tr key={rule.id} className="hover:bg-[#ECEBE4]/50 dark:hover:bg-[#111B18]/60 transition-colors">
+                      <td className="py-2.5 px-3.5 font-mono text-[11px] text-[#66736C] dark:text-[#A7C4B5] whitespace-nowrap">
                         {rule.id}
                       </td>
-                      <td className="py-2.5 px-3 font-medium">
+                      <td className="py-2.5 px-3.5 font-medium">
                         {rule.name}
                       </td>
-                      <td className="py-2.5 px-3 whitespace-nowrap">
+                      <td className="py-2.5 px-3.5 whitespace-nowrap">
                         <RiskBadge level={rule.severity} />
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-semibold">
+                      <td className="py-2.5 px-3.5 text-right font-mono font-bold text-[#D77928]">
                         +{rule.score}
                       </td>
-                      <td className="py-2.5 px-3 text-[#71717A] dark:text-[#94A3B8] text-[11px]">
+                      <td className="py-2.5 px-3.5 text-[#66736C] dark:text-[#95A69E] text-[11px] leading-relaxed">
                         {rule.remediation}
                       </td>
                     </tr>
@@ -399,54 +405,54 @@ export const HowItWorks: React.FC = () => {
         </div>
 
         {/* Worked Example */}
-        <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-4 sm:p-5">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] uppercase tracking-wider text-[11px]">
+        <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] uppercase tracking-wider text-[11px]">
               Worked Example: How a Score is Built
             </h3>
-            <span className="text-[11px] text-[#71717A] dark:text-[#94A3B8]">
-              {workedExample?.isReal ? 'Live Audit Result' : 'Illustrative Sample (No audit run yet)'}
+            <span className="text-[11px] font-mono text-[#66736C] dark:text-[#95A69E]">
+              {workedExample?.isReal ? 'Live Audit Result' : 'Illustrative Sample'}
             </span>
           </div>
 
           {workedExample ? (
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#202824] dark:text-[#E8EBE9]">
                 <span>{workedExample.name}</span>
                 <RiskBadge level={workedExample.level} />
               </div>
 
-              <div className="border border-[#E4E4E7] dark:border-[#334155] rounded p-3 bg-[#F4F4F5]/40 dark:bg-[#0F172A]/40 space-y-1.5 font-mono text-[11px]">
+              <div className="border border-[#DCE2DB] dark:border-[#283C35] rounded p-3.5 bg-[#F5F4EF] dark:bg-[#111B18] space-y-2 font-mono text-[11px]">
                 {workedExample.findings.map((f, i) => (
-                  <div key={i} className="flex justify-between items-center text-[#3F3F46] dark:text-[#CBD5E1]">
+                  <div key={i} className="flex justify-between items-center text-[#202824] dark:text-[#E8EBE9]">
                     <span>
                       {f.rule_id} ({f.rule_name})
                     </span>
-                    <span className="font-semibold text-[#D97706]">+{f.score} pts</span>
+                    <span className="font-semibold text-[#D77928]">+{f.score} pts</span>
                   </div>
                 ))}
-                <div className="border-t border-[#E4E4E7] dark:border-[#334155] pt-1.5 mt-1.5 flex justify-between items-center font-bold text-xs text-[#18181B] dark:text-[#F1F5F9]">
+                <div className="border-t border-[#DCE2DB] dark:border-[#283C35] pt-2 mt-2 flex justify-between items-center font-bold text-xs text-[#202824] dark:text-[#E8EBE9]">
                   <span>Total Calculated Score</span>
                   <span>{workedExample.total} pts &rarr; {workedExample.level}</span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#202824] dark:text-[#E8EBE9]">
                 <span>Legacy CRM Connector (Illustrative Sample)</span>
                 <RiskBadge level="Critical" />
               </div>
-              <div className="border border-[#E4E4E7] dark:border-[#334155] rounded p-3 bg-[#F4F4F5]/40 dark:bg-[#0F172A]/40 space-y-1.5 font-mono text-[11px]">
-                <div className="flex justify-between items-center text-[#3F3F46] dark:text-[#CBD5E1]">
+              <div className="border border-[#DCE2DB] dark:border-[#283C35] rounded p-3.5 bg-[#F5F4EF] dark:bg-[#111B18] space-y-2 font-mono text-[11px]">
+                <div className="flex justify-between items-center text-[#202824] dark:text-[#E8EBE9]">
                   <span>CRED_002 (Credential expiring within 14 days)</span>
-                  <span className="font-semibold text-[#D97706]">+45 pts</span>
+                  <span className="font-semibold text-[#D77928]">+45 pts</span>
                 </div>
-                <div className="flex justify-between items-center text-[#3F3F46] dark:text-[#CBD5E1]">
+                <div className="flex justify-between items-center text-[#202824] dark:text-[#E8EBE9]">
                   <span>PERM_001 (High-risk application permission)</span>
-                  <span className="font-semibold text-[#D97706]">+50 pts</span>
+                  <span className="font-semibold text-[#D77928]">+50 pts</span>
                 </div>
-                <div className="border-t border-[#E4E4E7] dark:border-[#334155] pt-1.5 mt-1.5 flex justify-between items-center font-bold text-xs text-[#DC2626]">
+                <div className="border-t border-[#DCE2DB] dark:border-[#283C35] pt-2 mt-2 flex justify-between items-center font-bold text-xs text-[#C74444]">
                   <span>Total Score</span>
                   <span>95 &rarr; Critical (Score &ge; 80)</span>
                 </div>
@@ -458,19 +464,19 @@ export const HowItWorks: React.FC = () => {
 
       {/* SECTION 4: Why these checks matter */}
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#66736C] dark:text-[#A7C4B5]">
           Why these checks matter
         </h2>
         <div className="grid grid-cols-1 gap-2.5">
           {WHY_CHECKS.map((item) => (
             <div
               key={item.title}
-              className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg p-3.5"
+              className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-4 shadow-xs"
             >
-              <h3 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] mb-1">
+              <h3 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] mb-1">
                 {item.title}
               </h3>
-              <p className="text-xs text-[#71717A] dark:text-[#94A3B8] leading-relaxed">
+              <p className="text-xs text-[#66736C] dark:text-[#95A69E] leading-relaxed">
                 {item.desc}
               </p>
             </div>
@@ -480,24 +486,24 @@ export const HowItWorks: React.FC = () => {
 
       {/* SECTION 5: Glossary */}
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[#66736C] dark:text-[#A7C4B5]">
           Glossary
         </h2>
-        <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg divide-y divide-[#E4E4E7] dark:divide-[#334155]">
+        <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg divide-y divide-[#ECEBE4] dark:divide-[#283C35] shadow-xs">
           {GLOSSARY.map((entry) => (
-            <div key={entry.term} className="p-3.5 text-xs flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+            <div key={entry.term} className="p-4 text-xs flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
               <div>
-                <span className="font-semibold text-[#18181B] dark:text-[#F1F5F9] block mb-0.5">
+                <span className="font-semibold text-[#202824] dark:text-[#E8EBE9] block mb-0.5">
                   {entry.term}
                 </span>
-                <span className="text-[#71717A] dark:text-[#94A3B8] leading-relaxed">
+                <span className="text-[#66736C] dark:text-[#95A69E] leading-relaxed">
                   {entry.def}
                 </span>
               </div>
               {entry.link && (
                 <Link
                   to={entry.link}
-                  className="text-[#0F766E] dark:text-[#2DD4BF] hover:underline whitespace-nowrap text-[11px] font-medium shrink-0"
+                  className="text-[#147D68] dark:text-[#2DD4BF] hover:underline whitespace-nowrap text-[11px] font-semibold shrink-0"
                 >
                   {entry.linkText} &rarr;
                 </Link>

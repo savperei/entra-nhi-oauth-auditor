@@ -51,44 +51,44 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
 
   const renderSubSection = (title: string, items: PermissionItem[]) => {
     return (
-      <div className="bg-[#FFFFFF] dark:bg-[#1E293B] border border-[#E4E4E7] dark:border-[#334155] rounded-lg overflow-hidden flex flex-col h-full">
-        <div className="px-3.5 py-2.5 border-b border-[#E4E4E7] dark:border-[#334155] bg-[#F4F4F5] dark:bg-[#0F172A] flex items-center justify-between">
-          <h4 className="text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9]">{title}</h4>
-          <span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#E4E4E7] dark:bg-[#334155] text-[#18181B] dark:text-[#CBD5E1]">
+      <div className="bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg overflow-hidden flex flex-col h-full shadow-xs">
+        <div className="px-3.5 py-2.5 border-b border-[#ECEBE4] dark:border-[#283C35] bg-[#ECEBE4]/60 dark:bg-[#111B18] flex items-center justify-between">
+          <h4 className="text-xs font-semibold text-[#202824] dark:text-[#E8EBE9]">{title}</h4>
+          <span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#ECEBE4] dark:bg-[#202F2A] text-[#202824] dark:text-[#E8EBE9] border border-[#DCE2DB] dark:border-[#283C35]">
             {items.length}
           </span>
         </div>
 
         {items.length === 0 ? (
-          <div className="p-6 text-center text-[#71717A] dark:text-[#94A3B8] text-xs italic">
+          <div className="p-6 text-center text-[#66736C] dark:text-[#95A69E] text-xs italic">
             None assigned.
           </div>
         ) : (
           <div className="flex-1">
             {/* MOBILE VIEW */}
-            <div className="block sm:hidden divide-y divide-[#E4E4E7] dark:divide-[#334155]">
+            <div className="block sm:hidden divide-y divide-[#ECEBE4] dark:divide-[#283C35]">
               {items.map((item, idx) => (
                 <div
                   key={`mobile-${item.scope_or_role}-${idx}`}
                   className={`p-3 flex items-start justify-between gap-2.5 ${
-                    item.is_high_risk ? 'bg-[#FEF2F2] dark:bg-[#7F1D1D]/15' : ''
+                    item.is_high_risk ? 'bg-[#FDF2F2] dark:bg-[#202F2A]' : ''
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="font-mono text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] break-all">
+                    <div className="font-mono text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] break-all">
                       {item.scope_or_role}
                     </div>
-                    <div className="text-[11px] text-[#71717A] dark:text-[#94A3B8] mt-0.5">
+                    <div className="text-[11px] text-[#66736C] dark:text-[#95A69E] mt-0.5">
                       {item.resource_display_name || 'Microsoft Graph'}
                     </div>
                   </div>
                   <div className="shrink-0 self-center">
                     {item.is_high_risk ? (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA] dark:bg-[#7F1D1D]/30 dark:border-[#991B1B] dark:text-[#FCA5A5] uppercase">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FDF2F2] text-[#C74444] border border-[#C74444]/30 dark:bg-[#202F2A] dark:text-[#E05A5A] uppercase">
                         HIGH RISK
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#F4F4F5] dark:bg-[#334155] text-[#71717A] dark:text-[#94A3B8]">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E]">
                         Normal
                       </span>
                     )}
@@ -100,36 +100,36 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
             {/* DESKTOP TABLE VIEW */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A] dark:text-[#94A3B8] text-[11px] uppercase tracking-wider border-b border-[#E4E4E7] dark:border-[#334155]">
+                <thead className="bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E] text-[11px] uppercase tracking-wider border-b border-[#DCE2DB] dark:border-[#283C35]">
                   <tr>
                     <th className="px-3.5 py-2 font-semibold">Scope / Role</th>
                     <th className="px-3.5 py-2 font-semibold">Resource</th>
                     <th className="px-3.5 py-2 font-semibold text-right">Risk</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#334155]">
+                <tbody className="divide-y divide-[#ECEBE4] dark:divide-[#283C35]">
                   {items.map((item, idx) => (
                     <tr
                       key={`${item.scope_or_role}-${idx}`}
                       className={`transition-colors ${
                         item.is_high_risk
-                          ? 'bg-[#FEF2F2] dark:bg-[#7F1D1D]/15 hover:bg-[#FEE2E2] dark:hover:bg-[#7F1D1D]/25'
-                          : 'hover:bg-[#F4F4F5]/60 dark:hover:bg-[#0F172A]/40'
+                          ? 'bg-[#FDF2F2] dark:bg-[#202F2A] hover:bg-[#FDF2F2]/80 dark:hover:bg-[#202F2A]/80'
+                          : 'hover:bg-[#ECEBE4]/50 dark:hover:bg-[#111B18]/60'
                       }`}
                     >
-                      <td className="px-3.5 py-2 font-mono text-xs font-semibold text-[#18181B] dark:text-[#F1F5F9] break-all">
+                      <td className="px-3.5 py-2 font-mono text-xs font-semibold text-[#202824] dark:text-[#E8EBE9] break-all">
                         {item.scope_or_role}
                       </td>
-                      <td className="px-3.5 py-2 text-xs text-[#71717A] dark:text-[#94A3B8]">
+                      <td className="px-3.5 py-2 text-xs text-[#66736C] dark:text-[#95A69E]">
                         {item.resource_display_name || 'Microsoft Graph'}
                       </td>
                       <td className="px-3.5 py-2 text-right whitespace-nowrap">
                         {item.is_high_risk ? (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA] dark:bg-[#7F1D1D]/30 dark:border-[#991B1B] dark:text-[#FCA5A5] uppercase">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FDF2F2] text-[#C74444] border border-[#C74444]/30 dark:bg-[#202F2A] dark:text-[#E05A5A] uppercase">
                             HIGH RISK
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#F4F4F5] dark:bg-[#334155] text-[#71717A] dark:text-[#94A3B8]">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C] dark:text-[#95A69E]">
                             Normal
                           </span>
                         )}
@@ -147,12 +147,12 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#E4E4E7] dark:border-[#334155]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#DCE2DB] dark:border-[#283C35]">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-[#18181B] dark:text-[#F1F5F9]">
+          <h3 className="text-sm font-semibold text-[#202824] dark:text-[#E8EBE9]">
             Assigned Permissions
           </h3>
-          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#0F766E]/10 text-[#0F766E] dark:text-[#2DD4BF] border border-[#0F766E]/20">
+          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#147D68]/10 text-[#147D68] dark:text-[#2DD4BF] border border-[#147D68]/20">
             {totalCount}
           </span>
         </div>
@@ -163,8 +163,8 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
             onClick={() => setActiveTab('all')}
             className={`px-2 py-1 text-xs rounded ${
               activeTab === 'all'
-                ? 'bg-[#0F766E] text-white'
-                : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A]'
+                ? 'bg-[#147D68] text-white'
+                : 'bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C]'
             }`}
           >
             All
@@ -173,8 +173,8 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
             onClick={() => setActiveTab('application')}
             className={`px-2 py-1 text-xs rounded ${
               activeTab === 'application'
-                ? 'bg-[#0F766E] text-white'
-                : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A]'
+                ? 'bg-[#147D68] text-white'
+                : 'bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C]'
             }`}
           >
             App ({appPermissions.length})
@@ -183,8 +183,8 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
             onClick={() => setActiveTab('delegated')}
             className={`px-2 py-1 text-xs rounded ${
               activeTab === 'delegated'
-                ? 'bg-[#0F766E] text-white'
-                : 'bg-[#F4F4F5] dark:bg-[#0F172A] text-[#71717A]'
+                ? 'bg-[#147D68] text-white'
+                : 'bg-[#ECEBE4] dark:bg-[#111B18] text-[#66736C]'
             }`}
           >
             Delegated ({delegatedPermissions.length})
@@ -194,8 +194,8 @@ export const PermissionTable: React.FC<PermissionTableProps> = ({ permissions = 
 
       {/* Summary line */}
       {highRiskCount > 0 && (
-        <div className="text-xs font-medium text-[#DC2626] flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
+        <div className="text-xs font-medium text-[#C74444] dark:text-[#E05A5A] flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C74444]" />
           <span>{highRiskCount} high-risk permission{highRiskCount === 1 ? '' : 's'} detected</span>
         </div>
       )}
