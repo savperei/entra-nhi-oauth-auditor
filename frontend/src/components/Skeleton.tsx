@@ -29,8 +29,6 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   };
 
   const style: React.CSSProperties = {
-    background: 'linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%)',
-    backgroundSize: '200% 100%',
     width: typeof width === 'number' ? `${width}px` : width,
     height: typeof height === 'number' ? `${height}px` : height,
   };
@@ -41,7 +39,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
         {Array.from({ length: lines }).map((_, idx) => (
           <div
             key={idx}
-            className={`animate-pulse animate-shimmer ${getRoundedClass(rounded)}`}
+            className={`animate-shimmer ${getRoundedClass(rounded)}`}
             style={{
               ...style,
               width: idx === lines - 1 && !width ? '75%' : style.width,
@@ -55,15 +53,14 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <div
-      className={`animate-pulse animate-shimmer ${getRoundedClass(rounded)} ${className}`}
+      className={`animate-shimmer ${getRoundedClass(rounded)} ${className}`}
       style={{
         ...style,
-        height: style.height || '1rem',
         width: style.width || '100%',
+        height: style.height || '1rem',
       }}
     />
   );
 };
 
 export default Skeleton;
-

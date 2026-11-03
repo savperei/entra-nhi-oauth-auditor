@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export interface ScoreCardProps {
   label: string;
   value: number | string;
   sublabel?: string;
-  accent?: 'critical' | 'high' | 'medium' | 'low' | 'blue' | string;
+  accent?: 'critical' | 'high' | 'medium' | 'low' | 'blue' | 'teal' | string;
+  tooltip?: string;
   className?: string;
 }
 
@@ -13,39 +14,64 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({
   value,
   sublabel,
   accent,
+  tooltip,
   className = '',
 }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const getAccentClass = (acc?: string) => {
     switch (acc?.toLowerCase()) {
       case 'critical':
-        return 'text-[#EF4444]';
+        return 'text-[#C74444] dark:text-[#E05A5A]';
       case 'high':
-        return 'text-[#F59E0B]';
+        return 'text-[#D77928] dark:text-[#E58B3C]';
       case 'medium':
-        return 'text-[#EAB308]';
+        return 'text-[#C59A32] dark:text-[#DDB045]';
       case 'low':
-        return 'text-[#22C55E]';
+        return 'text-[#39856A] dark:text-[#4AA484]';
       case 'blue':
-        return 'text-[#3B82F6]';
+      case 'teal':
+        return 'text-[#147D68] dark:text-[#2DD4BF]';
       default:
-        return 'text-[#F1F5F9]';
+        return 'text-[#202824] dark:text-[#E8EBE9]';
     }
   };
 
   return (
     <div
-      className={`bg-[#1E293B] border border-[#334155] rounded-xl p-3.5 sm:p-5 shadow-sm transition-all duration-200 hover:border-[#475569] flex flex-col justify-between ${className}`}
+      className={`bg-[#FFFFFF] dark:bg-[#182622] border border-[#DCE2DB] dark:border-[#283C35] rounded-lg p-3.5 sm:p-4 transition-colors flex flex-col justify-between shadow-xs ${className}`}
     >
       <div>
-        <span className="block text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-          {label}
-        </span>
-        <div className={`text-2xl sm:text-3xl font-extrabold mt-2 tracking-tight ${getAccentClass(accent)}`}>
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[11px] font-medium text-[#66736C] dark:text-[#95A69E]">
+            {label}
+          </span>
+          {tooltip && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowTooltip(!showTooltip)}
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                className="w-4 h-4 rounded-full border border-[#DCE2DB] dark:border-[#3D524A] text-[#66736C] dark:text-[#95A69E] hover:text-[#202824] dark:hover:text-[#E8EBE9] text-[10px] flex items-center justify-center font-mono leading-none focus:outline-none"
+                aria-label="Info"
+              >
+                i
+              </button>
+              {showTooltip && (
+                <div className="absolute right-0 top-5 z-30 w-56 p-2.5 rounded shadow-lg bg-[#172622] text-[#F5F4EF] dark:bg-[#0D1614] border border-[#283C35] text-[11px] leading-relaxed font-normal">
+                  {tooltip}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <div className={`text-2xl sm:text-3xl font-bold mt-1.5 tracking-tight font-mono ${getAccentClass(accent)}`}>
           {value}
         </div>
       </div>
       {sublabel && (
-        <div className="text-xs text-[#64748B] mt-2 font-medium">
+        <div className="text-[11px] text-[#66736C] dark:text-[#95A69E] mt-2.5 font-normal leading-relaxed">
           {sublabel}
         </div>
       )}

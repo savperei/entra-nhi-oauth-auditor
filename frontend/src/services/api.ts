@@ -15,7 +15,7 @@ export type GetIdentitiesParams = IdentityFilters;
 
 const BASE_URL =
   ((import.meta as unknown as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL) ||
-  'http://localhost:8000/api/v1';
+  'http://127.0.0.1:8000/api/v1';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -137,6 +137,37 @@ export const getHealth = async () => {
  */
 export const getDashboardStats = async (): Promise<DashboardStatsResponse> => {
   const response = await apiClient.get<DashboardStatsResponse>('/dashboard/stats');
+  return response.data;
+};
+
+/**
+ * Lists all risk rules loaded from the backend YAML configuration.
+ * Calls GET /rules
+ */
+export const getRules = async (): Promise<{
+  id: string;
+  name: string;
+  severity: string;
+  score: number;
+  remediation: string;
+}[]> => {
+  const response = await apiClient.get('/rules');
+  return response.data;
+};
+
+/**
+ * Returns system configuration: mode, thresholds, high-risk permissions.
+ * Calls GET /config
+ */
+export const getConfig = async (): Promise<{
+  mode: string;
+  version: string;
+  rules_file: string;
+  last_audit_at: string | null;
+  thresholds: { critical: number; high: number; medium: number; low: number; none: number };
+  high_risk_permissions: string[];
+}> => {
+  const response = await apiClient.get('/config');
   return response.data;
 };
 
